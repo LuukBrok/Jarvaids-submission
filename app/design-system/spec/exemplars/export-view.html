@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Jarvaids exemplar, export</title>
+<link rel="stylesheet" href="_base.css">
+<style>
+  .opt { display: flex; align-items: flex-start; gap: 10px; }
+  .opt input { margin-top: 3px; accent-color: var(--color-accent); width: 16px; height: 16px; }
+  .preview { border: var(--line-boundary) solid var(--color-hairline-strong);
+    border-radius: var(--radius-sm); padding: 20px; background: var(--color-canvas); }
+  .mini { display: flex; flex-wrap: wrap; gap: 10px; }
+  .mini > div { width: 130px; padding: 8px; border-radius: var(--radius-sm); font-size: 12px; line-height: 16px; }
+  .mini .solid { border: 1px solid var(--color-ink); }
+  .mini .prov  { border: var(--line-provisional) dashed var(--color-status-provisional); }
+</style>
+</head>
+<body>
+<div class="jv-page">
+<div class="wrap">
+
+<header class="session-bar">
+  <span class="status st-off"><i class="glyph glyph-off" aria-hidden="true"></i><span class="word strong">Ended</span></span>
+  <span class="t-signal">01:12:04</span>
+  <span class="t-meta">Audio deleted at 14:52 &middot; transcript anonymised</span>
+  <span class="jv-spacer"></span>
+  <button class="btn btn-quiet" type="button">Consent record</button>
+</header>
+
+<nav class="tabs" aria-label="Screens">
+  <a href="live-canvas.html">Canvas</a>
+  <a href="session-transcript.html">Session</a>
+  <a href="review-queue.html">Review <span class="t-signal">4</span></a>
+  <a href="export-view.html" aria-current="page">Export</a>
+</nav>
+
+<div class="page-head">
+  <h1 class="t-display">Export</h1>
+  <p class="t-meta jv-prose" style="margin:8px 0 0">The canvas is the minutes.
+  Nobody has to photograph the wall and retype it.</p>
+</div>
+
+<div class="jv-split">
+
+  <!-- left: what to include -->
+  <form class="jv-stack" onsubmit="return false">
+
+    <!-- The warning this screen exists for. -->
+    <div class="banner" style="margin:0">
+      <span class="status st-provisional"><i class="glyph glyph-provisional" aria-hidden="true"></i><span class="word strong">4 still proposed</span></span>
+      <span class="t-body">Four items have not been accepted. They will be
+      exported with their Proposed marking.</span>
+      <a href="review-queue.html" class="btn btn-quiet" style="padding-inline:0">Review them first</a>
+    </div>
+
+    <fieldset style="border:0;padding:0;margin:0">
+      <legend class="t-structure" style="padding:0">Include</legend>
+      <div class="jv-stack-tight" style="margin-top:12px">
+        <label class="opt"><input type="checkbox" checked>
+          <span><span class="t-body">The canvas</span>
+          <span class="t-caption" style="display:block">48 items, 6 clusters, 1 timeline</span></span></label>
+        <label class="opt"><input type="checkbox" checked>
+          <span><span class="t-body">Decisions</span>
+          <span class="t-caption" style="display:block">7, each with the moment it came from</span></span></label>
+        <label class="opt"><input type="checkbox" checked>
+          <span><span class="t-body">Actions and owners</span>
+          <span class="t-caption" style="display:block">4 with an owner, 2 without</span></span></label>
+        <label class="opt"><input type="checkbox" checked>
+          <span><span class="t-body">Open questions</span>
+          <span class="t-caption" style="display:block">9</span></span></label>
+        <label class="opt"><input type="checkbox">
+          <span><span class="t-body">Full transcript</span>
+          <span class="t-caption" style="display:block">412 lines, anonymised</span></span></label>
+        <label class="opt"><input type="checkbox">
+          <span><span class="t-body">Source photographs</span>
+          <span class="t-caption" style="display:block">4 wall photographs</span></span></label>
+      </div>
+    </fieldset>
+
+    <div class="field">
+      <span class="t-structure">Proposed items</span>
+      <div class="segmented" role="group" aria-label="How to export proposed items" style="margin-top:2px">
+        <button type="button" aria-pressed="true">Keep the marking</button>
+        <button type="button" aria-pressed="false">Leave them out</button>
+      </div>
+      <span class="t-caption">There is no option to export them as if the team
+      made them.</span>
+    </div>
+
+    <button class="btn btn-primary btn-lg" type="submit" style="width:100%;justify-content:center">Export</button>
+  </form>
+
+  <!-- right: preview and destinations -->
+  <section class="jv-stack-loose">
+
+    <div>
+      <span class="t-structure">Preview</span>
+      <div class="preview" style="margin-top:12px">
+        <p class="t-signal-lg" style="margin:0 0 4px">Concept critique, week 3</p>
+        <p class="t-meta" style="margin:0 0 16px">15 September 2026 &middot; 13:40 to 14:52 &middot; 6 present</p>
+        <div class="mini">
+          <div class="solid">Drop the paywall from the pilot</div>
+          <div class="solid">Nobody finishes step 3</div>
+          <div class="prov" style="color:var(--color-ink)">
+            <span style="color:var(--color-status-provisional);font-family:var(--font-signal);font-size:12px;font-weight:500;display:block;margin-bottom:4px">Proposed</span>
+            Onboarding is the real bottleneck</div>
+          <div class="solid">Pilot ships without payments</div>
+        </div>
+        <p class="t-caption" style="margin:16px 0 0">Proposed items keep their
+        dashed marking in the PNG and the PDF, so a reader six weeks later can
+        still tell what the team decided from what the model guessed.</p>
+      </div>
+    </div>
+
+    <div>
+      <div class="jv-row-centre jv-hairline-bottom" style="padding-bottom:12px">
+        <span class="t-structure">Destinations</span>
+        <span class="jv-spacer t-meta">Each one has its own state</span>
+      </div>
+      <div class="jv-rows">
+        <div class="jv-row-centre">
+          <span class="t-body strong" style="min-width:130px">PNG</span>
+          <span class="t-meta jv-truncate">Canvas at 2x</span>
+          <span class="jv-spacer"></span>
+          <span class="status st-accepted"><i class="glyph glyph-accepted" aria-hidden="true"></i><span class="word">Ready</span></span>
+          <button class="btn btn-quiet btn-sm" type="button">Download</button>
+        </div>
+        <div class="jv-row-centre">
+          <span class="t-body strong" style="min-width:130px">PDF</span>
+          <span class="t-meta jv-truncate">Canvas and minutes</span>
+          <span class="jv-spacer"></span>
+          <span class="status st-accepted"><i class="glyph glyph-accepted" aria-hidden="true"></i><span class="word">Ready</span></span>
+          <button class="btn btn-quiet btn-sm" type="button">Download</button>
+        </div>
+        <div class="jv-row-centre">
+          <span class="t-body strong" style="min-width:130px">Minutes, text</span>
+          <span class="t-meta jv-truncate">Decisions, actions, open questions, each with its time</span>
+          <span class="jv-spacer"></span>
+          <span class="status st-accepted"><i class="glyph glyph-accepted" aria-hidden="true"></i><span class="word">Ready</span></span>
+          <button class="btn btn-quiet btn-sm" type="button">Download</button>
+        </div>
+        <div class="jv-row-centre">
+          <span class="t-body strong" style="min-width:130px">Board tool</span>
+          <span class="t-meta jv-truncate">Push the canvas where the team already works</span>
+          <span class="jv-spacer"></span>
+          <span class="status st-waiting"><i class="glyph glyph-waiting" aria-hidden="true"></i><span class="word">Pushing</span></span>
+          <span class="track" style="max-width:100px"><i style="width:62%"></i></span>
+        </div>
+        <div class="jv-row-centre">
+          <span class="t-body strong" style="min-width:130px">Shared drive</span>
+          <span class="t-meta jv-truncate">No permission on that folder</span>
+          <span class="jv-spacer"></span>
+          <span class="status st-failed"><i class="glyph glyph-failed" aria-hidden="true"></i><span class="word">Failed</span></span>
+          <button class="btn btn-quiet btn-sm" type="button">Retry</button>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <span class="t-structure">What happened to the audio</span>
+      <div class="jv-rows" style="margin-top:4px">
+        <div class="jv-row-centre">
+          <span class="t-body">Audio deleted</span>
+          <span class="jv-spacer"></span>
+          <span class="status st-accepted"><i class="glyph glyph-accepted" aria-hidden="true"></i><span class="word">Done</span></span>
+          <span class="t-signal muted">14:52</span>
+        </div>
+        <div class="jv-row-centre">
+          <span class="t-body">Transcript anonymised</span>
+          <span class="jv-spacer"></span>
+          <span class="status st-accepted"><i class="glyph glyph-accepted" aria-hidden="true"></i><span class="word">Done</span></span>
+          <span class="t-signal muted">14:52</span>
+        </div>
+        <div class="jv-row-centre">
+          <span class="t-body">Consent record kept</span>
+          <span class="jv-spacer"></span>
+          <span class="status st-accepted"><i class="glyph glyph-accepted" aria-hidden="true"></i><span class="word">Kept</span></span>
+          <button class="btn btn-quiet btn-sm" type="button">Open</button>
+        </div>
+      </div>
+      <p class="t-caption" style="margin:12px 0 0">Deletion is automatic. A manual
+      step would be skipped.</p>
+    </div>
+
+  </section>
+</div>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Jarvaids exemplar, review queue</title>
+<link rel="stylesheet" href="_base.css">
+<style>
+  /* Evidence first, conclusion second. That ordering is the whole screen. */
+  .review { display: grid; grid-template-columns: minmax(0,1fr); gap: 16px; }
+  @media (min-width: 720px) { .review { grid-template-columns: 220px minmax(0,1fr); } }
+  /* Hairline separation, not a grey panel (forbidden.md #10). */
+  .evidence { padding-bottom: 12px; border-bottom: var(--line-hairline) solid var(--color-hairline); min-width: 0; }
+  @media (min-width: 720px) {
+    .evidence { padding-bottom: 0; border-bottom: 0;
+      padding-right: 16px; border-right: var(--line-hairline) solid var(--color-hairline); }
+  }
+  /* the one sanctioned use of surface-sunken: a placeholder for an image */
+  .evidence .crop { background: var(--color-surface-sunken); border: var(--line-hairline) solid var(--color-hairline);
+    border-radius: var(--radius-xs); aspect-ratio: 4/3; display: flex; align-items: center;
+    justify-content: center; color: var(--color-ink-muted); font-size: 12px; text-align: center; padding: 8px; }
+  kbd { font-family: var(--font-signal); font-size: 12px; font-weight: 500;
+    border: var(--line-hairline) solid var(--color-hairline); border-radius: var(--radius-xs);
+    padding: 1px 5px; color: var(--color-ink-secondary); }
+</style>
+</head>
+<body>
+<div class="jv-page">
+<div class="wrap">
+
+<header class="session-bar">
+  <span class="status st-capturing"><i class="glyph glyph-capturing" aria-hidden="true"></i><span class="word strong">Recording</span></span>
+  <span class="t-signal">00:47:31</span>
+  <span class="t-meta">Quiet mode &middot; 6 present</span>
+  <span class="jv-spacer"></span>
+  <button class="btn btn-quiet" type="button">Undo</button>
+  <button class="btn btn-danger" type="button">Stop capture</button>
+</header>
+
+<nav class="tabs" aria-label="Screens">
+  <a href="live-canvas.html">Canvas</a>
+  <a href="session-transcript.html">Session</a>
+  <a href="review-queue.html" aria-current="page">Review <span class="t-signal">12</span></a>
+  <a href="export-view.html">Export</a>
+</nav>
+
+<div class="page-head">
+  <h1 class="t-display">Review queue</h1>
+  <p class="t-meta jv-prose" style="margin:8px 0 0">Everything Jarvaids made that
+  nobody has looked at. Nothing here is on the canvas as the team's work until
+  someone accepts it.</p>
+</div>
+
+<div class="jv-queue">
+
+  <div class="jv-row-centre jv-hairline-bottom" style="padding-bottom:12px">
+    <div class="segmented" role="group" aria-label="Filter">
+      <button type="button" aria-pressed="true">All</button>
+      <button type="button" aria-pressed="false">Notes</button>
+      <button type="button" aria-pressed="false">Layout</button>
+      <button type="button" aria-pressed="false">Minutes</button>
+    </div>
+    <span class="t-signal">12</span>
+    <span class="t-meta">waiting</span>
+    <span class="jv-spacer"></span>
+    <span class="t-caption"><kbd>A</kbd> accept &middot; <kbd>E</kbd> edit &middot; <kbd>R</kbd> reject</span>
+  </div>
+
+  <!-- F6.5: said once, in the toolbar, not on every item -->
+  <p class="t-caption" style="margin:12px 0 0">Your corrections are kept as part
+  of the session record, so the team can see where Jarvaids was wrong.</p>
+
+  <div class="jv-rows" style="margin-top:8px">
+
+    <article class="review" style="padding-block:20px">
+      <div class="evidence">
+        <span class="t-structure">Evidence</span>
+        <div class="crop" style="margin-top:8px">Photograph crop<br>wall photo 3, yellow note</div>
+        <p class="t-caption" style="margin:8px 0 0">Wall photo 3 &middot; top-left cluster &middot; 14:18</p>
+      </div>
+      <div style="min-width:0">
+        <div class="jv-row-centre">
+          <span class="chip" style="background:var(--color-status-provisional-wash);color:var(--color-status-provisional)"><i class="glyph glyph-provisional" aria-hidden="true"></i>Proposed</span>
+          <span class="t-structure">Note read from handwriting</span>
+          <span class="jv-spacer t-signal">91%</span>
+        </div>
+        <p class="t-body jv-prose" style="margin:10px 0 0">Onboarding is the real bottleneck</p>
+        <p class="t-caption" style="margin:8px 0 0">Jarvaids grouped this with two
+        other yellow notes from the same corner of the wall.</p>
+        <div class="jv-row-centre" style="margin-top:14px">
+          <button class="btn btn-primary" type="button">Accept</button>
+          <button class="btn btn-secondary" type="button">Edit</button>
+          <button class="btn btn-quiet" type="button">Reject</button>
+        </div>
+      </div>
+    </article>
+
+    <article class="review" style="padding-block:20px">
+      <div class="evidence">
+        <span class="t-structure">Evidence</span>
+        <blockquote class="t-body" style="margin:8px 0 0;padding-left:10px;border-left:2px solid var(--color-hairline-strong)">
+          Then the paywall is out of scope for now.
+        </blockquote>
+        <p class="t-caption" style="margin:8px 0 0">
+          <a href="session-transcript.html" style="color:var(--color-accent)" class="t-signal">14:22:06</a>
+          &middot; Sanne
+        </p>
+      </div>
+      <div style="min-width:0">
+        <div class="jv-row-centre">
+          <span class="chip" style="background:var(--color-status-provisional-wash);color:var(--color-status-provisional)"><i class="glyph glyph-provisional" aria-hidden="true"></i>Proposed</span>
+          <span class="t-structure">Decision extracted</span>
+          <span class="jv-spacer t-signal">94%</span>
+        </div>
+        <p class="t-body jv-prose" style="margin:10px 0 0">Pilot ships without payments</p>
+        <!-- F2.3: inventing an owner is worse than leaving it blank -->
+        <p class="t-caption" style="margin:8px 0 0">No owner found. Jarvaids did not
+        invent one.</p>
+        <div class="jv-row-centre" style="margin-top:14px">
+          <button class="btn btn-primary" type="button">Accept</button>
+          <button class="btn btn-secondary" type="button">Edit</button>
+          <button class="btn btn-quiet" type="button">Reject</button>
+        </div>
+      </div>
+    </article>
+
+    <article class="review" style="padding-block:20px">
+      <div class="evidence">
+        <span class="t-structure">Evidence</span>
+        <div class="crop" style="margin-top:8px">Photograph crop<br>wall photo 3, blue note</div>
+        <p class="t-caption" style="margin:8px 0 0">Wall photo 3 &middot; centre &middot; 14:18</p>
+      </div>
+      <div style="min-width:0">
+        <div class="jv-row-centre">
+          <span class="chip" style="background:var(--color-status-failed-wash);color:var(--color-status-failed)"><i class="glyph glyph-failed" aria-hidden="true"></i>Unreadable</span>
+          <span class="t-structure">Handwriting could not be read</span>
+        </div>
+        <label class="field" style="margin-top:10px">
+          <span class="t-structure">What does it say?</span>
+          <input type="text" placeholder="Type what is on the note">
+        </label>
+        <div class="jv-row-centre" style="margin-top:14px">
+          <button class="btn btn-primary" type="button">Add to canvas</button>
+          <button class="btn btn-quiet" type="button">Open the photograph</button>
+          <button class="btn btn-quiet" type="button">Skip</button>
+        </div>
+      </div>
+    </article>
+
+    <article class="review" style="padding-block:20px">
+      <div class="evidence">
+        <span class="t-structure">Evidence</span>
+        <p class="t-caption" style="margin:8px 0 0">Five notes placed on a
+        timeline by Jarvaids, from the order they were discussed between 14:02 and
+        14:19.</p>
+      </div>
+      <div style="min-width:0">
+        <div class="jv-row-centre">
+          <span class="chip" style="background:var(--color-status-provisional-wash);color:var(--color-status-provisional)"><i class="glyph glyph-provisional" aria-hidden="true"></i>Proposed</span>
+          <!-- F3.2: the FORM is a claim, reviewed separately from the items -->
+          <span class="t-structure">Layout: timeline</span>
+        </div>
+        <p class="t-body jv-prose" style="margin:10px 0 0">Jarvaids put these five
+        notes on a timeline rather than in a cluster, because they were discussed
+        in sequence.</p>
+        <p class="t-caption" style="margin:8px 0 0">Accepting this accepts the
+        arrangement, not the notes. Those are reviewed one by one.</p>
+        <div class="jv-row-centre" style="margin-top:14px">
+          <button class="btn btn-primary" type="button">Accept the timeline</button>
+          <button class="btn btn-secondary" type="button">Make it a cluster</button>
+          <button class="btn btn-quiet" type="button">Reject</button>
+        </div>
+      </div>
+    </article>
+
+  </div>
+
+  <div class="jv-hairline-top" style="margin-top:24px;padding-top:16px">
+    <p class="t-caption" style="margin:0">Showing 4 of 12. There is no accept-all,
+    on purpose.</p>
+  </div>
+
+</div>
+</div>
+</div>
+</body>
+</html>

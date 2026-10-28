@@ -1,0 +1,5 @@
+# Optional: for real photo reading, synthesis and cloud poll/document interpretation.
+# See PHOTO-READING.md and docs/voice-*.md for the explicit data scopes.
+# Not in requirements.txt on purpose: the server, the tests and CI run offline,
+# and this package exists to reach the network. Checked against 1.13.0.
+anthropic>=1.13.0,<2.0.0

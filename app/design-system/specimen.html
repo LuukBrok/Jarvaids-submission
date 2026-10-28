@@ -1,0 +1,684 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Jarvaids design system, specimen</title>
+<style>
+/* ==========================================================================
+   Specimen. Self-contained. No network requests of any kind.
+   The font comes from ./fonts/, the values are copied from ./tokens.css.
+   If the two ever disagree, tokens.css is right and this file is stale.
+   ========================================================================== */
+
+@font-face {
+  font-family: "Archivo";
+  src: url("fonts/archivo-variable-latin.woff2") format("woff2");
+  font-weight: 400 700; font-stretch: 100%; font-style: normal; font-display: swap;
+}
+
+:root {
+  --font: "Archivo", "Helvetica Neue", Helvetica, Arial, system-ui, sans-serif;
+
+  --color-canvas: #f8f9fc;
+  --color-surface-float: #ffffff;
+  --color-surface-sunken: #ebeef2;
+  --color-ink: #17181b;
+  --color-ink-secondary: #4d4e51;
+  --color-ink-muted: #5f6063;
+  --color-ink-edge: #88888c;
+  --color-ink-fill: #e2e2e6;
+  --color-ink-wash: #eaebee;
+  --color-ink-inverse: #ffffff;
+  --color-hairline: #e1e5eb;
+  --color-hairline-strong: #85878c;
+
+  --color-accent: #114fa2;
+  --color-accent-pressed: #063d85;
+  --color-accent-wash: #e3eefe;
+
+  --color-status-capturing: #17181b;
+  --color-status-provisional: #114fa2;
+  --color-status-accepted: #1d7344;
+  --color-status-waiting: #8a5300;
+  --color-status-failed: #a81f1a;
+  --color-status-off: #595959;
+
+  --color-status-provisional-wash: #e3eefe;
+  --color-status-accepted-wash: #e8f1ec;
+  --color-status-waiting-wash: #f3eee6;
+  --color-status-failed-wash: #f6e9e8;
+  --color-status-off-wash: #eeeeee;
+
+  --radius-xs: 2px; --radius-sm: 4px; --radius-md: 8px; --radius-lg: 16px; --radius-full: 999px;
+
+  --line-fine: 0.5px; --line-hairline: 1px; --line-boundary: 1px; --line-provisional: 1px;
+  --line-focal: 2px; --line-focus: 2px;
+
+  --elevation-sm: 0 1px 2px rgba(23, 24, 27, 0.06), 0 4px 12px rgba(23, 24, 27, 0.08);
+  --elevation-md: 0 2px 4px rgba(23, 24, 27, 0.06), 0 8px 24px rgba(23, 24, 27, 0.12);
+  --elevation-lg: 0 4px 8px rgba(23, 24, 27, 0.06), 0 16px 48px rgba(23, 24, 27, 0.16);
+
+  --motion-fast: 150ms; --motion-base: 200ms; --motion-slow: 250ms;
+  --motion-ease: cubic-bezier(0.23, 1, 0.32, 1);
+
+  /* room mode: every size times 1.5, every target 44px */
+  --scale: 1;
+  --target: 32px;
+  --size-display: calc(44px * var(--scale)); --leading-display: calc(48px * var(--scale));
+  --size-heading: calc(28px * var(--scale)); --leading-heading: calc(32px * var(--scale));
+  --size-title: calc(18px * var(--scale));   --leading-title: calc(24px * var(--scale));
+  --size-body: calc(14px * var(--scale));    --leading-body: calc(20px * var(--scale));
+  --size-meta: calc(12px * var(--scale));    --leading-meta: calc(16px * var(--scale));
+
+  color-scheme: light;
+}
+:root[data-room] { --scale: 1.5; --target: 44px; }
+@media (pointer: coarse) { :root { --target: 44px; } }
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: var(--font);
+  font-size: var(--size-body); line-height: var(--leading-body);
+  -webkit-font-smoothing: antialiased;
+  padding-inline: 16px;
+}
+@media (min-width: 1024px) { body { padding-inline: 32px; } }
+
+img, svg { max-width: 100%; }
+
+.wrap { max-width: 1120px; margin: 0 auto; padding-block: 48px 96px; }
+
+/* ── type roles: six roles, three weights, sentence case ──────────────── */
+.t-display { font-size: var(--size-display); line-height: var(--leading-display); letter-spacing: -0.01em; font-weight: 400; margin: 0; }
+.t-heading { font-size: var(--size-heading); line-height: var(--leading-heading); font-weight: 500; margin: 0; }
+.t-heading .second, .t-display .second { display: block; color: var(--color-ink-muted); font-weight: 400; }
+.t-title   { font-size: var(--size-title); line-height: var(--leading-title); font-weight: 500; margin: 0; }
+.t-body    { font-size: var(--size-body); line-height: var(--leading-body); }
+.t-figure  { font-size: var(--size-body); line-height: var(--leading-body); font-weight: 500; font-variant-numeric: tabular-nums; }
+.t-label   { font-size: var(--size-meta); line-height: var(--leading-meta); font-weight: 500; color: var(--color-ink-muted); }
+.t-meta    { font-size: var(--size-meta); line-height: var(--leading-meta); color: var(--color-ink-secondary); }
+.t-caption { font-size: var(--size-meta); line-height: var(--leading-meta); color: var(--color-ink-muted); font-style: italic; }
+.muted  { color: var(--color-ink-muted); }
+.strong { font-weight: 500; }
+
+/* ── page furniture ───────────────────────────────────────────────────── */
+header.top { padding-bottom: 32px; }
+header.top p { max-width: 68ch; margin: 16px 0 0; color: var(--color-ink-secondary); }
+
+section { padding-block: 48px; border-top: var(--line-hairline) solid var(--color-hairline); }
+section > h2 { margin: 0 0 8px; }
+section > .lede { max-width: 68ch; margin: 0 0 24px; color: var(--color-ink-secondary); }
+
+.grid2 { display: grid; grid-template-columns: minmax(0,1fr); gap: 32px; }
+@media (min-width: 1024px) { .grid2 { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+
+.rows > * { border-bottom: var(--line-hairline) solid var(--color-hairline); padding-block: 12px; min-width: 0; }
+.rows > *:last-child { border-bottom: 0; }
+
+.row { display: flex; align-items: baseline; gap: 8px; min-width: 0; flex-wrap: wrap; }
+.row-c { display: flex; align-items: center; gap: 8px; min-width: 0; flex-wrap: wrap; }
+.spacer { margin-left: auto; }
+.truncate { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+:where(a, button, input, select, textarea, summary):focus-visible {
+  outline: var(--line-focus) solid var(--color-accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-xs);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: 0.01ms !important; }
+}
+
+/* ── type specimen ────────────────────────────────────────────────────── */
+.scale-row { display: grid; grid-template-columns: minmax(0,1fr); gap: 4px; padding-block: 16px; border-bottom: var(--line-hairline) solid var(--color-hairline); }
+@media (min-width: 720px) { .scale-row { grid-template-columns: 200px minmax(0,1fr); gap: 16px; align-items: baseline; } }
+.scale-row:last-child { border-bottom: 0; }
+
+/* ── palette ──────────────────────────────────────────────────────────── */
+table.pal { width: 100%; border-collapse: collapse; }
+table.pal th { text-align: left; padding: 8px 12px 8px 0; border-bottom: var(--line-hairline) solid var(--color-hairline);
+  font-size: var(--size-meta); line-height: var(--leading-meta); font-weight: 500; color: var(--color-ink-muted); white-space: nowrap; }
+table.pal td { padding: 10px 12px 10px 0; border-bottom: var(--line-hairline) solid var(--color-hairline); vertical-align: middle; }
+table.pal tr:last-child td { border-bottom: 0; }
+table.pal td.num { font-weight: 500; font-variant-numeric: tabular-nums; white-space: nowrap; }
+table.pal td.tok { font-size: var(--size-meta); font-weight: 500; color: var(--color-ink-secondary); white-space: nowrap; }
+.pass { font-size: var(--size-meta); font-weight: 500; color: var(--color-status-accepted); }
+.sample-cell { border-radius: var(--radius-xs); padding: 4px 8px; display: inline-block; white-space: nowrap; }
+.swatch { display: inline-block; width: 28px; height: 20px; border-radius: var(--radius-xs); vertical-align: -5px; }
+
+/* ── status: a shaped glyph and a word, always both ───────────────────── */
+.glyph { position: relative; display: inline-block; flex: none; width: 16px; height: 16px;
+  border-radius: var(--radius-full); color: inherit; }
+.glyph-capturing   { background: currentColor; transform: scale(0.625); }
+.glyph-provisional { border: 1.5px dashed currentColor; }
+.glyph-accepted, .glyph-waiting, .glyph-failed { border: 1.5px solid currentColor; }
+.glyph-accepted::after { content: ""; position: absolute; left: 4.5px; top: 2px; width: 4px; height: 7px;
+  border: solid currentColor; border-width: 0 1.5px 1.5px 0; transform: rotate(45deg); }
+.glyph-waiting::after { content: ""; position: absolute; left: 2px; top: 2px; bottom: 2px; width: 4.5px;
+  background: currentColor; border-radius: 4.5px 0 0 4.5px; }
+.glyph-failed::after { content: ""; position: absolute; left: 3px; right: 3px; top: 6.25px; height: 1.5px; background: currentColor; }
+.glyph-off { border-radius: 0; }
+.glyph-off::before, .glyph-off::after { content: ""; position: absolute; top: 3px; bottom: 3px; width: 2px; background: currentColor; }
+.glyph-off::before { left: 4.5px; } .glyph-off::after { right: 4.5px; }
+
+.status { display: inline-flex; align-items: center; gap: 6px; }
+.status .word { font-size: var(--size-meta); line-height: var(--leading-meta); font-weight: 500; }
+.st-capturing   { color: var(--color-status-capturing); }
+.st-provisional { color: var(--color-status-provisional); }
+.st-accepted    { color: var(--color-status-accepted); }
+.st-waiting     { color: var(--color-status-waiting); }
+.st-failed      { color: var(--color-status-failed); }
+.st-off         { color: var(--color-status-off); }
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 8px; border-radius: var(--radius-full);
+  font-size: var(--size-meta); line-height: var(--leading-meta); font-weight: 500; }
+.greyscale { filter: grayscale(1); }
+
+/* ── buttons: one primary per view; never a fill and a line together ──── */
+.btn { font-family: var(--font); font-size: var(--size-body); font-weight: 500; line-height: 1;
+  min-height: var(--target); padding: 0 12px; border-radius: var(--radius-sm); border: 0;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer;
+  background: transparent; color: var(--color-ink); white-space: nowrap;
+  transition: background-color var(--motion-fast) var(--motion-ease), transform var(--motion-fast) var(--motion-ease); }
+.btn:active:not([disabled]) { transform: scale(0.97); }
+.btn-primary   { background: var(--color-accent); color: var(--color-ink-inverse); }
+.btn-secondary { background: var(--color-ink-wash); }
+.btn-quiet     { color: var(--color-ink-secondary); }
+.btn-danger    { color: var(--color-status-failed); }
+.btn-danger-fill { background: var(--color-status-failed); color: var(--color-ink-inverse); }
+@media (hover: hover) {
+  .btn-primary:hover:not([disabled])   { background: var(--color-accent-pressed); }
+  .btn-secondary:hover:not([disabled]) { background: var(--color-ink-fill); }
+  .btn-quiet:hover:not([disabled])     { background: var(--color-ink-wash); color: var(--color-ink); }
+  .btn-danger:hover:not([disabled])    { background: var(--color-status-failed-wash); }
+}
+.btn[disabled] { opacity: 0.45; cursor: not-allowed; }
+.btn-lg { min-height: 40px; padding-inline: 16px; }
+:root[data-room] .btn-lg { min-height: 48px; }
+.btn-sm { min-height: 28px; padding-inline: 8px; font-size: var(--size-meta); }
+@media (pointer: coarse) { .btn-sm { min-height: 44px; } }
+:root[data-room] .btn-sm { min-height: 44px; }
+
+/* ── fields: a line marks an edge you can type into ───────────────────── */
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field > .label { font-size: var(--size-meta); line-height: var(--leading-meta); font-weight: 500; color: var(--color-ink-secondary); }
+.field input, .field select {
+  font-family: var(--font); font-size: var(--size-body); line-height: var(--leading-body); color: var(--color-ink);
+  min-height: 40px; padding-inline: 12px; background: transparent;
+  border: var(--line-boundary) solid var(--color-hairline-strong); border-radius: var(--radius-sm); width: 100%; }
+@media (pointer: coarse) { .field input, .field select { font-size: 16px; min-height: 44px; } }
+@media (hover: hover) { .field input:hover, .field select:hover { border-color: var(--color-ink); } }
+.field input[aria-invalid="true"] { border-color: var(--color-status-failed); }
+.field-error { display: flex; align-items: center; gap: 6px; color: var(--color-status-failed);
+  font-size: var(--size-meta); line-height: var(--leading-meta); margin: 0; }
+.hint { font-size: var(--size-meta); line-height: var(--leading-meta); color: var(--color-ink-muted); margin: 0; }
+
+/* ── canvas: the page's own ground, no frame ──────────────────────────── */
+.board { display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start; }
+.group { background: var(--color-surface-sunken); border-radius: var(--radius-md); padding: 12px;
+  display: flex; flex-direction: column; gap: 8px; width: 260px; max-width: 100%; }
+.group > .t-label { color: var(--color-ink-secondary); }
+
+.item { position: relative; width: 236px; max-width: 100%; min-width: 0; padding: 12px; border-radius: var(--radius-md); }
+.item .kind { display: block; font-size: var(--size-meta); line-height: var(--leading-meta); font-weight: 500;
+  color: var(--color-ink-muted); margin-bottom: 4px; }
+.item .text { display: block; font-size: var(--size-body); line-height: var(--leading-body); color: var(--color-ink); }
+.item .meta { display: flex; align-items: center; gap: 6px; font-size: var(--size-meta); line-height: var(--leading-meta);
+  color: var(--color-ink-muted); margin-top: 8px; }
+.item .badge { display: inline-flex; align-items: center; gap: 6px; margin-bottom: 6px;
+  font-size: var(--size-meta); line-height: var(--leading-meta); font-weight: 500; }
+.item .actions { display: flex; gap: 2px; margin-top: 8px; flex-wrap: wrap; }
+.paper { display: inline-block; width: 10px; height: 10px; border-radius: var(--radius-xs); flex: none; }
+
+.item-accepted    { background: var(--color-surface-sunken); }
+.item-provisional { border: var(--line-provisional) dashed var(--color-status-provisional); }
+.item-pending     { border: var(--line-boundary) solid var(--color-hairline-strong); }
+.item-waiting     { border: var(--line-provisional) dashed var(--color-status-waiting); }
+.item-failed      { border: var(--line-provisional) dashed var(--color-status-failed); }
+.item-selected    { outline: var(--line-focal) solid var(--color-accent); outline-offset: 2px; }
+
+.skel { background: var(--color-surface-sunken); border-radius: var(--radius-xs); height: 12px; }
+
+/* ── floating surfaces: the only things with a shadow ─────────────────── */
+.float-demo { display: flex; flex-wrap: wrap; gap: 32px; align-items: flex-start; }
+.menu { background: var(--color-surface-float); border-radius: var(--radius-md); box-shadow: var(--elevation-md);
+  padding: 4px; width: 220px; display: flex; flex-direction: column; }
+.menu .btn { justify-content: flex-start; width: 100%; }
+.menu hr { border: 0; border-top: var(--line-fine) solid var(--color-hairline); margin: 4px 0; }
+.dialog { background: var(--color-surface-float); border-radius: var(--radius-lg); box-shadow: var(--elevation-lg);
+  padding: 24px; width: 420px; max-width: 100%; }
+.bar { background: var(--color-surface-float); box-shadow: var(--elevation-sm); border-radius: var(--radius-md);
+  min-height: 56px; padding: 8px 16px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.segmented { display: inline-flex; background: var(--color-ink-wash); border-radius: var(--radius-sm); padding: 2px; gap: 2px; }
+.segmented button { font-family: var(--font); font-size: var(--size-body); min-height: calc(var(--target) - 4px); padding-inline: 12px;
+  border: 0; background: transparent; color: var(--color-ink-secondary); border-radius: var(--radius-xs); cursor: pointer; }
+.segmented button[aria-pressed="true"] { background: var(--color-ink); color: var(--color-ink-inverse); font-weight: 500; }
+
+/* ── banner and track ─────────────────────────────────────────────────── */
+.banner { border-bottom: var(--line-hairline) solid var(--color-hairline); padding: 12px 0;
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.track { height: 8px; border-radius: var(--radius-full); background: var(--color-ink-wash); overflow: hidden; min-width: 120px; flex: 1; }
+.track > i { display: block; height: 100%; background: var(--color-ink); }
+
+.note { max-width: 68ch; color: var(--color-ink-secondary); background: var(--color-surface-sunken);
+  border-radius: var(--radius-md); padding: 12px 16px; margin: 24px 0 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <p class="t-label" style="margin:0 0 8px">Jarvaids design system, specimen</p>
+  <h1 class="t-display">Everything in the system, on one page<span class="second">One hue, in tonal steps</span></h1>
+  <p>One blue accent, a slightly cool ground, a sunken tone for groups and
+  accepted notes, and white for what floats. One face, six roles. Six status
+  meanings, each a shape and a word. The section this page is really about is
+  the canvas: the difference between what the team made and what the model
+  proposed. Opens offline; nothing here loads from the network.</p>
+  <p><button class="btn btn-secondary" type="button" id="room" aria-pressed="false">Show room mode</button>
+  <span class="t-meta" style="margin-left:8px">Every size times 1.5, every target 44px, as on the projector.</span></p>
+</header>
+
+<!-- ─────────────────────────────────────────────────────── type ───── -->
+<section>
+  <h2 class="t-heading">Type<span class="second">One face, six roles, three weights</span></h2>
+  <p class="lede">Archivo for everything. Hierarchy is size, weight and ink.
+  Sentence case throughout: no uppercase labels. 12px is the floor.</p>
+
+  <div>
+    <div class="scale-row">
+      <span class="t-label">Display, 44/48, 400</span>
+      <span class="t-display">The canvas is the minutes</span>
+    </div>
+    <div class="scale-row">
+      <span class="t-label">Heading, 28/32, 500</span>
+      <span class="t-heading">Review queue<span class="second">12 waiting for a person</span></span>
+    </div>
+    <div class="scale-row">
+      <span class="t-label">Title, 18/24, 500</span>
+      <span class="t-title">Concept critique, week 3</span>
+    </div>
+    <div class="scale-row">
+      <span class="t-label">Body, 14/20, 400</span>
+      <span class="t-body">We agreed to drop the paywall from the first release, and revisit it after the pilot.</span>
+    </div>
+    <div class="scale-row">
+      <span class="t-label">Body as figure, 14/20, 500</span>
+      <span class="t-figure">14:22:06 &middot; 00:47:31 &middot; 91%</span>
+    </div>
+    <div class="scale-row">
+      <span class="t-label">Label, 12/16, 500</span>
+      <span class="t-label">Speaker &middot; Confidence &middot; Source</span>
+    </div>
+    <div class="scale-row">
+      <span class="t-label">Meta, 12/16, 400</span>
+      <span class="t-meta">6 present &middot; 2 not yet agreed</span>
+    </div>
+    <div class="scale-row">
+      <span class="t-label">Caption, 12/16, italic</span>
+      <span class="t-caption">Wall photo 3, taken at 14:20 by Bram.</span>
+    </div>
+  </div>
+
+  <h3 class="t-title" style="margin:32px 0 8px">A transcript row</h3>
+  <div class="rows" style="max-width:640px">
+    <div class="row">
+      <a class="t-figure" href="#" style="color:var(--color-accent);text-decoration:none">14:22:06</a>
+      <span class="t-body strong">Sanne</span>
+      <span class="t-body truncate">Then the paywall is out of scope for now.</span>
+    </div>
+    <div class="row">
+      <a class="t-figure" href="#" style="color:var(--color-accent);text-decoration:none">14:22:41</a>
+      <span class="t-body muted">Unknown speaker</span>
+      <span class="status st-provisional"><span class="glyph glyph-provisional" aria-hidden="true"></span><span class="word">Speaker is a guess</span></span>
+      <span class="t-body truncate">Out of scope for the pilot, not for the product.</span>
+    </div>
+    <div class="row">
+      <span class="t-figure" style="color:var(--color-status-failed)">14:23:10</span>
+      <span class="status st-failed"><span class="glyph glyph-failed" aria-hidden="true"></span><span class="word">Gap</span></span>
+      <span class="t-meta">18 seconds could not be transcribed</span>
+    </div>
+  </div>
+  <p class="note">Rule T2: the row is body text. The only figure in it is the
+  timestamp, a machine field, tabular, and clickable because it is a citation
+  handle. The speaker name is prose. Figure and sentence share a size and a
+  baseline.</p>
+</section>
+
+<!-- ────────────────────────────────────────────────── palette ───── -->
+<section>
+  <h2 class="t-heading">Palette<span class="second">With measured contrast</span></h2>
+  <p class="lede">Every ratio below was computed from the shipped token values
+  with the WCAG 2.1 relative-luminance formula, by spec/contrast-check.py. Not
+  estimated. 40 pairs, 0 failing; the full generated table is in
+  spec/accessibility.md.</p>
+
+  <div style="overflow-x:auto">
+  <table class="pal">
+    <thead><tr><th>Token</th><th>Value</th><th>On</th><th>Sample</th><th>Ratio</th><th>Needs</th><th></th></tr></thead>
+    <tbody>
+      <tr><td class="tok">ink</td><td class="t-figure">#17181b</td><td class="tok">canvas</td>
+          <td><span class="sample-cell" style="background:#f8f9fc;color:#17181b">Body text</span></td>
+          <td class="num">16.86:1</td><td class="num muted">4.5</td><td class="pass">Pass</td></tr>
+      <tr><td class="tok">ink-secondary</td><td class="t-figure">#4d4e51</td><td class="tok">canvas</td>
+          <td><span class="sample-cell" style="background:#f8f9fc;color:#4d4e51">Supporting, 76%</span></td>
+          <td class="num">7.90:1</td><td class="num muted">4.5</td><td class="pass">Pass</td></tr>
+      <tr><td class="tok">ink-muted</td><td class="t-figure">#5f6063</td><td class="tok">canvas</td>
+          <td><span class="sample-cell" style="background:#f8f9fc;color:#5f6063">The text floor, 68%</span></td>
+          <td class="num">5.97:1</td><td class="num muted">4.5</td><td class="pass">Pass</td></tr>
+      <tr><td class="tok">ink-muted</td><td class="t-figure">#5f6063</td><td class="tok">surface-sunken</td>
+          <td><span class="sample-cell" style="background:#ebeef2;color:#5f6063">Meta in a group panel</span></td>
+          <td class="num">5.40:1</td><td class="num muted">4.5</td><td class="pass">Pass</td></tr>
+      <tr><td class="tok">ink-muted</td><td class="t-figure">#5f6063</td><td class="tok">surface-float</td>
+          <td><span class="sample-cell" style="background:#ffffff;color:#5f6063">Meta in a menu</span></td>
+          <td class="num">6.29:1</td><td class="num muted">4.5</td><td class="pass">Pass</td></tr>
+      <tr><td class="tok">ink-muted</td><td class="t-figure">#5f6063</td><td class="tok">accent-wash</td>
+          <td><span class="sample-cell" style="background:#e3eefe;color:#5f6063">Meta in a selected row</span></td>
+          <td class="num">5.37:1</td><td class="num muted">4.5</td><td class="pass">Pass</td></tr>
+      <tr><td class="tok">accent</td><td class="t-figure">#114fa2</td><td class="tok">canvas</td>
+          <td><span class="sample-cell" style="background:#f8f9fc;color:#114fa2">Link, citation</span></td>
+          <td class="num">7.49:1</td><td class="num muted">4.5</td><td class="pass">Pass</td></tr>
+      <tr><td class="tok">ink-inverse</td><td class="t-figure">#ffffff</td><td class="tok">accent</td>
+          <td><span class="sample-cell" style="background:#114fa2;color:#ffffff">Primary button</span></td>
+          <td class="num">7.88:1</td><td class="num muted">4.5</td><td class="pass">Pass</td></tr>
+      <tr><td class="tok">ink-inverse</td><td class="t-figure">#ffffff</td><td class="tok">accent-pressed</td>
+          <td><span class="sample-cell" style="background:#063d85;color:#ffffff">Pressed</span></td>
+          <td class="num">10.43:1</td><td class="num muted">4.5</td><td class="pass">Pass</td></tr>
+      <tr><td class="tok">accent</td><td class="t-figure">#114fa2</td><td class="tok">surface-sunken</td>
+          <td><span class="sample-cell" style="background:#ebeef2;color:#114fa2">Proposed, in a group</span></td>
+          <td class="num">6.77:1</td><td class="num muted">4.5</td><td class="pass">Pass</td></tr>
+      <tr><td class="tok">hairline-strong</td><td class="t-figure">#85878c</td><td class="tok">canvas</td>
+          <td><span class="sample-cell" style="background:#f8f9fc;border:1px solid #85878c;color:var(--color-ink-muted)">Field edge (1.4.11)</span></td>
+          <td class="num">3.41:1</td><td class="num muted">3.0</td><td class="pass">Pass</td></tr>
+      <tr><td class="tok">ink-edge</td><td class="t-figure">#88888c</td><td class="tok">canvas</td>
+          <td><span class="swatch" style="background:#88888c"></span></td>
+          <td class="num">3.35:1</td><td class="num muted">3.0</td><td class="pass">Pass</td></tr>
+      <tr><td class="tok">status-accepted</td><td class="t-figure">#1d7344</td><td class="tok">canvas</td>
+          <td><span class="status st-accepted"><span class="glyph glyph-accepted"></span><span class="word">Accepted</span></span></td>
+          <td class="num">5.56:1</td><td class="num muted">4.5</td><td class="pass">Pass</td></tr>
+      <tr><td class="tok">status-waiting</td><td class="t-figure">#8a5300</td><td class="tok">canvas</td>
+          <td><span class="status st-waiting"><span class="glyph glyph-waiting"></span><span class="word">Queued</span></span></td>
+          <td class="num">6.01:1</td><td class="num muted">4.5</td><td class="pass">Pass</td></tr>
+      <tr><td class="tok">status-failed</td><td class="t-figure">#a81f1a</td><td class="tok">canvas</td>
+          <td><span class="status st-failed"><span class="glyph glyph-failed"></span><span class="word">Unreadable</span></span></td>
+          <td class="num">6.94:1</td><td class="num muted">4.5</td><td class="pass">Pass</td></tr>
+      <tr><td class="tok">status-off</td><td class="t-figure">#595959</td><td class="tok">canvas</td>
+          <td><span class="status st-off"><span class="glyph glyph-off"></span><span class="word">Paused</span></span></td>
+          <td class="num">6.65:1</td><td class="num muted">4.5</td><td class="pass">Pass</td></tr>
+      <tr><td class="tok">hairline</td><td class="t-figure">#e1e5eb</td><td class="tok">canvas</td>
+          <td><span class="sample-cell" style="background:#f8f9fc;color:var(--color-ink-muted)">Decorative divider only</span></td>
+          <td class="num muted">1.20:1</td><td class="num muted">n/a</td><td class="t-caption">Exempt</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- ───────────────────────────────────────────────── status ───── -->
+<section>
+  <h2 class="t-heading">Status<span class="second">Six meanings, each a shape and a word</span></h2>
+  <p class="lede">A closed set. Each glyph is 16px and distinct in shape, so the
+  strip still reads in greyscale, on the right. Nothing pulses: the capturing
+  disc is still, and the word and the running timer carry it. Capturing is ink
+  rather than red because red is needed for failure.</p>
+
+  <div class="grid2">
+    <div class="rows">
+      <div class="row-c"><span class="status st-capturing" style="min-width:150px"><span class="glyph glyph-capturing"></span><span class="word">Recording</span></span><span class="t-figure">00:47:31</span><span class="t-meta spacer">Capture is running &middot; F1.1, F6.1</span></div>
+      <div class="row-c"><span class="status st-provisional" style="min-width:150px"><span class="glyph glyph-provisional"></span><span class="word">Proposed</span></span><span class="t-meta spacer">The model made it, nobody accepted it &middot; F3.5</span></div>
+      <div class="row-c"><span class="status st-accepted" style="min-width:150px"><span class="glyph glyph-accepted"></span><span class="word">Accepted</span></span><span class="t-meta spacer">A human accepted it &middot; F3.5</span></div>
+      <div class="row-c"><span class="status st-waiting" style="min-width:150px"><span class="glyph glyph-waiting"></span><span class="word">Queued</span></span><span class="t-meta spacer">The model is behind &middot; F6.4</span></div>
+      <div class="row-c"><span class="status st-failed" style="min-width:150px"><span class="glyph glyph-failed"></span><span class="word">Unreadable</span></span><span class="t-meta spacer">Could not read, a gap &middot; F1.6, F6.4</span></div>
+      <div class="row-c"><span class="status st-off" style="min-width:150px"><span class="glyph glyph-off"></span><span class="word">Paused</span></span><span class="t-meta spacer">Stopped, ended, withdrawn &middot; F6.1, F6.6</span></div>
+    </div>
+    <div>
+      <p class="t-label" style="margin:0 0 12px">The same six in greyscale</p>
+      <div class="row-c greyscale" style="gap:20px">
+        <span class="status st-capturing"><span class="glyph glyph-capturing"></span><span class="word">Recording</span></span>
+        <span class="status st-provisional"><span class="glyph glyph-provisional"></span><span class="word">Proposed</span></span>
+        <span class="status st-accepted"><span class="glyph glyph-accepted"></span><span class="word">Accepted</span></span>
+        <span class="status st-waiting"><span class="glyph glyph-waiting"></span><span class="word">Queued</span></span>
+        <span class="status st-failed"><span class="glyph glyph-failed"></span><span class="word">Unreadable</span></span>
+        <span class="status st-off"><span class="glyph glyph-off"></span><span class="word">Paused</span></span>
+      </div>
+      <p class="t-label" style="margin:24px 0 12px">As chips, on their own wash</p>
+      <div class="row-c" style="gap:8px">
+        <span class="chip st-provisional" style="background:var(--color-status-provisional-wash)"><span class="glyph glyph-provisional"></span>Proposed</span>
+        <span class="chip st-accepted" style="background:var(--color-status-accepted-wash)"><span class="glyph glyph-accepted"></span>Accepted</span>
+        <span class="chip st-waiting" style="background:var(--color-status-waiting-wash)"><span class="glyph glyph-waiting"></span>Queued</span>
+        <span class="chip st-failed" style="background:var(--color-status-failed-wash)"><span class="glyph glyph-failed"></span>Failed</span>
+        <span class="chip st-off" style="background:var(--color-status-off-wash)"><span class="glyph glyph-off"></span>Ended</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────── canvas items ───── -->
+<section>
+  <h2 class="t-heading">The canvas<span class="second">What the team agreed, and what the model proposed</span></h2>
+  <p class="lede">Accepted: a tonal fill and no line. Proposed: no fill, a 1px
+  dashed accent line and the word. A person's typed note: a solid line, no fill,
+  "Not yet reviewed". Never a fill and a line on one element. The text is never
+  greyed, because an unreviewed item still has to be readable to be reviewed.
+  The board is the page's own ground, with no frame; a group is a sunken panel.
+  A note's paper colour is the small swatch in its meta line, never its fill.</p>
+
+  <div class="board">
+    <div class="item item-accepted">
+      <span class="kind">Decision</span>
+      <span class="text">Drop the paywall from the pilot</span>
+      <span class="meta">Accepted by Sanne &middot; 14:21</span>
+    </div>
+
+    <div class="item item-provisional">
+      <span class="badge st-provisional"><span class="glyph glyph-provisional" aria-hidden="true"></span>Proposed</span>
+      <span class="kind">Note from a photograph</span>
+      <span class="text">Onboarding is the real bottleneck</span>
+      <span class="meta"><span class="paper" style="background:#f2d64b" aria-hidden="true"></span>Yellow note, wall photo 3 &middot; 91% confident</span>
+      <div class="actions">
+        <button class="btn btn-primary btn-sm" type="button">Accept</button>
+        <button class="btn btn-quiet btn-sm" type="button">Edit</button>
+        <button class="btn btn-quiet btn-sm" type="button">Reject</button>
+      </div>
+    </div>
+
+    <div class="item item-pending">
+      <span class="kind">Note, typed</span>
+      <span class="text">Ask the pilot schools about login</span>
+      <span class="meta">Typed by Bram &middot; Not yet reviewed</span>
+    </div>
+
+    <div class="item item-provisional item-selected">
+      <span class="badge st-provisional"><span class="glyph glyph-provisional" aria-hidden="true"></span>Proposed</span>
+      <span class="kind">Decision from speech</span>
+      <span class="text">Pilot ships without payments</span>
+      <span class="meta">From 14:22:06, Sanne &middot; selected</span>
+    </div>
+
+    <div class="group">
+      <span class="t-label">Group: onboarding</span>
+      <div class="item item-provisional" style="width:auto">
+        <span class="badge st-provisional"><span class="glyph glyph-provisional" aria-hidden="true"></span>Proposed</span>
+        <span class="text">Teachers set up accounts, not pupils</span>
+      </div>
+      <div class="item item-waiting" style="width:auto">
+        <span class="badge st-waiting"><span class="glyph glyph-waiting" aria-hidden="true"></span>Queued</span>
+        <div class="skel" style="width:90%"></div>
+        <div class="skel" style="width:64%;margin-top:6px"></div>
+        <span class="meta">Wall photo 4 &middot; the model is about 40 seconds behind</span>
+      </div>
+    </div>
+
+    <div class="item item-failed">
+      <span class="badge st-failed"><span class="glyph glyph-failed" aria-hidden="true"></span>Unreadable</span>
+      <span class="kind">Note from a photograph</span>
+      <span class="text">Could not read this one.</span>
+      <span class="meta"><span class="paper" style="background:#9fc7ea" aria-hidden="true"></span>Blue note, wall photo 3, centre</span>
+      <div class="actions">
+        <button class="btn btn-secondary btn-sm" type="button">Type it in</button>
+        <button class="btn btn-quiet btn-sm" type="button">Open photo</button>
+      </div>
+    </div>
+  </div>
+
+  <p class="note">Accepting fades the dashed line out and the tonal fill in over
+  250ms, the longest transition in the system, because it is the moment the
+  product is about. The selected proposal shows how the accent composes with
+  itself: a 1px dashed line inside, a 2px solid ring outside, the same hue told
+  apart by weight, style and the gap between them. Inside the group, the open
+  question is visible: an accepted note there would share the panel's tone.</p>
+</section>
+
+<!-- ────────────────────────────────── buttons and fields ───── -->
+<section>
+  <h2 class="t-heading">Buttons and fields</h2>
+  <p class="lede">Four variants, one primary per view. 32px at a desk, 44px in
+  room mode and on touch. A button is a fill or nothing, never a fill and a
+  line. A field is the one place a line marks an edge, because it is a place
+  you type into.</p>
+
+  <div class="grid2">
+    <div>
+      <p class="t-label" style="margin:0 0 12px">Buttons</p>
+      <div class="row-c">
+        <button class="btn btn-primary btn-lg" type="button">Start session</button>
+        <button class="btn btn-secondary btn-lg" type="button">Cancel</button>
+      </div>
+      <div class="row-c" style="margin-top:16px">
+        <button class="btn btn-primary" type="button">Accept</button>
+        <button class="btn btn-secondary" type="button">Edit</button>
+        <button class="btn btn-quiet" type="button">Reject</button>
+        <button class="btn btn-danger" type="button">End session</button>
+      </div>
+      <div class="row-c" style="margin-top:16px">
+        <button class="btn btn-primary" type="button" disabled>Start capture</button>
+        <span class="t-caption">Two people have not agreed yet.</span>
+      </div>
+      <p class="t-label" style="margin:24px 0 12px">Segmented: chosen is ink, a state</p>
+      <div class="segmented" role="group" aria-label="Mode">
+        <button type="button" aria-pressed="true">Quiet</button>
+        <button type="button" aria-pressed="false">Active</button>
+      </div>
+    </div>
+
+    <div>
+      <p class="t-label" style="margin:0 0 12px">Fields</p>
+      <div style="display:flex;flex-direction:column;gap:16px;max-width:400px">
+        <label class="field">
+          <span class="label">Session name</span>
+          <input type="text" value="Concept critique, week 3">
+        </label>
+        <label class="field">
+          <span class="label">Retention</span>
+          <select><option>Delete audio when the session ends</option></select>
+          <span class="hint">The transcript is anonymised before it leaves this session.</span>
+        </label>
+        <label class="field">
+          <span class="label">Join code</span>
+          <input type="text" value="abc" aria-invalid="true" aria-describedby="code-help code-error">
+          <span class="hint" id="code-help">From the invitation, six characters.</span>
+          <span class="field-error" id="code-error"><span class="glyph glyph-failed" aria-hidden="true"></span>A join code is six characters.</span>
+        </label>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────── floating surfaces ───── -->
+<section>
+  <h2 class="t-heading">Floating surfaces<span class="second">The only things with a shadow</span></h2>
+  <p class="lede">Menus, popovers, the confirmation dialog, and the session bar
+  once the page scrolls under it. White, with an elevation token and no line.
+  Nothing in the page has a shadow. The dialog is the only modal, and it is for
+  End session and Delete session only.</p>
+
+  <div class="bar" style="margin-bottom:32px">
+    <span class="status st-capturing"><span class="glyph glyph-capturing"></span><span class="word">Recording</span></span>
+    <span class="t-figure">00:47:31</span>
+    <span class="t-meta">6 present</span>
+    <span class="spacer"></span>
+    <button class="btn btn-quiet" type="button">Undo</button>
+    <button class="btn btn-quiet" type="button">Consent record</button>
+    <button class="btn btn-danger" type="button">End session</button>
+  </div>
+
+  <div class="float-demo">
+    <div class="menu" role="menu" aria-label="Sort">
+      <button class="btn btn-quiet" role="menuitem" type="button">Newest first</button>
+      <button class="btn btn-quiet" role="menuitem" type="button">Lowest confidence first</button>
+      <hr>
+      <button class="btn btn-danger" role="menuitem" type="button">Reject this cluster</button>
+    </div>
+
+    <div class="dialog" role="dialog" aria-labelledby="dlg-title" aria-describedby="dlg-body">
+      <h3 class="t-title" id="dlg-title">End this session?</h3>
+      <p class="t-body" id="dlg-body" style="margin:8px 0 4px">Capture stops and the audio is deleted.</p>
+      <p class="t-meta muted" style="margin:0 0 24px">The canvas and the transcript are kept.</p>
+      <div class="row-c" style="justify-content:flex-end">
+        <button class="btn btn-secondary" type="button">Cancel</button>
+        <button class="btn btn-danger-fill" type="button">End session</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────── states and figures ───── -->
+<section>
+  <h2 class="t-heading">States<span class="second">Never silent, never looping</span></h2>
+  <p class="lede">Degradation is a designed state, not an absence. The banner
+  always says what still works, in the same sentence as what broke. Work in
+  progress is a still glyph and a word.</p>
+
+  <div style="max-width:720px">
+    <div class="banner">
+      <span class="status st-waiting"><span class="glyph glyph-waiting"></span><span class="word">Catching up</span></span>
+      <span class="t-body">The model is about 40 seconds behind. Capture is still running.</span>
+    </div>
+    <div class="banner">
+      <span class="status st-failed"><span class="glyph glyph-failed"></span><span class="word">Stopped</span></span>
+      <span class="t-body">Transcription has stopped. Audio is still being recorded.</span>
+      <button class="btn btn-quiet spacer" type="button">Retry</button>
+    </div>
+
+    <p class="t-label" style="margin:32px 0 8px">Empty state</p>
+    <p class="t-meta muted" style="margin:0">Nothing waiting. Everything on the canvas has been accepted.</p>
+
+    <p class="t-label" style="margin:32px 0 12px">Figures and track bars</p>
+    <div class="row-c" style="gap:32px;align-items:flex-start">
+      <div><span class="t-label">Items on canvas</span><div class="t-heading" style="margin-top:4px;font-variant-numeric:tabular-nums">48</div></div>
+      <div><span class="t-label">Still proposed</span><div class="t-heading" style="margin-top:4px;font-variant-numeric:tabular-nums">12</div></div>
+      <div><span class="t-label">Accepted without edits</span><div class="t-heading" style="margin-top:4px;font-variant-numeric:tabular-nums">74%</div></div>
+    </div>
+    <div class="rows" style="margin-top:20px;max-width:520px">
+      <div class="row-c"><span class="t-meta" style="width:110px">Notes</span><span class="track"><i style="width:81%"></i></span><span class="t-figure" style="width:48px;text-align:right">81%</span></div>
+      <div class="row-c"><span class="t-meta" style="width:110px">Layout</span><span class="track"><i style="width:52%"></i></span><span class="t-figure" style="width:48px;text-align:right">52%</span></div>
+      <div class="row-c"><span class="t-meta" style="width:110px">Decisions</span><span class="track"><i style="width:68%"></i></span><span class="t-figure" style="width:48px;text-align:right">68%</span></div>
+    </div>
+    <p class="note">One series has no colour. It is ink. The accent belongs to
+    interaction, and a single series has nothing to distinguish itself from.</p>
+  </div>
+</section>
+
+<footer style="border-top:var(--line-hairline) solid var(--color-hairline);padding-top:16px">
+  <p class="t-caption" style="margin:0">Jarvaids design system &middot; tokens.css is the source of truth &middot; contrast verified by spec/contrast-check.py &middot; opens offline, no network requests</p>
+</footer>
+
+</div>
+<script>
+(function () {
+  var b = document.getElementById('room');
+  b.addEventListener('click', function () {
+    var root = document.documentElement;
+    var on = !root.hasAttribute('data-room');
+    if (on) { root.setAttribute('data-room', ''); } else { root.removeAttribute('data-room'); }
+    b.setAttribute('aria-pressed', on ? 'true' : 'false');
+    b.textContent = on ? 'Show desk mode' : 'Show room mode';
+  });
+})();
+</script>
+</body>
+</html>

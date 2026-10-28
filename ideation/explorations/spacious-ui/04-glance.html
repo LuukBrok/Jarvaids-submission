@@ -1,0 +1,484 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Glance · spacious UI exploration 04 · Jarvaids consent and setup</title>
+<style>
+/* ==========================================================================
+   04 · GLANCE
+   Session setup and the consent round, drawn as the reference is drawn.
+
+   This is the most literal reading of the iOS Live Activity the brief was
+   working from: one outer rounded container, one rounded inner panel, corners
+   that stay parallel because each radius is the one outside it minus the pad,
+   two large numbers that dominate, and a type hierarchy with nothing between
+   the numbers and the small print.
+
+   The screen chosen for it is the consent round, because that is the only
+   moment in Jarvaids where the whole room is looking at the screen at once, from
+   four metres away, waiting for one number to reach another.
+   ========================================================================== */
+
+@font-face {
+  font-family: "Archivo";
+  src: url("fonts/archivo-variable-latin.woff2") format("woff2");
+  font-weight: 400 700; font-stretch: 100%; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: "Nunito Sans";
+  src: url("fonts/nunito-sans-variable-latin.woff2") format("woff2");
+  font-weight: 400 700; font-stretch: 100%; font-style: normal; font-display: swap;
+}
+
+:root {
+  --font-signal: "Archivo", "Helvetica Neue", Arial, system-ui, sans-serif;
+  --font-reading: "Nunito Sans", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+
+  --color-canvas: #ffffff;
+  --color-ink: #141414;
+  --color-ink-inverse: #ffffff;
+  --color-accent: #a85a00;
+  --color-accent-pressed: #8c4b00;
+  --color-status-accepted: #1d7344;
+  --color-status-off: #595959;
+  --color-status-failed: #a81f1a;
+
+  /* PROPOSAL: ink alpha ladder: not yet in the design system. Same five steps
+     as explorations 02 and 03, measured composited on BOTH grounds here. */
+  --ink-1: 1; --ink-2: 0.78; --ink-3: 0.64; --ink-4: 0.48; --ink-5: 0.12;
+
+  /* PROPOSAL: concentric containers: not yet in the design system.
+     32 outside, 24 inside a pad of 8, 16 inside the next. The arithmetic is
+     the whole point: an inner radius that is not outer-minus-pad produces two
+     curves that visibly diverge, which is what makes most nested cards look
+     cheap. The shipped 2 / 4 / full scale cannot express a concentric set. */
+  --radius-outer: 32px;
+  --radius-inner: 24px;
+  --radius-innermost: 16px;
+  --pad-concentric: 8px;
+
+  /* PROPOSAL: the container wash: not yet in the design system.
+     Ink at 4%, which is #f6f6f6 composited. Very close to the shipped
+     --color-surface-sunken (#f7f7f5), which the system allows for exactly
+     three jobs, none of which is grouping. This is a fourth job. */
+  --wash-container: 0.04;
+
+  --spacing-1: 4px;  --spacing-2: 8px;  --spacing-3: 12px; --spacing-4: 16px;
+  --spacing-5: 24px; --spacing-6: 32px; --spacing-7: 48px; --spacing-8: 64px;
+  --radius-full: 999px; --line-focus: 2px;
+  --motion-fast: 120ms; --motion-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  color-scheme: light;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; background: var(--color-canvas); color: rgb(20 20 20 / var(--ink-1));
+  font-family: var(--font-reading); font-size: 15px; line-height: 22px;
+  -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+
+.structure { font-family: var(--font-signal); font-size: 12px; line-height: 16px;
+  letter-spacing: 0.07em; font-weight: 600; text-transform: uppercase;
+  color: rgb(20 20 20 / var(--ink-3)); }
+.signal { font-family: var(--font-signal); font-weight: 500; font-variant-numeric: tabular-nums; }
+.strong { font-weight: 600; }
+.dot { width: 10px; height: 10px; border-radius: var(--radius-full); flex: none; display: inline-block; }
+.status { display: inline-flex; align-items: center; gap: var(--spacing-2); }
+
+/* ── exploration frame ────────────────────────────────────────────────── */
+.frame { max-width: 68ch; margin: 0 auto; padding: var(--spacing-8) var(--spacing-4) var(--spacing-7); }
+.frame h1 { font-family: var(--font-signal); font-size: 22px; line-height: 26px; font-weight: 600; margin: 0 0 var(--spacing-2); }
+.frame p { margin: 0 0 var(--spacing-3); color: rgb(20 20 20 / var(--ink-2)); }
+.frame .eyebrow { display: block; margin-bottom: var(--spacing-3); }
+.rule { border: 0; border-top: 1px solid rgb(20 20 20 / var(--ink-5)); margin: 0; }
+
+/* ── the screen ───────────────────────────────────────────────────────── */
+.screen { padding: var(--spacing-7) var(--spacing-4) var(--spacing-8); }
+@media (min-width: 1024px) { .screen { padding: var(--spacing-8) var(--spacing-7); } }
+.wrap { max-width: 1120px; margin: 0 auto; }
+
+.nav { display: flex; gap: var(--spacing-6); flex-wrap: wrap; margin-bottom: var(--spacing-8); }
+.nav a { text-decoration: none; font-size: 15px; color: rgb(20 20 20 / var(--ink-3)); }
+.nav a[aria-current="page"] { color: rgb(20 20 20 / var(--ink-1)); font-weight: 600; }
+.nav a:hover { color: rgb(20 20 20 / var(--ink-1)); }
+
+/* OUTER CONTAINER */
+.activity { background: rgb(20 20 20 / var(--wash-container));
+  border-radius: var(--radius-outer); padding: var(--pad-concentric); }
+
+.activity-head { display: flex; align-items: baseline; gap: var(--spacing-4); flex-wrap: wrap;
+  padding: var(--spacing-5) var(--spacing-5) var(--spacing-4); }
+.activity-head .spacer { margin-left: auto; }
+.activity-head h1 { font-family: var(--font-signal); font-size: clamp(22px, 2.4vw, 28px);
+  line-height: 1.2; letter-spacing: -0.02em; font-weight: 700; margin: 0; }
+
+/* INNER PANEL. Opaque white inside the wash: the foreground sits at full
+   strength, the container recedes. That is the whole opacity argument in one
+   move, and it needs no blur and no shadow to work. */
+.panel { background: var(--color-canvas); border-radius: var(--radius-inner);
+  padding: clamp(24px, 4vw, 48px); }
+
+/* THE TWO NUMBERS.
+   Everything else on this screen is 28px or smaller, so the ratio at a glance
+   is roughly 4:1. From four metres a 96px figure is about the same apparent
+   size as 15px type at arm's length, which is the actual design target. */
+.count { display: flex; gap: clamp(32px, 7vw, 96px); flex-wrap: wrap; align-items: flex-start; }
+.count > div { min-width: 0; }
+.count b { display: block; font-family: var(--font-signal); font-weight: 700;
+  font-size: clamp(64px, 11vw, 116px); line-height: 0.88; letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums; }
+.count .of { color: rgb(20 20 20 / var(--ink-3)); }
+.count .structure { display: block; margin-top: var(--spacing-4); }
+.count .waiting b { color: rgb(20 20 20 / var(--ink-2)); }
+
+.gate { margin-top: clamp(32px, 5vw, 56px); display: flex; gap: var(--spacing-5);
+  align-items: center; flex-wrap: wrap; }
+.gate p { margin: 0; font-size: clamp(15px, 1.5vw, 19px); line-height: 1.5;
+  color: rgb(20 20 20 / var(--ink-2)); max-width: 46ch; }
+
+/* INNERMOST: the words that are read out. Inside the panel, inside the
+   container. Radius 16 inside 24 inside 32. */
+.script { margin-top: var(--spacing-6); padding: clamp(16px, 2.5vw, 24px);
+  border-radius: var(--radius-innermost); background: rgb(20 20 20 / 0.045); }
+.script blockquote { margin: var(--spacing-3) 0 0; font-size: clamp(17px, 2vw, 22px);
+  line-height: 1.45; color: rgb(20 20 20 / var(--ink-1)); max-width: 52ch; }
+
+/* the people, in the container but outside the panel: present, recessive */
+.people { padding: var(--spacing-6) var(--spacing-5) var(--spacing-5); }
+.roster { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+  gap: var(--spacing-4) var(--spacing-8); margin-top: var(--spacing-4); list-style: none; padding: 0; }
+.roster li { display: flex; align-items: center; gap: var(--spacing-3); min-width: 0;
+  padding-block: var(--spacing-2); }
+.roster .name { font-size: 17px; font-weight: 600; min-width: 0; }
+.roster .when { margin-left: auto; font-family: var(--font-signal); font-size: 13px;
+  font-variant-numeric: tabular-nums; color: rgb(20 20 20 / var(--ink-3)); flex: none; }
+.roster .btn { margin-left: auto; flex: none; white-space: nowrap; }
+.roster li.pending .name { color: rgb(20 20 20 / var(--ink-2)); }
+
+.link-row { display: flex; align-items: center; gap: var(--spacing-4); flex-wrap: wrap;
+  padding: var(--spacing-5); margin-top: var(--spacing-2); }
+.link-row .url { font-family: var(--font-signal); font-size: clamp(17px, 2vw, 22px);
+  font-weight: 600; letter-spacing: 0.01em; word-break: break-all; }
+
+.btn { font-family: var(--font-reading); font-size: 15px; font-weight: 600; line-height: 1;
+  height: 44px; padding-inline: 22px; border: 1px solid transparent; border-radius: var(--radius-full);
+  cursor: pointer; background: transparent; color: rgb(20 20 20 / var(--ink-1));
+  display: inline-flex; align-items: center; gap: 6px;
+  transition: background var(--motion-fast) var(--motion-ease); }
+.btn-primary { background: var(--color-accent); color: var(--color-ink-inverse); }
+.btn-primary:hover { background: var(--color-accent-pressed); }
+.btn-primary[disabled] { background: rgb(20 20 20 / 0.08); color: rgb(20 20 20 / var(--ink-3)); cursor: not-allowed; }
+.btn-secondary { border-color: rgb(20 20 20 / var(--ink-4)); }
+.btn-secondary:hover { background: rgb(20 20 20 / 0.05); }
+.btn-sm { height: 36px; padding-inline: 16px; font-size: 13px; }
+:where(a, button, input, textarea, [tabindex]):focus-visible {
+  outline: var(--line-focus) solid var(--color-accent); outline-offset: 3px; }
+
+/* the setup form sits OUTSIDE the container, on plain white. Two grounds, two
+   jobs: the container is what the room is watching, the white is what the
+   facilitator is typing into. */
+.setup { margin-top: clamp(48px, 7vw, 80px); display: grid;
+  grid-template-columns: minmax(0,1fr); gap: var(--spacing-7); }
+@media (min-width: 1024px) { .setup { grid-template-columns: minmax(0, 420px) minmax(0,1fr); gap: var(--spacing-8); } }
+.field { display: flex; flex-direction: column; gap: var(--spacing-2); }
+.field input, .field textarea { font-family: var(--font-reading); font-size: 17px; line-height: 26px;
+  color: rgb(20 20 20 / var(--ink-1)); background: transparent; border: 0;
+  border-bottom: 1px solid rgb(20 20 20 / var(--ink-4)); padding: var(--spacing-2) 0; width: 100%; }
+.field textarea { resize: vertical; }
+.field input:hover, .field textarea:hover,
+.field input:focus, .field textarea:focus { border-bottom-color: rgb(20 20 20 / var(--ink-1)); }
+.shapes { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: var(--spacing-2); }
+.shapes button { text-align: left; font-family: var(--font-reading); font-size: 17px; font-weight: 600;
+  padding: var(--spacing-4); border: 0; border-radius: var(--radius-innermost);
+  background: rgb(20 20 20 / 0.045); color: rgb(20 20 20 / var(--ink-1)); cursor: pointer; }
+.shapes button span { display: block; font-size: 13px; font-weight: 400; margin-top: var(--spacing-1);
+  color: rgb(20 20 20 / var(--ink-3)); }
+.shapes button[aria-pressed="true"] { background: rgb(20 20 20 / var(--ink-1)); color: var(--color-ink-inverse); }
+.shapes button[aria-pressed="true"] span { color: rgb(255 255 255 / 0.78); }
+.retention { list-style: none; padding: 0; margin: var(--spacing-4) 0 0;
+  display: flex; flex-direction: column; gap: var(--spacing-4); }
+.retention li { display: flex; gap: var(--spacing-3); align-items: baseline; }
+.retention p { margin: 0; font-size: 17px; line-height: 26px; }
+.stack { display: flex; flex-direction: column; gap: var(--spacing-7); }
+
+/* ── notes ────────────────────────────────────────────────────────────── */
+.notes { max-width: 68ch; margin: 0 auto; padding: var(--spacing-8) var(--spacing-4); }
+.notes h2 { font-family: var(--font-signal); font-size: 22px; line-height: 26px; font-weight: 600; margin: 0 0 var(--spacing-4); }
+.notes h3 { font-family: var(--font-signal); font-size: 12px; line-height: 16px; letter-spacing: 0.07em;
+  font-weight: 600; text-transform: uppercase; color: rgb(20 20 20 / var(--ink-3)); margin: var(--spacing-7) 0 var(--spacing-3); }
+.notes p, .notes li { font-size: 15px; line-height: 22px; color: rgb(20 20 20 / var(--ink-2)); }
+.notes li { margin-bottom: var(--spacing-2); }
+table { border-collapse: collapse; width: 100%; font-size: 12px; line-height: 16px; }
+th { font-family: var(--font-signal); font-size: 12px; letter-spacing: 0.07em; font-weight: 600;
+  text-transform: uppercase; text-align: left; color: rgb(20 20 20 / var(--ink-3));
+  padding: var(--spacing-2) var(--spacing-2) var(--spacing-2) 0;
+  border-bottom: 1px solid rgb(20 20 20 / var(--ink-4)); }
+td { padding: var(--spacing-2) var(--spacing-2) var(--spacing-2) 0; vertical-align: top;
+  border-bottom: 1px solid rgb(20 20 20 / var(--ink-5)); color: rgb(20 20 20 / var(--ink-2)); }
+td.n { font-family: var(--font-signal); font-variant-numeric: tabular-nums; text-align: right;
+  white-space: nowrap; color: rgb(20 20 20 / var(--ink-1)); }
+code { font-family: var(--font-signal); font-size: 12px; }
+.tablewrap { overflow-x: auto; }
+</style>
+</head>
+<body>
+
+<header class="frame">
+  <span class="structure eyebrow">Spacious UI · exploration 04 of 05</span>
+  <h1>Glance</h1>
+  <p><strong>Thesis.</strong> The reference is a Live Activity, and a Live
+  Activity has a specific job: it is read from a distance, by someone who is
+  doing something else, and it says one thing. Jarvaids has exactly one screen
+  like that, the consent round, where six people in a room look up at a
+  projector and wait for a number to reach another number. So this screen is
+  built to that shape rather than to a mood: an outer container in a 4% ink
+  wash, an opaque white panel inside it, a quoted block inside that, and radii
+  of 32, 24 and 16 so that the three sets of corners stay parallel. Opacity is
+  doing something very cheap and very effective here, which is that the
+  container recedes by four percent and the panel does not, so the foreground
+  is unmistakable without a single border, shadow or blur. Two numbers carry
+  the screen at up to 116px, and the next size down is 28px, which means the
+  hierarchy is settled from the back of the room before anybody reads a name.
+  Everything the facilitator types into sits outside the container on plain
+  white, because those are two different audiences on one display.</p>
+</header>
+<hr class="rule">
+
+<main class="screen">
+<div class="wrap">
+
+  <nav class="nav" aria-label="Screens">
+    <a href="#" aria-current="page">Set up</a>
+    <a href="01-air.html">Canvas</a>
+    <a href="03-column.html">Session</a>
+    <a href="02-vellum.html">Review</a>
+    <a href="#">Export</a>
+  </nav>
+
+  <!-- OUTER CONTAINER -->
+  <section class="activity" aria-label="Consent round">
+
+    <div class="activity-head">
+      <h1>Concept critique, week 3</h1>
+      <span class="spacer"></span>
+      <span class="status" style="color:var(--color-status-off)">
+        <span class="dot" style="background:var(--color-status-off)"></span>
+        <span class="structure" style="color:var(--color-status-off)">Not capturing</span>
+      </span>
+    </div>
+
+    <!-- INNER PANEL -->
+    <div class="panel">
+      <div class="count">
+        <div>
+          <b>4<span class="of">/6</span></b>
+          <span class="structure">Have agreed, out loud</span>
+        </div>
+        <div class="waiting">
+          <b>2</b>
+          <span class="structure">Still to agree</span>
+        </div>
+      </div>
+
+      <div class="gate">
+        <button class="btn btn-primary" type="button" disabled>Start capture</button>
+        <p>Nothing is recorded, transcribed or sent anywhere until all six have
+        agreed. Anyone can withdraw later and capture stops the moment they do.</p>
+      </div>
+
+      <!-- INNERMOST -->
+      <div class="script">
+        <span class="structure">Read this out</span>
+        <blockquote>This session will be recorded and transcribed. The audio
+        stays on our own server and is deleted when we finish. The transcript is
+        anonymised before it goes anywhere. You can stop this at any point.</blockquote>
+      </div>
+    </div>
+
+    <div class="people">
+      <span class="structure">In the room</span>
+      <ul class="roster">
+        <li>
+          <span class="dot" style="background:var(--color-status-accepted)"></span>
+          <span class="name">Sanne</span><span class="when">13:38</span>
+        </li>
+        <li>
+          <span class="dot" style="background:var(--color-status-accepted)"></span>
+          <span class="name">Bram</span><span class="when">13:38</span>
+        </li>
+        <li>
+          <span class="dot" style="background:var(--color-status-accepted)"></span>
+          <span class="name">Iris</span><span class="when">13:39</span>
+        </li>
+        <li>
+          <span class="dot" style="background:var(--color-status-accepted)"></span>
+          <span class="name">Joost</span><span class="when">13:39</span>
+        </li>
+        <li class="pending">
+          <span class="dot" style="background:var(--color-status-off)"></span>
+          <span class="name">Nadia</span>
+          <button class="btn btn-secondary btn-sm" type="button">Mark agreed</button>
+        </li>
+        <li class="pending">
+          <span class="dot" style="background:var(--color-status-off)"></span>
+          <span class="name">Guest, by link</span>
+          <button class="btn btn-secondary btn-sm" type="button">Mark agreed</button>
+        </li>
+      </ul>
+    </div>
+
+    <div class="link-row">
+      <span class="structure">Join from a phone</span>
+      <span class="url">jarvaids.local/s/K4M2QX</span>
+      <button class="btn btn-secondary btn-sm" type="button">Copy</button>
+    </div>
+
+  </section>
+
+  <!-- OUTSIDE THE CONTAINER: the facilitator's own surface -->
+  <div class="setup">
+
+    <form class="stack" onsubmit="return false">
+      <label class="field">
+        <span class="structure">Session name</span>
+        <input type="text" value="Concept critique, week 3">
+      </label>
+
+      <label class="field">
+        <span class="structure">Agenda</span>
+        <textarea rows="4">Onboarding drop-off
+Paywall, decide or park
+Pilot scope</textarea>
+      </label>
+
+      <div class="field">
+        <span class="structure">Starting shape of the canvas</span>
+        <div class="shapes">
+          <button type="button" aria-pressed="true">Blank<span>Start empty</span></button>
+          <button type="button" aria-pressed="false">Cluster<span>Grouped by theme</span></button>
+          <button type="button" aria-pressed="false">Timeline<span>Ordered in time</span></button>
+          <button type="button" aria-pressed="false">Matrix<span>Two axes</span></button>
+        </div>
+      </div>
+    </form>
+
+    <section>
+      <span class="structure">Audio and retention</span>
+      <ul class="retention">
+        <li>
+          <span class="dot" style="background:var(--color-status-accepted);margin-top:8px"></span>
+          <p>Transcription runs on our own server. Audio is never sent to a
+          third party.</p>
+        </li>
+        <li>
+          <span class="dot" style="background:var(--color-status-accepted);margin-top:8px"></span>
+          <p>Audio is deleted when the session ends, not thirty days later.</p>
+        </li>
+        <li>
+          <span class="dot" style="background:var(--color-status-accepted);margin-top:8px"></span>
+          <p>The transcript is anonymised before it leaves this session.</p>
+        </li>
+        <li>
+          <span class="dot" style="background:var(--color-status-off);margin-top:8px"></span>
+          <p style="color:rgb(20 20 20 / var(--ink-2))">Proactive suggestions are
+          off. Jarvaids answers when asked and otherwise keeps quiet, which is the
+          setting the anchoring risk is being tested against.</p>
+        </li>
+      </ul>
+    </section>
+
+  </div>
+</div>
+</main>
+
+<hr class="rule">
+
+<footer class="notes">
+  <h2>What this costs and what it buys</h2>
+
+  <h3>Design system rules broken</h3>
+  <ul>
+    <li><strong>forbidden #10, no grey panels to group content,</strong> and
+    with it the three-job limit on <code>--color-surface-sunken</code>. The
+    outer container is a 4% ink wash used for grouping, which is the job the
+    rule explicitly names as forbidden. <em>Buys:</em> a figure and a ground.
+    Across a room, a hairline at 1px on a projector is not reliably visible at
+    all, and a 4% wash is. This is the trade the team has to actually rule on,
+    because it is the same trade principle 1 already made in the other
+    direction on purpose.</li>
+    <li><strong>forbidden #3, no arbitrary radii.</strong> 32 / 24 / 16.
+    <em>Buys:</em> parallel corners. At the sizes this screen uses, a 4px
+    radius on a 900px container reads as a square, and squares inside squares
+    have no depth order.</li>
+    <li><strong>typography, no arbitrary font sizes.</strong> The figures run
+    to 116px and the body to 17px, neither of which exists.
+    <em>Buys:</em> the actual requirement, which is legibility at four metres.
+    This is the exploration where breaking the scale is least optional: the
+    shipped scale simply does not contain a size for a room screen.</li>
+    <li><strong>forbidden #1, in spirit,</strong> for the ink alpha ladder,
+    same as 02 and 03. Marked <code>PROPOSAL</code> in the stylesheet.</li>
+  </ul>
+
+  <h3>Rules it turned out not to need</h3>
+  <ul>
+    <li><strong>No shadow, no gradient, no blur.</strong> The whole depth
+    effect here is four percent of ink. It is the cheapest thing in the five
+    explorations and one of the most effective, and unlike Vellum it costs
+    nothing at render time.</li>
+    <li><strong>Status stays a dot and a word.</strong> Six agreed-or-not marks,
+    all of them a full-strength status colour plus a name and a time. Nothing
+    on this screen is distinguished by colour alone.</li>
+    <li><strong>No toast, no modal, no spinner.</strong> The disabled Start
+    button states its reason in the sentence beside it rather than in a
+    tooltip, which is what the existing exemplar does too.</li>
+  </ul>
+
+  <h3>The honest weakness</h3>
+  <p>A wash used for grouping is a habit, not a single decision. The system
+  banned it because once one container is allowed, every screen acquires
+  three, and the canvas stops being white. This screen is defensible precisely
+  because it is the one pre-capture screen in the product, where there is no
+  canvas to protect. Adopting it means writing that boundary down, something
+  like "a container wash is permitted only where no canvas content is on
+  screen", and the team should assume that boundary will be tested within a
+  fortnight.</p>
+
+  <h3>Composited contrast</h3>
+  <p>Two grounds on this screen, so every ink step is measured twice: once
+  composited on the container wash and once on the opaque panel. The container
+  ground is <code>#f6f6f6</code>, which is the composited value of ink at 4%
+  over white, not a token. Computed by <code>contrast.py</code> in this folder,
+  and checked against the real thing: with every glyph, fill and status dot
+  hidden, the darkest pixel Chromium paints inside the container is 245, which
+  is <code>#f6f6f6</code> to within one unit of corner antialiasing.</p>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th scope="col">Pair</th><th scope="col">Composited</th><th scope="col">Ground</th><th scope="col" class="n">Ratio</th><th scope="col" class="n">Needs</th><th scope="col">Result</th></tr></thead>
+    <tbody>
+<!--CONTRAST:glance-->
+<tr><td>ink 100% on the outer container</td><td><code>#141414</code></td><td><code>#f6f6f6</code></td><td class="n">16.99:1</td><td class="n">4.5</td><td>pass</td></tr>
+<tr><td>ink 78% on the outer container</td><td><code>#464646</code></td><td><code>#f6f6f6</code></td><td class="n">8.75:1</td><td class="n">4.5</td><td>pass</td></tr>
+<tr><td>ink 64% on the outer container</td><td><code>#656565</code></td><td><code>#f6f6f6</code></td><td class="n">5.36:1</td><td class="n">4.5</td><td>pass</td></tr>
+<tr><td>ink 48% on the outer container</td><td><code>#898989</code></td><td><code>#f6f6f6</code></td><td class="n">3.21:1</td><td class="n">3.0</td><td>pass</td></tr>
+<tr><td>ink 12% on the outer container</td><td><code>#dbdbdb</code></td><td><code>#f6f6f6</code></td><td class="n">1.28:1</td><td class="n">1.0</td><td>pass</td></tr>
+<tr><td>ink 100% on the inner panel</td><td><code>#141414</code></td><td><code>#ffffff</code></td><td class="n">18.42:1</td><td class="n">4.5</td><td>pass</td></tr>
+<tr><td>ink 78% on the inner panel</td><td><code>#484848</code></td><td><code>#ffffff</code></td><td class="n">9.19:1</td><td class="n">4.5</td><td>pass</td></tr>
+<tr><td>ink 64% on the inner panel</td><td><code>#696969</code></td><td><code>#ffffff</code></td><td class="n">5.52:1</td><td class="n">4.5</td><td>pass</td></tr>
+<tr><td>ink 48% on the inner panel</td><td><code>#8e8e8e</code></td><td><code>#ffffff</code></td><td class="n">3.27:1</td><td class="n">3.0</td><td>pass</td></tr>
+<tr><td>ink 12% on the inner panel</td><td><code>#e3e3e3</code></td><td><code>#ffffff</code></td><td class="n">1.29:1</td><td class="n">1.0</td><td>pass</td></tr>
+<tr><td>agreed at 100% on the outer container</td><td><code>#1d7344</code></td><td><code>#f6f6f6</code></td><td class="n">5.40:1</td><td class="n">4.5</td><td>pass</td></tr>
+<tr><td>not yet at 100% on the outer container</td><td><code>#595959</code></td><td><code>#f6f6f6</code></td><td class="n">6.46:1</td><td class="n">4.5</td><td>pass</td></tr>
+<tr><td>action at 100% on the outer container</td><td><code>#a85a00</code></td><td><code>#f6f6f6</code></td><td class="n">4.69:1</td><td class="n">4.5</td><td>pass</td></tr>
+<!--/CONTRAST-->
+    </tbody>
+  </table>
+  </div>
+  <p>Worth noting the tightest row: the accent at full strength on the
+  container wash is 4.69:1 against a 4.5:1 requirement. That is the margin a
+  second wash step would spend. It is the arithmetic reason this exploration
+  has one container tone and not three.</p>
+
+  <p style="margin-top:32px"><a href="index.html" style="color:var(--color-accent)">Back to the five explorations</a></p>
+</footer>
+
+</body>
+</html>

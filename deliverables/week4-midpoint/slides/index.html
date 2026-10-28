@@ -1,0 +1,1251 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Jarvaids, week 4 midpoint presentation</title>
+<link rel="stylesheet" href="../../../app/design-system/spec/exemplars/_base.css">
+<style>
+/* ===========================================================================
+   Week 4 deck, sixteen slides.
+
+   Each slide has a chapter label at the top, one plain heading that names the
+   subject, one visual or one short paragraph, and a footer with the page
+   number. Headings describe what the slide is about; they do not argue. The
+   speaker notes in NOTES.md carry the explanation.
+
+   Geometry: a fixed 1920x1080 stage scaled with one transform, so the printed
+   PDF and the projected screen lay out identically. Every size is a pixel at
+   1920 wide. Nothing below 28px except the footer at 24px.
+
+   The ground is --color-surface-sunken rather than white so white panels read
+   as surfaces on it. Colours, sizes, radii and line widths are tokens. Where a
+   model's dashed edge appears it is drawn at twice the product's width, bound
+   with calc, because a 1.5px dash disappears when the deck is downscaled.
+   ========================================================================= */
+
+html, body { height: 100%; overflow: hidden; }
+body { background: var(--color-surface-sunken); }
+
+.stage { position: absolute; top: 0; left: 0; width: 1920px; height: 1080px; transform-origin: 0 0; }
+
+.slide {
+  position: absolute; top: 0; left: 0; width: 1920px; height: 1080px;
+  padding: 96px 120px 80px; box-sizing: border-box;
+  background: var(--color-surface-sunken);
+  display: none; flex-direction: column; gap: var(--spacing-5);
+}
+.slide[data-active] { display: flex; }
+
+/* ── chapter label, heading, paragraph, footer ──────────────────────────── */
+.kicker { font-family: var(--font-signal); font-size: 28px; line-height: 36px;
+  font-weight: 600; color: var(--color-ink-secondary); margin: 0; flex: none; }
+.h1 { font-family: var(--font-signal); font-size: 84px; line-height: 96px;
+  letter-spacing: -0.02em; font-weight: 700; color: var(--color-ink); margin: 0; flex: none; }
+.h1.big { font-size: 128px; line-height: 132px; }
+.para { font-size: 36px; line-height: 50px; margin: 0; color: var(--color-ink); max-width: 1560px; flex: none; }
+.para.lead { font-size: 40px; line-height: 56px; }
+.foot { font-size: 24px; line-height: 32px; margin: 0; flex: none; color: var(--color-ink-secondary);
+  display: flex; justify-content: space-between; gap: var(--spacing-5); margin-top: auto; }
+.foot .src { min-width: 0; }
+.body { flex: 1 1 auto; min-height: 0; display: flex; }
+.body.centre { align-items: center; justify-content: center; }
+
+/* ── the design question, set as a quotation with a rule ────────────────── */
+.quote { border-left: var(--line-boundary) solid var(--color-hairline-strong);
+  padding-left: var(--spacing-7); margin: 0; max-width: 1560px;
+  font-size: 60px; line-height: 78px; font-weight: 400; color: var(--color-ink); }
+
+/* ── slide 1 ────────────────────────────────────────────────────────────── */
+.wallwrap { flex: 0 0 940px; border-radius: var(--radius-sm); overflow: hidden;
+  border: var(--line-hairline) solid var(--color-hairline-strong); }
+.wallwrap img { display: block; width: 100%; height: calc(100% + 44px); object-fit: cover; object-position: 50% 0; }
+.say { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column;
+  justify-content: center; gap: var(--spacing-6); padding-left: var(--spacing-8); }
+.who { font-size: 32px; line-height: 42px; margin: 0; color: var(--color-ink-secondary); }
+
+/* ── slide 2: three numbered lines ──────────────────────────────────────── */
+.threes { list-style: none; margin: 0; padding: 0; width: 100%;
+  display: flex; flex-direction: column; justify-content: center; }
+.threes > li { display: flex; align-items: baseline; gap: var(--spacing-7);
+  padding-block: var(--spacing-5);
+  border-bottom: var(--line-hairline) solid var(--color-hairline-strong); }
+.threes > li:last-child { border-bottom: 0; }
+.threes .n { font-family: var(--font-signal); font-size: 96px; line-height: 96px;
+  font-weight: 700; font-variant-numeric: tabular-nums; color: var(--color-ink-secondary);
+  flex: none; width: 120px; }
+.threes .w { font-size: 44px; line-height: 58px; min-width: 0; }
+
+/* ── slide 3: the room, drawn ───────────────────────────────────────────── */
+.scene { width: 100%; height: 100%; display: block; }
+.scene .panel { fill: var(--color-canvas); stroke: var(--color-hairline-strong); stroke-width: 2; }
+.scene .paper { fill: var(--color-surface-sunken); stroke: var(--color-hairline-strong); stroke-width: 2; }
+.scene .who { fill: none; stroke: var(--color-ink); stroke-width: 3; }
+.scene .lead-who { fill: var(--color-diagram-human); stroke: var(--color-diagram-human); }
+.scene .cap { font-family: var(--font-signal); font-size: 34px; font-weight: 700;
+  letter-spacing: 0.02em; fill: var(--color-ink); }
+.scene .accentish { fill: var(--color-diagram-human); }
+
+/* ── slide 4: four cards ────────────────────────────────────────────────── */
+.cards4 { width: 100%; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: 1fr; gap: var(--spacing-6); }
+.card { background: var(--color-canvas); border-radius: var(--radius-sm);
+  border: var(--line-focus) solid var(--color-hairline-strong);
+  padding: var(--spacing-6) var(--spacing-7);
+  display: flex; flex-direction: column; justify-content: center; gap: var(--spacing-3); min-width: 0; }
+.card .phrase { font-size: 38px; line-height: 50px; margin: 0; color: var(--color-ink); }
+.card .from { font-family: var(--font-signal); font-size: 28px; line-height: 36px;
+  font-weight: 600; color: var(--color-ink-secondary); margin: 0; }
+
+/* ── the note, at poster scale ──────────────────────────────────────────── */
+.notes { width: 100%; align-items: center; justify-content: center; gap: var(--spacing-8); }
+.note { flex: 0 0 720px; height: 460px; background: var(--color-canvas);
+  border: var(--line-focus) solid var(--color-hairline-strong);
+  border-radius: var(--radius-xs); padding: var(--spacing-7);
+  display: flex; flex-direction: column; justify-content: space-between; box-sizing: border-box; }
+.note.model { border: calc(var(--line-focus) * 2) dashed var(--color-status-provisional); }
+.note .ntext { font-size: 48px; line-height: 62px; margin: 0; color: var(--color-ink); }
+.note .meta { display: flex; align-items: center; gap: var(--spacing-3);
+  font-family: var(--font-signal); font-size: 28px; line-height: 36px;
+  font-weight: 600; color: var(--color-ink-secondary); margin: var(--spacing-6) 0 0; }
+.note .meta .dot { width: 20px; height: 20px; border-radius: var(--radius-full); flex: none;
+  background: var(--color-status-accepted); }
+.note.model .meta .dot { background: var(--color-status-provisional); }
+.note.wide { flex: 0 0 1100px; height: 380px; }
+
+/* ── the two flowcharts, taken from documentation/flowchart.html ────────── */
+.diagram { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+.diagram svg { height: 100%; width: auto; max-width: 100%; display: block; font-family: var(--font-reading); }
+.diagram svg rect { rx: 4px; ry: 4px; }
+.diagram svg .band { fill: none; stroke: var(--color-hairline); stroke-width: 1; }
+.diagram svg .bandlbl { font-family: var(--font-signal); font-size: 12px; letter-spacing: 0.07em;
+  font-weight: 600; text-transform: uppercase; fill: var(--color-ink-muted); }
+.diagram svg .box { fill: var(--color-canvas); stroke: var(--color-hairline-strong); stroke-width: 1; }
+.diagram svg .box.b-ai, .diagram svg .hull { fill: none; stroke: var(--color-ink); stroke-width: 1.5; stroke-dasharray: 5 4; }
+.diagram svg .box.b-hum { stroke: var(--color-diagram-human); }
+.diagram svg .box.b-ai  { stroke: var(--color-diagram-machine); }
+.diagram svg .box.b-grd { stroke: var(--color-diagram-guardrail); }
+.diagram svg .box.b-hum + .badge { fill: var(--color-diagram-human); }
+.diagram svg .box.b-ai  + .badge { fill: var(--color-diagram-machine); }
+.diagram svg .box.b-grd + .badge { fill: var(--color-diagram-guardrail); }
+.diagram svg .badge { font-family: var(--font-signal); font-size: 12px; letter-spacing: 0.07em;
+  font-weight: 600; text-transform: uppercase; fill: var(--color-ink-muted);
+  paint-order: stroke fill; stroke: var(--color-canvas); stroke-width: 6px; stroke-linejoin: round; }
+.diagram svg .t, .diagram svg .rt { font-family: var(--font-signal); font-size: 15px; font-weight: 600;
+  letter-spacing: -0.01em; fill: var(--color-ink); }
+.diagram svg .s, .diagram svg .rs { font-size: 12px; fill: var(--color-ink-secondary); }
+.diagram svg .xs, .diagram svg .rlbl { font-size: 12px; fill: var(--color-ink-muted); }
+.diagram svg .rn, .diagram svg .mtag { font-family: var(--font-signal); font-size: 12px; letter-spacing: 0.07em;
+  font-weight: 600; text-transform: uppercase; fill: var(--color-ink-muted); }
+.diagram svg .lat { font-family: var(--font-signal); font-size: 12px; fill: var(--color-ink-muted); font-variant-numeric: tabular-nums; }
+.diagram svg .edge { fill: none; stroke: var(--color-hairline-strong); stroke-width: 1.5; }
+.diagram svg .edge.dash { stroke-dasharray: 5 4; }
+.diagram svg .ln { stroke: var(--color-hairline-strong); stroke-width: 1; fill: none; }
+.diagram svg .ln.dash { stroke-dasharray: 5 4; }
+.diagram svg .rdiv { stroke: var(--color-hairline); stroke-width: 1; }
+.diagram svg .tick { fill: var(--color-ink); stroke: none; }
+.diagram svg .prov { fill: none; stroke: var(--color-ink); stroke-width: 1.5; stroke-dasharray: 5 4; }
+.diagram svg .mtag.ai { fill: var(--color-ink); }
+.diagram svg .elbl { font-size: 11px; fill: var(--color-ink-muted); paint-order: stroke fill; stroke: var(--color-surface-sunken); stroke-width: 5px; }
+.diagram svg .ib { font-size: 12px; fill: var(--color-ink-secondary); }
+.diagram svg .i-hum { fill: var(--color-ink); }
+.diagram svg .i-ai { fill: var(--color-ink); }
+.diagram svg .i-grd { fill: var(--color-ink); }
+.diagram svg .i-in, .diagram svg .i-out, .diagram svg .i-st { fill: var(--color-ink); }
+.diagram svg .s.i-hum, .diagram svg .s.i-ai, .diagram svg .s.i-grd,
+.diagram svg .s.i-in, .diagram svg .s.i-out, .diagram svg .s.i-st { fill: var(--color-ink-secondary); }
+
+/* ── slide 10: six groups ───────────────────────────────────────────────── */
+.tiles { width: 100%; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-auto-rows: 1fr; gap: var(--spacing-5); }
+.tile { background: var(--color-canvas); border-radius: var(--radius-sm);
+  border: var(--line-focus) solid var(--color-hairline-strong);
+  padding: var(--spacing-5) var(--spacing-6);
+  display: flex; flex-direction: column; justify-content: center; gap: var(--spacing-2); min-width: 0; }
+.tile .tnum { font-family: var(--font-signal); font-size: 64px; line-height: 70px;
+  font-weight: 700; font-variant-numeric: tabular-nums; color: var(--color-ink); margin: 0; }
+.tile .tname { font-family: var(--font-signal); font-size: 32px; line-height: 40px;
+  font-weight: 600; color: var(--color-ink); margin: 0; }
+.strip { display: flex; gap: var(--spacing-2); margin: var(--spacing-2) 0 0; }
+.d { width: 36px; height: 36px; border-radius: var(--radius-full); flex: none;
+  position: relative; overflow: hidden; box-sizing: border-box; display: block; }
+.d.f { background: var(--color-ink); }
+.d.h { border: var(--line-focus) solid var(--color-ink); }
+.d.h > i { position: absolute; left: 0; top: 0; bottom: 0; width: 50%; background: var(--color-ink); }
+.d.p { border: calc(var(--line-focus) * 1.5) dashed var(--color-ink); }
+.d.o { border: var(--line-focus) solid var(--color-hairline-strong); }
+
+/* ── slide 11: three captures ───────────────────────────────────────────── */
+.shots { width: 100%; gap: var(--spacing-5); align-items: stretch; }
+.shots figure { flex: 1 1 0; min-width: 0; margin: 0; display: flex; flex-direction: column; }
+.shots .shot { flex: 1 1 auto; min-height: 0; border-radius: var(--radius-sm); overflow: hidden;
+  border: var(--line-hairline) solid var(--color-hairline-strong); }
+.shots .shot img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.shots .a img { object-position: 30% 50%; }
+.shots .b img { object-position: 0% 30%; }
+.shots .c img { object-position: 0% 40%; }
+.shots figcaption { flex: none; margin-top: var(--spacing-3);
+  font-family: var(--font-signal); font-size: 30px; line-height: 38px; font-weight: 600;
+  color: var(--color-ink); }
+
+/* ── rails: the speech stages, the checks ───────────────────────────────── */
+.rail { width: 100%; position: relative; background: var(--color-canvas);
+  border-radius: var(--radius-sm);
+  border: var(--line-hairline) solid var(--color-hairline-strong);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: var(--spacing-7) var(--spacing-6); gap: var(--spacing-2); }
+.stop { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column;
+  align-items: center; gap: var(--spacing-3); }
+.bub { width: 140px; height: 140px; border-radius: var(--radius-full);
+  border: var(--line-focus) solid var(--color-hairline-strong);
+  display: flex; align-items: center; justify-content: center; box-sizing: border-box;
+  font-family: var(--font-signal); font-size: 40px; font-weight: 700;
+  color: var(--color-ink); background: var(--color-canvas); }
+.stop.ai .bub { border: calc(var(--line-focus) * 2) dashed var(--color-ink); }
+.stop .lab { font-size: 30px; line-height: 38px; text-align: center; color: var(--color-ink); }
+.ci { flex-direction: column; justify-content: center; gap: var(--spacing-6); }
+.rail.ciline { align-items: flex-start; padding-inline: var(--spacing-5); gap: var(--spacing-3); }
+.rail.ciline::before { content: ""; position: absolute; left: 90px; right: 90px; top: 116px;
+  border-top: var(--line-focus) solid var(--color-hairline-strong); }
+.rail.ciline .stop { position: relative; }
+.rail.ciline .bub { width: 136px; height: 136px; font-size: 40px; }
+.bub.wide2 { width: 150px; border-radius: var(--radius-sm); height: 90px; font-size: 32px; margin-top: 23px; }
+.stop.pill .lab { display: none; }
+
+/* ── bands of boxes: the stack ──────────────────────────────────────────── */
+.bands { width: 100%; display: flex; flex-direction: column; gap: var(--spacing-4); }
+.band { flex: 1 1 0; display: flex; align-items: stretch; gap: var(--spacing-5); min-height: 0; }
+.blabel { flex: 0 0 230px; margin: 0; align-self: center;
+  font-family: var(--font-signal); font-size: 34px; line-height: 42px;
+  font-weight: 700; color: var(--color-ink); }
+.boxes { flex: 1 1 auto; display: flex; gap: var(--spacing-5); min-width: 0; }
+.bx { flex: 1 1 0; min-width: 0; display: flex; align-items: center;
+  background: var(--color-canvas); border-radius: var(--radius-sm);
+  border: var(--line-focus) solid var(--color-hairline-strong);
+  padding: var(--spacing-4) var(--spacing-5);
+  font-size: 32px; line-height: 40px; color: var(--color-ink); }
+.bx.ai  { border: calc(var(--line-focus) * 2) dashed var(--color-ink); }
+.gate { width: 100%; display: flex; align-items: center; justify-content: center;
+  background: var(--color-canvas); border-radius: var(--radius-sm);
+  border: var(--line-focus) solid var(--color-diagram-guardrail);
+  padding: var(--spacing-3) var(--spacing-5);
+  font-family: var(--font-signal); font-size: 32px; line-height: 40px; font-weight: 600;
+  color: var(--color-ink); }
+
+/* ── figures ────────────────────────────────────────────────────────────── */
+.figures { width: 100%; display: flex; align-items: stretch; justify-content: space-between; gap: var(--spacing-6); }
+.fig { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: var(--spacing-2);
+  border-top: var(--line-focus) solid var(--color-hairline-strong); padding-top: var(--spacing-4); }
+.fig .v { font-family: var(--font-signal); font-size: 150px; line-height: 156px;
+  font-weight: 700; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; color: var(--color-ink); }
+.fig .l { font-size: 32px; line-height: 42px; color: var(--color-ink-secondary); }
+.figures.small { flex: none; }
+.figures.small .v { font-size: 120px; line-height: 126px; }
+
+/* ── features: eight cards ──────────────────────────────────────────────── */
+.feat { width: 100%; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: 1fr; gap: var(--spacing-4); }
+.feat .card { padding: var(--spacing-4) var(--spacing-6); gap: var(--spacing-2); }
+.feat .phrase { font-size: 30px; line-height: 40px; }
+.feat .from { font-size: 24px; line-height: 30px; }
+
+/* ── diagram zoom: the flowchart fills the window at the window's own shape ──
+   The stage is 16:9 and scaled as a whole, so a tall diagram on a wide stage
+   is small. Pressing Z, or clicking a diagram, shows it alone in an overlay
+   sized to the real window, so on a tall or a large screen it gets all of it.
+   Escape or another click returns to the slide. Print ignores the overlay. */
+#zoom { position: fixed; inset: 0; z-index: 50; display: none; padding: 24px; box-sizing: border-box;
+  background: var(--color-surface-sunken); overflow: auto; }
+#zoom[data-open] { display: flex; align-items: center; justify-content: center; }
+#zoom svg { width: 100%; height: 100%; }
+#zoom .hint { position: fixed; left: 24px; bottom: 16px; font-size: 16px; color: var(--color-ink-secondary); margin: 0; }
+.diagram { cursor: zoom-in; }
+@media print { #zoom { display: none !important; } }
+
+/* ── print ──────────────────────────────────────────────────────────────── */
+@page { size: 1920px 1080px; margin: 0; }
+@media print {
+  html, body { height: auto; overflow: visible; }
+  .stage { position: static; width: 1920px; height: auto; transform: none; }
+  .slide { position: relative; display: flex; break-after: page; page-break-after: always; }
+  .slide:last-child { break-after: auto; page-break-after: auto; }
+}
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+
+<!-- 1 -->
+<section class="slide" aria-label="Slide 1, title">
+  <p class="kicker">Week 4 midpoint, design proposal</p>
+  <h1 class="h1 big">Jarvaids</h1>
+  <div class="body">
+    <div class="wallwrap"><img src="../demo/wall.png" alt="A wall of sticky notes, drawn as a stand-in for a real session"></div>
+    <div class="say">
+      <p class="para lead">A meeting assistant that records what is said and what is put on the
+      wall during a design session, while the session is running.</p>
+      <div>
+        <p class="who">Group 3 (tentative)</p>
+        <p class="who">Luuk Brok, Pieter Borst, Julie van Veelen, Roselique van den Brink</p>
+      </div>
+    </div>
+  </div>
+  <p class="foot"><span class="src">The wall shown is a drawing made for the demo, not a photograph of a session</span><span class="pn"></span></p>
+</section>
+
+<!-- 2 -->
+<section class="slide" aria-label="Slide 2, project background">
+  <p class="kicker">Introduction</p>
+  <h2 class="h1">Project background</h2>
+  <p class="para">Design teams in working sessions produce remarks, sketches and sticky notes.
+  Most of it is not recorded. Three problems recur.</p>
+  <div class="body">
+    <ol class="threes">
+      <li><span class="n">1</span><span class="w">A remark made earlier in the session cannot be found again.</span></li>
+      <li><span class="n">2</span><span class="w">The wall is photographed at the end, but the notes are rarely typed up.</span></li>
+      <li><span class="n">3</span><span class="w">The board survives the meeting; the reasoning behind it does not.</span></li>
+    </ol>
+  </div>
+  <p class="foot"><span class="src">Source: concept 001, ideation folder</span><span class="pn"></span></p>
+</section>
+
+<!-- 3 -->
+<section class="slide" aria-label="Slide 3, users and context">
+  <p class="kicker">Introduction</p>
+  <h2 class="h1">Users and context</h2>
+  <p class="para">Designers, technical participants in multidisciplinary teams, and Master&rsquo;s students in
+  design programmes, in meetings and brainstorm sessions that combine spoken discussion, sketches,
+  sticky notes and photographs. Two to eight people, one to two hours, one facilitator, a shared screen.</p>
+  <div class="body centre">
+  <svg class="scene" viewBox="0 0 1680 460" role="img" aria-label="A wall of sticky notes on the left, and seven people facing it on the right, one of them the facilitator">
+    <rect class="panel" x="20" y="10" width="700" height="360" rx="4"/>
+    <rect class="paper" x="70" y="50" width="180" height="130" rx="4"/>
+    <rect class="paper" x="280" y="42" width="180" height="130" rx="4"/>
+    <rect class="paper" x="490" y="58" width="180" height="130" rx="4"/>
+    <rect class="paper" x="70" y="210" width="180" height="130" rx="4"/>
+    <rect class="paper" x="280" y="200" width="180" height="130" rx="4"/>
+    <rect class="paper" x="490" y="216" width="180" height="130" rx="4"/>
+    <text class="cap" x="20" y="428">The wall</text>
+    <g class="who lead-who">
+      <circle cx="880" cy="110" r="42"/>
+      <path d="M822,300 v-70 a58,58 0 0 1 116,0 v70 z"/>
+    </g>
+    <text class="cap accentish" x="782" y="362">Facilitator</text>
+    <g class="who">
+      <circle cx="1020" cy="120" r="36"/><path d="M970,300 v-64 a50,50 0 0 1 100,0 v64 z"/>
+      <circle cx="1130" cy="120" r="36"/><path d="M1080,300 v-64 a50,50 0 0 1 100,0 v64 z"/>
+      <circle cx="1240" cy="120" r="36"/><path d="M1190,300 v-64 a50,50 0 0 1 100,0 v64 z"/>
+      <circle cx="1350" cy="120" r="36"/><path d="M1300,300 v-64 a50,50 0 0 1 100,0 v64 z"/>
+      <circle cx="1460" cy="120" r="36"/><path d="M1410,300 v-64 a50,50 0 0 1 100,0 v64 z"/>
+      <circle cx="1570" cy="120" r="36"/><path d="M1520,300 v-64 a50,50 0 0 1 100,0 v64 z"/>
+    </g>
+    <text class="cap" x="1180" y="362">Participants</text>
+  </svg>
+  </div>
+  <p class="foot"><span class="src">Roles: flowchart F4.3; session size: app/server/README.md</span><span class="pn"></span></p>
+</section>
+
+<!-- product concept -->
+<section class="slide" aria-label="Product concept">
+  <p class="kicker">Introduction</p>
+  <h2 class="h1">Product concept</h2>
+  <p class="para">An AI tool used during design meetings and brainstorm sessions. It takes the spoken
+  discussion and photographs of the room as input, and keeps a structured visual overview of the
+  meeting on the digital whiteboard while the meeting is running. Participants can ask it questions
+  and give it commands by voice.</p>
+  <div class="body">
+    <div class="bands">
+      <div class="band">
+        <p class="blabel">Input</p>
+        <div class="boxes">
+          <span class="bx">Speech in the room</span>
+          <span class="bx">Photographs of the wall, sketches and screens</span>
+          <span class="bx">Typed notes</span>
+          <span class="bx">Voice commands</span>
+        </div>
+      </div>
+      <div class="band">
+        <p class="blabel">Overview</p>
+        <div class="boxes">
+          <span class="bx">Themes and clusters</span>
+          <span class="bx">Decisions and actions</span>
+          <span class="bx">Open questions</span>
+          <span class="bx">Notes from the wall</span>
+        </div>
+      </div>
+      <div class="band">
+        <p class="blabel">On request</p>
+        <div class="boxes">
+          <span class="bx">Answers about the meeting so far, with the moment cited</span>
+          <span class="bx">Suggestions for next steps, marked as the tool&rsquo;s</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="foot"><span class="src">Source: the structured brainstorm notes of 11 September and concept 001</span><span class="pn"></span></p>
+</section>
+
+<!-- features -->
+<section class="slide" aria-label="Features">
+  <p class="kicker">Introduction</p>
+  <h2 class="h1">Features</h2>
+  <div class="body">
+    <div class="feat">
+      <div class="card"><p class="phrase">Live transcription of the discussion, with speaker labels.</p><p class="from">F1.2, F1.3. Plumbing</p></div>
+      <div class="card"><p class="phrase">Voice commands, such as &ldquo;summarise this&rdquo; or &ldquo;add this to the planning&rdquo;, carried out on the whiteboard.</p><p class="from">F2.5, F2.6. Proposed</p></div>
+      <div class="card"><p class="phrase">Photographs of the sticky-note wall become individual notes on the whiteboard.</p><p class="from">F1.4 to F1.6. Built with a placeholder reader</p></div>
+      <div class="card"><p class="phrase">A live overview of themes, decisions, actions and open questions, laid out rather than listed.</p><p class="from">F2.1 to F2.4, F3.2, F3.3. Proposed</p></div>
+      <div class="card"><p class="phrase">Questions about the meeting so far, answered live and citing the moment the answer came from.</p><p class="from">F2.7, F6.3. Proposed</p></div>
+      <div class="card"><p class="phrase">Anything the tool adds is provisional until a participant accepts it. Corrections are recorded.</p><p class="from">F3.4, F3.5, F6.5. Built</p></div>
+      <div class="card"><p class="phrase">Consent before capture, audio deleted after the session, transcripts anonymised.</p><p class="from">F6.1, F6.2, F6.6. Built, audio proposed</p></div>
+      <div class="card"><p class="phrase">Export of the canvas and the minutes; push to Miro or FigJam.</p><p class="from">F5.1 to F5.3. Export built, push proposed</p></div>
+    </div>
+  </div>
+  <p class="foot"><span class="src">F-numbers: documentation/flowchart.md. Status of each function: documentation/proposal.md</span><span class="pn"></span></p>
+</section>
+
+<!-- voice commands -->
+<section class="slide" aria-label="Voice commands">
+  <p class="kicker">Introduction</p>
+  <h2 class="h1">Voice commands</h2>
+  <p class="para">A participant says &ldquo;add this to the planning&rdquo;. The command interpreter decides whether the
+  sentence was addressed to the tool, works out what &ldquo;this&rdquo; refers to from the canvas and the last
+  minute of speech, and proposes one change to the whiteboard. A participant confirms it. When the
+  reference is ambiguous the tool asks rather than guesses.</p>
+  <div class="body">
+    <div class="rail">
+      <div class="stop"><span class="bub">1</span><span class="lab">Sentence spoken</span></div>
+      <div class="stop ai"><span class="bub">2</span><span class="lab">Addressed to the tool?</span></div>
+      <div class="stop ai"><span class="bub">3</span><span class="lab">Which operation</span></div>
+      <div class="stop ai"><span class="bub">4</span><span class="lab">Which items</span></div>
+      <div class="stop"><span class="bub">5</span><span class="lab">Provisional change on the whiteboard</span></div>
+      <div class="stop"><span class="bub">6</span><span class="lab">Participant confirms</span></div>
+    </div>
+  </div>
+  <p class="foot"><span class="src">Pipeline: documentation/pipelines.md section 3. Dashed stages involve a model. Status: proposed</span><span class="pn"></span></p>
+</section>
+
+<!-- 4 -->
+<section class="slide" aria-label="Slide 4, findings from week 3">
+  <p class="kicker">Research</p>
+  <h2 class="h1">Findings from week 3</h2>
+  <div class="body">
+    <div class="cards4">
+      <div class="card">
+        <p class="phrase">Generic AI feedback was found unhelpful. Feedback on a specific element was useful.</p>
+        <p class="from">Group reflection</p>
+      </div>
+      <div class="card">
+        <p class="phrase">Five simulated interviewees responded positively; five real interviewees responded negatively.</p>
+        <p class="from">Interviews, via the MapIt report</p>
+      </div>
+      <div class="card">
+        <p class="phrase">The MapIt report presented one interviewee&rsquo;s view as a conclusion of the group.</p>
+        <p class="from">MapIt report</p>
+      </div>
+      <div class="card">
+        <p class="phrase">The group asked for a live overview in which AI suggestions are visibly distinct from what was said.</p>
+        <p class="from">FrameIt conversation</p>
+      </div>
+    </div>
+  </div>
+  <p class="foot"><span class="src">Annotated material: deliverables/week4-midpoint/annotations</span><span class="pn"></span></p>
+</section>
+
+<!-- 5 -->
+<section class="slide" aria-label="Slide 5, design question">
+  <p class="kicker">Problem framing</p>
+  <h2 class="h1">Design question</h2>
+  <div class="body centre">
+    <p class="quote">How can what is said and written during a design session be recorded as it happens,
+    in a way that keeps the team&rsquo;s own work distinct from what a model proposed?</p>
+  </div>
+  <p class="foot"><span class="src">Derived from the concept, the week 3 findings and the flowchart</span><span class="pn"></span></p>
+</section>
+
+<!-- 6 -->
+<section class="slide" aria-label="Slide 6, provisional output">
+  <p class="kicker">Design principle</p>
+  <h2 class="h1">Provisional output</h2>
+  <p class="para">Anything produced by a model is marked provisional until a participant accepts it.
+  A provisional note has a dashed edge and names its source. Moving a note does not count as accepting it.</p>
+  <div class="body notes">
+    <div class="note model">
+      <p class="ntext">Onboarding loses people at step 3</p>
+      <p class="meta"><span class="dot"></span>Provisional, read by the placeholder adapter</p>
+    </div>
+    <div class="note">
+      <p class="ntext">Onboarding loses people at step three</p>
+      <p class="meta"><span class="dot"></span>Accepted by a participant</p>
+    </div>
+  </div>
+  <p class="foot"><span class="src">Flowchart F3.4 and F3.5; design system rules 16 to 18</span><span class="pn"></span></p>
+</section>
+
+<!-- 7 -->
+<section class="slide" aria-label="Slide 7, user journey">
+  <p class="kicker">Design</p>
+  <h2 class="h1">User journey</h2>
+  <div class="body"><div class="diagram">
+  <svg width="1240" height="1132" viewBox="0 0 1240 1132" role="img" aria-label="User journey flowchart: before, during and after the meeting">
+    <defs>
+      <marker id="ah1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M0,0 L10,5 L0,10 z" fill="var(--color-hairline-strong)"/>
+      </marker>
+    </defs>
+
+    <!-- BAND: BEFORE -->
+    <rect class="band" x="20" y="20" width="1200" height="190" rx="14"/>
+    <text class="bandlbl" x="44" y="50">Before the meeting</text>
+    <g>
+      <rect class="box b-plain" x="44" y="76" width="250" height="100" rx="10"/>
+<text class="badge" x="56" y="80">Step</text>
+      <text class="t" x="60" y="104">1 &middot; Create session</text>
+      <text class="s" x="60" y="126"><tspan x="60">Open the website. No install,</tspan><tspan x="60" dy="15">no account for guests.</tspan><tspan x="60" dy="15">Get a join link.</tspan></text>
+
+      <rect class="box b-grd" x="344" y="76" width="250" height="100" rx="10"/>
+<text class="badge" x="356" y="80">Guardrail</text>
+      <text class="t i-grd" x="360" y="104">2 &middot; Consent round</text>
+      <text class="s i-grd" x="360" y="126"><tspan x="360">Everyone in the room agrees</tspan><tspan x="360" dy="15">out loud. Logged. Nothing is</tspan><tspan x="360" dy="15">captured before this.</tspan></text>
+
+      <rect class="box b-plain" x="644" y="76" width="250" height="100" rx="10"/>
+<text class="badge" x="656" y="80">Step</text>
+      <text class="t" x="660" y="104">3 &middot; Choose the canvas</text>
+      <text class="s" x="660" y="126"><tspan x="660">Blank, or a starting layout:</tspan><tspan x="660" dy="15">cluster, timeline, matrix,</tspan><tspan x="660" dy="15">flow. Drop in the agenda.</tspan></text>
+
+      <rect class="box b-plain" x="944" y="76" width="250" height="100" rx="10"/>
+<text class="badge" x="956" y="80">Step</text>
+      <text class="t" x="960" y="104">4 &middot; Team joins</text>
+      <text class="s" x="960" y="126"><tspan x="960">Canvas on the shared screen,</tspan><tspan x="960" dy="15">link on everyone&rsquo;s phone for</tspan><tspan x="960" dy="15">taking photographs.</tspan></text>
+
+      <path class="ln" d="M294,126 H336" marker-end="url(#ah1)"/>
+      <path class="ln" d="M594,126 H636" marker-end="url(#ah1)"/>
+      <path class="ln" d="M894,126 H936" marker-end="url(#ah1)"/>
+    </g>
+    <path class="ln" d="M620,210 V232" marker-end="url(#ah1)"/>
+
+    <!-- BAND: DURING -->
+    <rect class="band" x="20" y="240" width="1200" height="660" rx="14"/>
+    <text class="bandlbl" x="44" y="270">During the meeting: this loop runs continuously</text>
+
+    <!-- inputs -->
+    <text class="bandlbl" x="44" y="296">Input from the room</text>
+    <g>
+      <rect class="box b-in" x="44" y="306" width="220" height="62" rx="9"/>
+<text class="badge" x="56" y="310">Input</text>
+      <text class="t i-in" x="58" y="330">Speech</text>
+      <text class="s i-in" x="58" y="350">Everything anyone says.</text>
+
+      <rect class="box b-in" x="44" y="382" width="220" height="62" rx="9"/>
+<text class="badge" x="56" y="386">Input</text>
+      <text class="t i-in" x="58" y="406">Photographs</text>
+      <text class="s i-in" x="58" y="426">Sticky walls, sketches, screens.</text>
+
+      <rect class="box b-in" x="44" y="458" width="220" height="62" rx="9"/>
+<text class="badge" x="56" y="462">Input</text>
+      <text class="t i-in" x="58" y="482">Spoken commands</text>
+      <text class="s i-in" x="58" y="502">&ldquo;Put those three on a timeline.&rdquo;</text>
+
+      <rect class="box b-in" x="44" y="534" width="220" height="62" rx="9"/>
+<text class="badge" x="56" y="538">Input</text>
+      <text class="t i-in" x="58" y="558">Typed notes and questions</text>
+      <text class="s i-in" x="58" y="578">For whoever does not want to talk.</text>
+    </g>
+
+    <!-- AI layer -->
+    <rect class="hull" x="310" y="296" width="340" height="330" rx="14"/>
+    <text class="bandlbl" x="326" y="288">AI layer: three agents, one orchestrator</text>
+    <g>
+      <rect class="box b-ai" x="328" y="316" width="304" height="86" rx="9"/>
+<text class="badge" x="340" y="320">Model</text>
+      <text class="t i-ai" x="344" y="342">Agent 1 &middot; Notulator</text>
+      <text class="s i-ai" x="344" y="362"><tspan x="344">Keeps the running record: what</tspan><tspan x="344" dy="15">was said, decided, left open.</tspan></text>
+
+      <rect class="box b-ai" x="328" y="414" width="304" height="86" rx="9"/>
+<text class="badge" x="340" y="418">Model</text>
+      <text class="t i-ai" x="344" y="440">Agent 2 &middot; Command interpreter</text>
+      <text class="s i-ai" x="344" y="460"><tspan x="344">Spots that something was asked</tspan><tspan x="344" dy="15">of it, and what exactly.</tspan></text>
+
+      <rect class="box b-ai" x="328" y="512" width="304" height="96" rx="9"/>
+<text class="badge" x="340" y="516">Model</text>
+      <text class="t i-ai" x="344" y="538">Agent 3 &middot; Visualiser</text>
+      <text class="s i-ai" x="344" y="558"><tspan x="344">Turns content into a layout. Not</tspan><tspan x="344" dy="15">text in a box: a visual</tspan><tspan x="344" dy="15">conclusion, placed right away.</tspan></text>
+    </g>
+
+    <path class="ln" d="M264,337 H302" marker-end="url(#ah1)"/>
+    <path class="ln" d="M264,413 C286,413 286,400 302,392" marker-end="url(#ah1)"/>
+    <path class="ln" d="M264,489 C286,489 286,470 302,455" marker-end="url(#ah1)"/>
+    <path class="ln" d="M264,565 C286,565 286,540 302,520" marker-end="url(#ah1)"/>
+
+    <!-- state -->
+    <rect class="box b-st" x="328" y="656" width="304" height="76" rx="9"/>
+<text class="badge" x="340" y="660">State</text>
+    <text class="t i-st" x="344" y="682">Session state</text>
+    <text class="s i-st" x="344" y="702"><tspan x="344">Transcript, people, decisions, open</tspan><tspan x="344" dy="15">questions, and the canvas itself.</tspan></text>
+    <path class="ln" d="M480,626 V648" marker-end="url(#ah1)"/>
+    <path class="ln" d="M500,648 V628" marker-end="url(#ah1)"/>
+
+    <!-- canvas -->
+    <rect class="box b-out" x="700" y="296" width="494" height="236" rx="12"/>
+<text class="badge" x="712" y="300">Canvas</text>
+    <text class="t i-out" x="718" y="324">The live visual canvas</text>
+    <text class="s i-out" x="718" y="346"><tspan x="718">Everyone watches it build itself while the meeting runs. Anything the AI</tspan><tspan x="718" dy="15">made is marked as such until a human accepts it.</tspan></text>
+    <g opacity="0.85">
+      <rect x="720" y="392" width="96" height="58" rx="5" fill="var(--color-canvas)" stroke="var(--color-hairline-strong)" stroke-width="1"/>
+      <text class="xs" x="768" y="417" text-anchor="middle"><tspan x="768">note from</tspan><tspan x="768" dy="15">the wall</tspan></text>
+      <rect x="828" y="392" width="96" height="58" rx="5" fill="var(--color-canvas)" stroke="var(--color-hairline-strong)" stroke-width="1"/>
+      <text class="xs" x="876" y="417" text-anchor="middle"><tspan x="876">what was</tspan><tspan x="876" dy="15">said</tspan></text>
+      <rect class="prov" x="936" y="392" width="96" height="58" rx="5"/>
+      <text class="xs" x="984" y="417" text-anchor="middle"><tspan x="984">grouped</tspan><tspan x="984" dy="15">by the AI</tspan></text>
+      <rect class="prov" x="1044" y="392" width="146" height="58" rx="5"/>
+      <text class="xs" x="1117" y="417" text-anchor="middle"><tspan x="1117">laid out as a timeline,</tspan><tspan x="1117" dy="15">waiting to be accepted</tspan></text>
+      <path class="ln" d="M816,421 H824" marker-end="url(#ah1)"/>
+      <path class="ln" d="M924,421 H932" marker-end="url(#ah1)"/>
+      <path class="ln" d="M1032,421 H1040" marker-end="url(#ah1)"/>
+      <text class="xs" x="720" y="474">solid = made by the team &nbsp;&middot;&nbsp; dashed = made by the AI, not accepted yet</text>
+      <text class="xs" x="720" y="500">clusters, timelines, matrices, flows: laid out, not just listed</text>
+    </g>
+    <path class="ln" d="M650,414 H692" marker-end="url(#ah1)"/>
+
+    <!-- human control -->
+    <rect class="box b-hum" x="700" y="556" width="494" height="74" rx="10"/>
+<text class="badge" x="712" y="560">Human</text>
+    <text class="t i-hum" x="718" y="582">Accept, edit, reject, move</text>
+    <text class="s i-hum" x="718" y="604">Nothing the AI made becomes the team&rsquo;s work until someone says so.</text>
+    <path class="ln" d="M947,532 V548" marker-end="url(#ah1)"/>
+
+    <!-- ask -->
+    <rect class="box b-hum" x="700" y="654" width="494" height="78" rx="10"/>
+<text class="badge" x="712" y="658">Human</text>
+    <text class="t i-hum" x="718" y="680">Ask it something, mid-meeting</text>
+    <text class="s i-hum" x="718" y="702"><tspan x="718">&ldquo;What did Sanne say about the paywall?&rdquo; It answers live, and cites the</tspan><tspan x="718" dy="15">moment it came from so the answer can be checked.</tspan></text>
+    <path class="ln" d="M692,693 H640" marker-end="url(#ah1)"/>
+
+    <!-- feedback loop -->
+    <path class="ln dash" d="M700,593 C664,593 660,570 650,556" marker-end="url(#ah1)"/>
+    <path class="ln dash" d="M620,764 C620,800 300,800 300,764 L300,420" marker-end="url(#ah1)"/>
+    <text class="xs" x="620" y="820" text-anchor="middle">corrections teach the session, and the loop runs again, every few seconds, all meeting long</text>
+    <path class="ln" d="M947,732 V752 C947,764 620,752 620,764" />
+
+    <text class="xs" x="44" y="864">Open question from the notes: does it volunteer suggestions, or only answer when asked? Drawn here as answer-on-request, with a</text>
+    <text class="xs" x="44" y="880">facilitator toggle for proactive suggestions, so the anchoring risk stays something the team can test rather than assume.</text>
+
+    <path class="ln" d="M620,900 V922" marker-end="url(#ah1)"/>
+
+    <!-- BAND: AFTER -->
+    <rect class="band" x="20" y="930" width="1200" height="178" rx="14"/>
+    <text class="bandlbl" x="44" y="960">After the meeting</text>
+    <g>
+      <rect class="box b-out" x="44" y="986" width="250" height="100" rx="10"/>
+<text class="badge" x="56" y="990">Canvas</text>
+      <text class="t i-out" x="60" y="1014">5 &middot; It is already done</text>
+      <text class="s i-out" x="60" y="1036"><tspan x="60">No one photographs the wall</tspan><tspan x="60" dy="15">and retypes it. The canvas is</tspan><tspan x="60" dy="15">the minutes.</tspan></text>
+
+      <rect class="box b-plain" x="344" y="986" width="250" height="100" rx="10"/>
+<text class="badge" x="356" y="990">Step</text>
+      <text class="t" x="360" y="1014">6 &middot; Export</text>
+      <text class="s" x="360" y="1036"><tspan x="360">PNG, PDF, or push into Miro</tspan><tspan x="360" dy="15">or FigJam so it lands where</tspan><tspan x="360" dy="15">the team already works.</tspan></text>
+
+      <rect class="box b-plain" x="644" y="986" width="250" height="100" rx="10"/>
+<text class="badge" x="656" y="990">Step</text>
+      <text class="t" x="660" y="1014">7 &middot; Searchable record</text>
+      <text class="s" x="660" y="1036"><tspan x="660">Transcript, decisions and</tspan><tspan x="660" dy="15">actions with timestamps,</tspan><tspan x="660" dy="15">linked to canvas items.</tspan></text>
+
+      <rect class="box b-grd" x="944" y="986" width="250" height="100" rx="10"/>
+<text class="badge" x="956" y="990">Guardrail</text>
+      <text class="t i-grd" x="960" y="1014">8 &middot; Audio deleted</text>
+      <text class="s i-grd" x="960" y="1036"><tspan x="960">Retention agreed up front.</tspan><tspan x="960" dy="15">Transcript anonymised before</tspan><tspan x="960" dy="15">it leaves the session.</tspan></text>
+
+      <path class="ln" d="M294,1036 H336" marker-end="url(#ah1)"/>
+      <path class="ln" d="M594,1036 H636" marker-end="url(#ah1)"/>
+      <path class="ln" d="M894,1036 H936" marker-end="url(#ah1)"/>
+    </g>
+  </svg>
+  </div></div>
+  <p class="foot"><span class="src">Diagram: documentation/flowchart.html, user journey tab. Dashed boxes are where a model runs.</span><span class="pn"></span></p>
+</section>
+
+<!-- 8 -->
+<section class="slide" aria-label="Slide 8, user journey during the meeting">
+  <p class="kicker">Design</p>
+  <h2 class="h1">User journey, during the meeting</h2>
+  <div class="body"><div class="diagram">
+  <svg width="1216" height="676" viewBox="12 232 1216 676" role="img" aria-label="User journey, the band for during the meeting">
+    <defs>
+      <marker id="ah1b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M0,0 L10,5 L0,10 z" fill="var(--color-hairline-strong)"/>
+      </marker>
+    </defs>
+
+    <!-- BAND: BEFORE -->
+    <rect class="band" x="20" y="20" width="1200" height="190" rx="14"/>
+    <text class="bandlbl" x="44" y="50">Before the meeting</text>
+    <g>
+      <rect class="box b-plain" x="44" y="76" width="250" height="100" rx="10"/>
+<text class="badge" x="56" y="80">Step</text>
+      <text class="t" x="60" y="104">1 &middot; Create session</text>
+      <text class="s" x="60" y="126"><tspan x="60">Open the website. No install,</tspan><tspan x="60" dy="15">no account for guests.</tspan><tspan x="60" dy="15">Get a join link.</tspan></text>
+
+      <rect class="box b-grd" x="344" y="76" width="250" height="100" rx="10"/>
+<text class="badge" x="356" y="80">Guardrail</text>
+      <text class="t i-grd" x="360" y="104">2 &middot; Consent round</text>
+      <text class="s i-grd" x="360" y="126"><tspan x="360">Everyone in the room agrees</tspan><tspan x="360" dy="15">out loud. Logged. Nothing is</tspan><tspan x="360" dy="15">captured before this.</tspan></text>
+
+      <rect class="box b-plain" x="644" y="76" width="250" height="100" rx="10"/>
+<text class="badge" x="656" y="80">Step</text>
+      <text class="t" x="660" y="104">3 &middot; Choose the canvas</text>
+      <text class="s" x="660" y="126"><tspan x="660">Blank, or a starting layout:</tspan><tspan x="660" dy="15">cluster, timeline, matrix,</tspan><tspan x="660" dy="15">flow. Drop in the agenda.</tspan></text>
+
+      <rect class="box b-plain" x="944" y="76" width="250" height="100" rx="10"/>
+<text class="badge" x="956" y="80">Step</text>
+      <text class="t" x="960" y="104">4 &middot; Team joins</text>
+      <text class="s" x="960" y="126"><tspan x="960">Canvas on the shared screen,</tspan><tspan x="960" dy="15">link on everyone&rsquo;s phone for</tspan><tspan x="960" dy="15">taking photographs.</tspan></text>
+
+      <path class="ln" d="M294,126 H336" marker-end="url(#ah1b)"/>
+      <path class="ln" d="M594,126 H636" marker-end="url(#ah1b)"/>
+      <path class="ln" d="M894,126 H936" marker-end="url(#ah1b)"/>
+    </g>
+    <path class="ln" d="M620,210 V232" marker-end="url(#ah1b)"/>
+
+    <!-- BAND: DURING -->
+    <rect class="band" x="20" y="240" width="1200" height="660" rx="14"/>
+    <text class="bandlbl" x="44" y="270">During the meeting: this loop runs continuously</text>
+
+    <!-- inputs -->
+    <text class="bandlbl" x="44" y="296">Input from the room</text>
+    <g>
+      <rect class="box b-in" x="44" y="306" width="220" height="62" rx="9"/>
+<text class="badge" x="56" y="310">Input</text>
+      <text class="t i-in" x="58" y="330">Speech</text>
+      <text class="s i-in" x="58" y="350">Everything anyone says.</text>
+
+      <rect class="box b-in" x="44" y="382" width="220" height="62" rx="9"/>
+<text class="badge" x="56" y="386">Input</text>
+      <text class="t i-in" x="58" y="406">Photographs</text>
+      <text class="s i-in" x="58" y="426">Sticky walls, sketches, screens.</text>
+
+      <rect class="box b-in" x="44" y="458" width="220" height="62" rx="9"/>
+<text class="badge" x="56" y="462">Input</text>
+      <text class="t i-in" x="58" y="482">Spoken commands</text>
+      <text class="s i-in" x="58" y="502">&ldquo;Put those three on a timeline.&rdquo;</text>
+
+      <rect class="box b-in" x="44" y="534" width="220" height="62" rx="9"/>
+<text class="badge" x="56" y="538">Input</text>
+      <text class="t i-in" x="58" y="558">Typed notes and questions</text>
+      <text class="s i-in" x="58" y="578">For whoever does not want to talk.</text>
+    </g>
+
+    <!-- AI layer -->
+    <rect class="hull" x="310" y="296" width="340" height="330" rx="14"/>
+    <text class="bandlbl" x="326" y="288">AI layer: three agents, one orchestrator</text>
+    <g>
+      <rect class="box b-ai" x="328" y="316" width="304" height="86" rx="9"/>
+<text class="badge" x="340" y="320">Model</text>
+      <text class="t i-ai" x="344" y="342">Agent 1 &middot; Notulator</text>
+      <text class="s i-ai" x="344" y="362"><tspan x="344">Keeps the running record: what</tspan><tspan x="344" dy="15">was said, decided, left open.</tspan></text>
+
+      <rect class="box b-ai" x="328" y="414" width="304" height="86" rx="9"/>
+<text class="badge" x="340" y="418">Model</text>
+      <text class="t i-ai" x="344" y="440">Agent 2 &middot; Command interpreter</text>
+      <text class="s i-ai" x="344" y="460"><tspan x="344">Spots that something was asked</tspan><tspan x="344" dy="15">of it, and what exactly.</tspan></text>
+
+      <rect class="box b-ai" x="328" y="512" width="304" height="96" rx="9"/>
+<text class="badge" x="340" y="516">Model</text>
+      <text class="t i-ai" x="344" y="538">Agent 3 &middot; Visualiser</text>
+      <text class="s i-ai" x="344" y="558"><tspan x="344">Turns content into a layout. Not</tspan><tspan x="344" dy="15">text in a box: a visual</tspan><tspan x="344" dy="15">conclusion, placed right away.</tspan></text>
+    </g>
+
+    <path class="ln" d="M264,337 H302" marker-end="url(#ah1b)"/>
+    <path class="ln" d="M264,413 C286,413 286,400 302,392" marker-end="url(#ah1b)"/>
+    <path class="ln" d="M264,489 C286,489 286,470 302,455" marker-end="url(#ah1b)"/>
+    <path class="ln" d="M264,565 C286,565 286,540 302,520" marker-end="url(#ah1b)"/>
+
+    <!-- state -->
+    <rect class="box b-st" x="328" y="656" width="304" height="76" rx="9"/>
+<text class="badge" x="340" y="660">State</text>
+    <text class="t i-st" x="344" y="682">Session state</text>
+    <text class="s i-st" x="344" y="702"><tspan x="344">Transcript, people, decisions, open</tspan><tspan x="344" dy="15">questions, and the canvas itself.</tspan></text>
+    <path class="ln" d="M480,626 V648" marker-end="url(#ah1b)"/>
+    <path class="ln" d="M500,648 V628" marker-end="url(#ah1b)"/>
+
+    <!-- canvas -->
+    <rect class="box b-out" x="700" y="296" width="494" height="236" rx="12"/>
+<text class="badge" x="712" y="300">Canvas</text>
+    <text class="t i-out" x="718" y="324">The live visual canvas</text>
+    <text class="s i-out" x="718" y="346"><tspan x="718">Everyone watches it build itself while the meeting runs. Anything the AI</tspan><tspan x="718" dy="15">made is marked as such until a human accepts it.</tspan></text>
+    <g opacity="0.85">
+      <rect x="720" y="392" width="96" height="58" rx="5" fill="var(--color-canvas)" stroke="var(--color-hairline-strong)" stroke-width="1"/>
+      <text class="xs" x="768" y="417" text-anchor="middle"><tspan x="768">note from</tspan><tspan x="768" dy="15">the wall</tspan></text>
+      <rect x="828" y="392" width="96" height="58" rx="5" fill="var(--color-canvas)" stroke="var(--color-hairline-strong)" stroke-width="1"/>
+      <text class="xs" x="876" y="417" text-anchor="middle"><tspan x="876">what was</tspan><tspan x="876" dy="15">said</tspan></text>
+      <rect class="prov" x="936" y="392" width="96" height="58" rx="5"/>
+      <text class="xs" x="984" y="417" text-anchor="middle"><tspan x="984">grouped</tspan><tspan x="984" dy="15">by the AI</tspan></text>
+      <rect class="prov" x="1044" y="392" width="146" height="58" rx="5"/>
+      <text class="xs" x="1117" y="417" text-anchor="middle"><tspan x="1117">laid out as a timeline,</tspan><tspan x="1117" dy="15">waiting to be accepted</tspan></text>
+      <path class="ln" d="M816,421 H824" marker-end="url(#ah1b)"/>
+      <path class="ln" d="M924,421 H932" marker-end="url(#ah1b)"/>
+      <path class="ln" d="M1032,421 H1040" marker-end="url(#ah1b)"/>
+      <text class="xs" x="720" y="474">solid = made by the team &nbsp;&middot;&nbsp; dashed = made by the AI, not accepted yet</text>
+      <text class="xs" x="720" y="500">clusters, timelines, matrices, flows: laid out, not just listed</text>
+    </g>
+    <path class="ln" d="M650,414 H692" marker-end="url(#ah1b)"/>
+
+    <!-- human control -->
+    <rect class="box b-hum" x="700" y="556" width="494" height="74" rx="10"/>
+<text class="badge" x="712" y="560">Human</text>
+    <text class="t i-hum" x="718" y="582">Accept, edit, reject, move</text>
+    <text class="s i-hum" x="718" y="604">Nothing the AI made becomes the team&rsquo;s work until someone says so.</text>
+    <path class="ln" d="M947,532 V548" marker-end="url(#ah1b)"/>
+
+    <!-- ask -->
+    <rect class="box b-hum" x="700" y="654" width="494" height="78" rx="10"/>
+<text class="badge" x="712" y="658">Human</text>
+    <text class="t i-hum" x="718" y="680">Ask it something, mid-meeting</text>
+    <text class="s i-hum" x="718" y="702"><tspan x="718">&ldquo;What did Sanne say about the paywall?&rdquo; It answers live, and cites the</tspan><tspan x="718" dy="15">moment it came from so the answer can be checked.</tspan></text>
+    <path class="ln" d="M692,693 H640" marker-end="url(#ah1b)"/>
+
+    <!-- feedback loop -->
+    <path class="ln dash" d="M700,593 C664,593 660,570 650,556" marker-end="url(#ah1b)"/>
+    <path class="ln dash" d="M620,764 C620,800 300,800 300,764 L300,420" marker-end="url(#ah1b)"/>
+    <text class="xs" x="620" y="820" text-anchor="middle">corrections teach the session, and the loop runs again, every few seconds, all meeting long</text>
+    <path class="ln" d="M947,732 V752 C947,764 620,752 620,764" />
+
+    <text class="xs" x="44" y="864">Open question from the notes: does it volunteer suggestions, or only answer when asked? Drawn here as answer-on-request, with a</text>
+    <text class="xs" x="44" y="880">facilitator toggle for proactive suggestions, so the anchoring risk stays something the team can test rather than assume.</text>
+
+    <path class="ln" d="M620,900 V922" marker-end="url(#ah1b)"/>
+
+    <!-- BAND: AFTER -->
+    <rect class="band" x="20" y="930" width="1200" height="178" rx="14"/>
+    <text class="bandlbl" x="44" y="960">After the meeting</text>
+    <g>
+      <rect class="box b-out" x="44" y="986" width="250" height="100" rx="10"/>
+<text class="badge" x="56" y="990">Canvas</text>
+      <text class="t i-out" x="60" y="1014">5 &middot; It is already done</text>
+      <text class="s i-out" x="60" y="1036"><tspan x="60">No one photographs the wall</tspan><tspan x="60" dy="15">and retypes it. The canvas is</tspan><tspan x="60" dy="15">the minutes.</tspan></text>
+
+      <rect class="box b-plain" x="344" y="986" width="250" height="100" rx="10"/>
+<text class="badge" x="356" y="990">Step</text>
+      <text class="t" x="360" y="1014">6 &middot; Export</text>
+      <text class="s" x="360" y="1036"><tspan x="360">PNG, PDF, or push into Miro</tspan><tspan x="360" dy="15">or FigJam so it lands where</tspan><tspan x="360" dy="15">the team already works.</tspan></text>
+
+      <rect class="box b-plain" x="644" y="986" width="250" height="100" rx="10"/>
+<text class="badge" x="656" y="990">Step</text>
+      <text class="t" x="660" y="1014">7 &middot; Searchable record</text>
+      <text class="s" x="660" y="1036"><tspan x="660">Transcript, decisions and</tspan><tspan x="660" dy="15">actions with timestamps,</tspan><tspan x="660" dy="15">linked to canvas items.</tspan></text>
+
+      <rect class="box b-grd" x="944" y="986" width="250" height="100" rx="10"/>
+<text class="badge" x="956" y="990">Guardrail</text>
+      <text class="t i-grd" x="960" y="1014">8 &middot; Audio deleted</text>
+      <text class="s i-grd" x="960" y="1036"><tspan x="960">Retention agreed up front.</tspan><tspan x="960" dy="15">Transcript anonymised before</tspan><tspan x="960" dy="15">it leaves the session.</tspan></text>
+
+      <path class="ln" d="M294,1036 H336" marker-end="url(#ah1b)"/>
+      <path class="ln" d="M594,1036 H636" marker-end="url(#ah1b)"/>
+      <path class="ln" d="M894,1036 H936" marker-end="url(#ah1b)"/>
+    </g>
+  </svg>
+  </div></div>
+  <p class="foot"><span class="src">The middle band of the previous diagram. Input on the left, agents in the middle, the canvas and the participants on the right.</span><span class="pn"></span></p>
+</section>
+
+<!-- 9 -->
+<section class="slide" aria-label="Slide 9, system architecture">
+  <p class="kicker">Design</p>
+  <h2 class="h1">System architecture</h2>
+  <div class="body"><div class="diagram">
+  <svg width="1320" height="1200" viewBox="0 0 1320 1200" role="img" aria-label="System architecture: client, server pipelines, orchestrator, three agents, state and guardrails">
+    <defs>
+      <marker id="ah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M0,0 L10,5 L0,10 z" fill="var(--color-hairline-strong)"/>
+      </marker>
+    </defs>
+
+    <!-- L0 CLIENT -->
+    <rect class="band" x="20" y="20" width="1200" height="180" rx="14"/>
+    <text class="bandlbl" x="44" y="48">Client: browser, nothing to install</text>
+    <g>
+      <rect class="box b-in" x="44" y="66" width="270" height="112" rx="10"/>
+<text class="badge" x="56" y="70">Client</text>
+      <text class="t i-in" x="60" y="92">Microphone capture</text>
+      <text class="s i-in" x="60" y="112"><tspan x="60">Continuous room audio, chunked</tspan><tspan x="60" dy="15">and streamed. Visible recording</tspan><tspan x="60" dy="15">indicator that cannot be hidden.</tspan></text>
+
+      <rect class="box b-in" x="334" y="66" width="270" height="112" rx="10"/>
+<text class="badge" x="346" y="70">Client</text>
+      <text class="t i-in" x="350" y="92">Photograph upload</text>
+      <text class="s i-in" x="350" y="112"><tspan x="350">Phone camera or drag-and-drop.</tspan><tspan x="350" dy="15">Any participant, no login, via</tspan><tspan x="350" dy="15">the session join link.</tspan></text>
+
+      <rect class="box b-in" x="624" y="66" width="270" height="112" rx="10"/>
+<text class="badge" x="636" y="70">Client</text>
+      <text class="t i-in" x="640" y="92">Command bar</text>
+      <text class="s i-in" x="640" y="112"><tspan x="640">Type, or push-to-talk. The same</tspan><tspan x="640" dy="15">commands the speech path</tspan><tspan x="640" dy="15">recognises, for noisy rooms.</tspan></text>
+
+      <rect class="box b-out" x="914" y="66" width="280" height="112" rx="10"/>
+<text class="badge" x="926" y="70">Client</text>
+      <text class="t i-out" x="930" y="92">Canvas renderer</text>
+      <text class="s i-out" x="930" y="112"><tspan x="930">Live, multi-user, pan and zoom.</tspan><tspan x="930" dy="15">Direct manipulation: drag, edit,</tspan><tspan x="930" dy="15">delete, undo.</tspan></text>
+    </g>
+    <path class="ln" d="M620,200 V226" marker-end="url(#ah2)"/>
+
+    <!-- L1 SERVER -->
+    <rect class="band" x="20" y="234" width="1200" height="180" rx="14"/>
+    <text class="bandlbl" x="44" y="262">Server: raw input becomes ordered events</text>
+    <g>
+      <rect class="box b-out" x="44" y="280" width="270" height="112" rx="10"/>
+<text class="badge" x="56" y="284">Pipeline</text>
+      <text class="t i-out" x="60" y="306">Audio pipeline</text>
+      <text class="s i-out" x="60" y="326"><tspan x="60">Voice detection, chunking, local</tspan><tspan x="60" dy="15">speech-to-text, speaker labels.</tspan><tspan x="60" dy="15">Audio does not leave the server.</tspan></text>
+
+      <rect class="box b-out" x="334" y="280" width="270" height="112" rx="10"/>
+<text class="badge" x="346" y="284">Pipeline</text>
+      <text class="t i-out" x="350" y="306">Image pipeline</text>
+      <text class="s i-out" x="350" y="326"><tspan x="350">Deskew, crop, split a wall into</tspan><tspan x="350" dy="15">individual notes, read the</tspan><tspan x="350" dy="15">handwriting, keep the original.</tspan></text>
+
+      <rect class="box b-plain" x="624" y="280" width="270" height="112" rx="10"/>
+<text class="badge" x="636" y="284">Server</text>
+      <text class="t" x="640" y="306">Session &amp; identity</text>
+      <text class="s" x="640" y="326"><tspan x="640">Join links, roles (facilitator vs</tspan><tspan x="640" dy="15">participant), and the consent</tspan><tspan x="640" dy="15">flag that unlocks capture.</tspan></text>
+
+      <rect class="box b-plain" x="914" y="280" width="280" height="112" rx="10"/>
+<text class="badge" x="926" y="284">Server</text>
+      <text class="t" x="930" y="306">Event bus</text>
+      <text class="s" x="930" y="326"><tspan x="930">One ordered stream of what</tspan><tspan x="930" dy="15">happened. Everything downstream</tspan><tspan x="930" dy="15">reads from it, replayable.</tspan></text>
+    </g>
+    <path class="ln" d="M620,414 V440" marker-end="url(#ah2)"/>
+
+    <!-- L2 ORCHESTRATOR -->
+    <rect class="box b-ai" x="180" y="448" width="880" height="96" rx="12"/>
+<text class="badge" x="192" y="452">Model</text>
+    <text class="t i-ai" x="200" y="476">Orchestrator</text>
+    <text class="s i-ai" x="200" y="498"><tspan x="200">Classifies every event (is this just talk, a command, a question, or an image?), routes it to the agent that handles it,</tspan><tspan x="200" dy="15">enforces the guardrails below, and merges the results back into one coherent canvas instead of three competing ones.</tspan></text>
+    <path class="ln" d="M620,544 V570" marker-end="url(#ah2)"/>
+
+    <!-- L3 AGENTS -->
+    <rect class="band" x="20" y="578" width="1200" height="212" rx="14"/>
+    <text class="bandlbl" x="44" y="606">Agents: division of labour</text>
+    <g>
+      <rect class="box b-ai" x="44" y="622" width="370" height="150" rx="10"/>
+<text class="badge" x="56" y="626">Model</text>
+      <text class="t i-ai" x="60" y="648">1 &middot; Notulator</text>
+      <text class="s i-ai" x="60" y="668"><tspan x="60">Rolling minutes from the transcript.</tspan><tspan x="60" dy="15">Pulls out decisions, action items,</tspan><tspan x="60" dy="15">open questions and who said what.</tspan><tspan x="60" dy="15">Runs constantly, never interrupts.</tspan><tspan x="60" dy="15">Everything it writes keeps a</tspan><tspan x="60" dy="15">timestamp back into the transcript.</tspan></text>
+
+      <rect class="box b-ai" x="440" y="622" width="370" height="150" rx="10"/>
+<text class="badge" x="452" y="626">Model</text>
+      <text class="t i-ai" x="456" y="648">2 &middot; Command interpreter</text>
+      <text class="s i-ai" x="456" y="668"><tspan x="456">Decides whether something said in</tspan><tspan x="456" dy="15">the room was addressed to the tool.</tspan><tspan x="456" dy="15">Parses it into one canvas operation:</tspan><tspan x="456" dy="15">cluster, compare, sequence, split,</tspan><tspan x="456" dy="15">summarise, answer. Ambiguity gets a</tspan><tspan x="456" dy="15">confirmation, never a guess.</tspan></text>
+
+      <rect class="box b-ai" x="836" y="622" width="358" height="150" rx="10"/>
+<text class="badge" x="848" y="626">Model</text>
+      <text class="t i-ai" x="852" y="648">3 &middot; Visualiser</text>
+      <text class="s i-ai" x="852" y="668"><tspan x="852">Chooses the form (cluster,</tspan><tspan x="852" dy="15">timeline, matrix, flow) and lays</tspan><tspan x="852" dy="15">it out with real placement, not a</tspan><tspan x="852" dy="15">list. This is the part that makes it</tspan><tspan x="852" dy="15">a visual conclusion instead of</tspan><tspan x="852" dy="15">minutes in a different font.</tspan></text>
+    </g>
+    <path class="ln" d="M620,790 V816" marker-end="url(#ah2)"/>
+
+    <!-- L4 STATE -->
+    <rect class="band" x="20" y="824" width="1200" height="156" rx="14"/>
+    <text class="bandlbl" x="44" y="852">Shared state: the single source of truth</text>
+    <g>
+      <rect class="box b-st" x="44" y="870" width="370" height="92" rx="10"/>
+<text class="badge" x="56" y="874">State</text>
+      <text class="t i-st" x="60" y="896">Transcript store</text>
+      <text class="s i-st" x="60" y="916"><tspan x="60">Timestamped, speaker-tagged,</tspan><tspan x="60" dy="15">searchable. The thing every</tspan><tspan x="60" dy="15">citation points back into.</tspan></text>
+
+      <rect class="box b-st" x="440" y="870" width="370" height="92" rx="10"/>
+<text class="badge" x="452" y="874">State</text>
+      <text class="t i-st" x="456" y="896">Canvas model</text>
+      <text class="s i-st" x="456" y="916"><tspan x="456">Items, links, clusters, position,</tspan><tspan x="456" dy="15">and for each one: who or what</tspan><tspan x="456" dy="15">made it, and from which moment.</tspan></text>
+
+      <rect class="box b-st" x="836" y="870" width="358" height="92" rx="10"/>
+<text class="badge" x="848" y="874">State</text>
+      <text class="t i-st" x="852" y="896">Entity index</text>
+      <text class="s i-st" x="852" y="916"><tspan x="852">People, topics, decisions, open</tspan><tspan x="852" dy="15">questions. What makes &ldquo;who</tspan><tspan x="852" dy="15">objected and why&rdquo; answerable.</tspan></text>
+    </g>
+
+    <!-- return path to renderer -->
+    <path class="ln dash" d="M1194,916 H1262 V122 H1204" marker-end="url(#ah2)"/>
+    <text class="xs" x="1292" y="520" transform="rotate(-90 1292 520)" text-anchor="middle">state streams back to every connected screen</text>
+
+    <path class="ln" d="M620,980 V1006" marker-end="url(#ah2)"/>
+
+    <!-- L5 GUARDRAILS -->
+    <rect class="band" x="20" y="1014" width="1200" height="170" rx="14"/>
+    <text class="bandlbl" x="44" y="1042">Cross-cutting: applies to every layer above, not a stage</text>
+    <g>
+      <rect class="box b-grd" x="44" y="1058" width="274" height="106" rx="10"/>
+<text class="badge" x="56" y="1062">Guardrail</text>
+      <text class="t i-grd" x="60" y="1084">Consent gate</text>
+      <text class="s i-grd" x="60" y="1104"><tspan x="60">No microphone, no camera, no</tspan><tspan x="60" dy="15">model call until agreement is</tspan><tspan x="60" dy="15">logged. Anyone can stop it.</tspan></text>
+
+      <rect class="box b-grd" x="338" y="1058" width="274" height="106" rx="10"/>
+<text class="badge" x="350" y="1062">Guardrail</text>
+      <text class="t i-grd" x="354" y="1084">Provenance on everything</text>
+      <text class="s i-grd" x="354" y="1104"><tspan x="354">Every item knows its maker and</tspan><tspan x="354" dy="15">its source. AI output is never</tspan><tspan x="354" dy="15">indistinguishable from the team&rsquo;s.</tspan></text>
+
+      <rect class="box b-grd" x="632" y="1058" width="274" height="106" rx="10"/>
+<text class="badge" x="644" y="1062">Guardrail</text>
+      <text class="t i-grd" x="648" y="1084">Failure behaviour</text>
+      <text class="s i-grd" x="648" y="1104"><tspan x="648">Slow: queue it and say so. Down:</tspan><tspan x="648" dy="15">capture keeps running, visuals</tspan><tspan x="648" dy="15">catch up. Never a silent gap.</tspan></text>
+
+      <rect class="box b-grd" x="926" y="1058" width="268" height="106" rx="10"/>
+<text class="badge" x="938" y="1062">Guardrail</text>
+      <text class="t i-grd" x="942" y="1084">Retention</text>
+      <text class="s i-grd" x="942" y="1104"><tspan x="942">Audio deleted after the session.</tspan><tspan x="942" dy="15">Transcripts anonymised before</tspan><tspan x="942" dy="15">they leave the raw folder.</tspan></text>
+    </g>
+  </svg>
+  </div></div>
+  <p class="foot"><span class="src">Diagram: documentation/flowchart.html, system architecture tab. Agent boxes describe responsibilities, not separate services.</span><span class="pn"></span></p>
+</section>
+
+<!-- 10 -->
+<section class="slide" aria-label="Slide 10, functions in scope">
+  <p class="kicker">Design</p>
+  <h2 class="h1">Functions in scope</h2>
+  <p class="para">The flowchart defines thirty-seven functions in six groups. Each one has a status:
+  built, plumbing (the contract exists, the model does not), proposed, or open.</p>
+  <div class="body">
+    <div class="tiles">
+      <div class="tile">
+        <p class="tnum">7</p>
+        <p class="tname">F1 Capture</p>
+        <p class="strip"><i class="d f"></i><i class="d f"></i><i class="d h"><i></i></i><i class="d h"><i></i></i><i class="d h"><i></i></i><i class="d h"><i></i></i><i class="d h"><i></i></i></p>
+      </div>
+      <div class="tile">
+        <p class="tnum">8</p>
+        <p class="tname">F2 Understanding</p>
+        <p class="strip"><i class="d p"></i><i class="d p"></i><i class="d p"></i><i class="d p"></i><i class="d p"></i><i class="d p"></i><i class="d p"></i><i class="d o"></i></p>
+      </div>
+      <div class="tile">
+        <p class="tnum">7</p>
+        <p class="tname">F3 Visualisation</p>
+        <p class="strip"><i class="d f"></i><i class="d f"></i><i class="d f"></i><i class="d f"></i><i class="d f"></i><i class="d p"></i><i class="d p"></i></p>
+      </div>
+      <div class="tile">
+        <p class="tnum">5</p>
+        <p class="tname">F4 Session</p>
+        <p class="strip"><i class="d f"></i><i class="d f"></i><i class="d f"></i><i class="d p"></i><i class="d o"></i></p>
+      </div>
+      <div class="tile">
+        <p class="tnum">4</p>
+        <p class="tname">F5 Output</p>
+        <p class="strip"><i class="d h"><i></i></i><i class="d p"></i><i class="d p"></i><i class="d p"></i></p>
+      </div>
+      <div class="tile">
+        <p class="tnum">6</p>
+        <p class="tname">F6 Trust</p>
+        <p class="strip"><i class="d f"></i><i class="d f"></i><i class="d f"></i><i class="d f"></i><i class="d h"><i></i></i><i class="d h"><i></i></i></p>
+      </div>
+    </div>
+  </div>
+  <p class="foot"><span class="src">Filled: built. Half: plumbing. Dashed: proposed. Empty: open. Full table in documentation/proposal.md</span><span class="pn"></span></p>
+</section>
+
+<!-- 11 -->
+<section class="slide" aria-label="Slide 11, from photograph to notes">
+  <p class="kicker">Implementation</p>
+  <h2 class="h1">From photograph to notes</h2>
+  <p class="para">A participant marks each note on the photograph. A placeholder adapter returns a reading;
+  no handwriting recognition has been run. A participant corrects, accepts or rejects each reading.</p>
+  <div class="body shots">
+    <figure class="a">
+      <div class="shot"><img src="../demo/fallback/02-wall-marked.png" alt="The client, with boxes drawn around three notes"></div>
+      <figcaption>Notes are marked</figcaption>
+    </figure>
+    <figure class="b">
+      <div class="shot"><img src="../demo/fallback/03-readings-provisional.png" alt="The review queue, each reading dashed and labelled as a placeholder"></div>
+      <figcaption>Readings arrive for review</figcaption>
+    </figure>
+    <figure class="c">
+      <div class="shot"><img src="../demo/fallback/04-accepted.png" alt="The canvas, with an accepted note drawn solid"></div>
+      <figcaption>Accepted notes reach the canvas</figcaption>
+    </figure>
+  </div>
+  <p class="foot"><span class="src">Captures of the client. Proposed automatic segmentation and reading: documentation/stack.md</span><span class="pn"></span></p>
+</section>
+
+<!-- 12 -->
+<section class="slide" aria-label="Slide 12, speech pipeline">
+  <p class="kicker">Implementation</p>
+  <h2 class="h1">Speech pipeline</h2>
+  <p class="para">Nine stages are designed; three involve a model. A server contract, a browser chunker and a
+  placeholder transcriber exist. The wrapper for a local Whisper model is written and has not been run.
+  No speech recognition has been run.</p>
+  <div class="body">
+    <div class="rail">
+      <div class="stop"><span class="bub">S1</span><span class="lab">Capture</span></div>
+      <div class="stop"><span class="bub">S2</span><span class="lab">Condition</span></div>
+      <div class="stop ai"><span class="bub">S3</span><span class="lab">Voice activity</span></div>
+      <div class="stop"><span class="bub">S4</span><span class="lab">Chunk</span></div>
+      <div class="stop"><span class="bub">S5</span><span class="lab">Transport</span></div>
+      <div class="stop ai"><span class="bub">S6</span><span class="lab">Transcribe</span></div>
+      <div class="stop ai"><span class="bub">S7</span><span class="lab">Diarise</span></div>
+      <div class="stop"><span class="bub">S8</span><span class="lab">Normalise</span></div>
+      <div class="stop"><span class="bub">S9</span><span class="lab">Emit</span></div>
+    </div>
+  </div>
+  <p class="foot"><span class="src">Stages: documentation/pipelines.md section 1. Status: app/server/BUILD-STATUS.md</span><span class="pn"></span></p>
+</section>
+
+<!-- 13 -->
+<section class="slide" aria-label="Slide 13, technology stack">
+  <p class="kicker">Implementation</p>
+  <h2 class="h1">Technology stack</h2>
+  <div class="body">
+    <div class="bands">
+      <div class="band">
+        <p class="blabel">Client</p>
+        <div class="boxes">
+          <span class="bx">ES modules, no build step</span>
+          <span class="bx">capture-audio.mjs</span>
+          <span class="bx ai">d3-force</span>
+        </div>
+      </div>
+      <div class="band">
+        <p class="blabel">Transport</p>
+        <div class="boxes">
+          <span class="bx">HTTP and JSON</span>
+          <span class="bx ai">websockets</span>
+        </div>
+      </div>
+      <div class="band">
+        <p class="blabel">Server</p>
+        <div class="boxes">
+          <span class="bx">Python, SQLite</span>
+          <span class="bx">Pillow</span>
+          <span class="bx ai">OpenCV</span>
+        </div>
+      </div>
+      <div class="band">
+        <p class="blabel">Adapters</p>
+        <div class="boxes">
+          <span class="bx">FixtureExtractor</span>
+          <span class="bx">FixtureTranscriber</span>
+          <span class="bx ai">LocalWhisperTranscriber</span>
+        </div>
+      </div>
+      <div class="gate">Consent gate</div>
+      <div class="band">
+        <p class="blabel">Hosted</p>
+        <div class="boxes">
+          <span class="bx ai">Claude, GPT-4o, Gemini</span>
+          <span class="bx ai">Miro REST API v2</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="foot"><span class="src">Solid: in the repository. Dashed: candidate, not run. Names, licences and reasons: documentation/stack.md</span><span class="pn"></span></p>
+</section>
+
+<!-- 14 -->
+<section class="slide" aria-label="Slide 14, repository and verification">
+  <p class="kicker">Implementation</p>
+  <h2 class="h1">Repository and verification</h2>
+  <p class="para">Every push runs seven checks before it can be merged.</p>
+  <div class="body ci">
+    <div class="rail ciline">
+      <div class="stop pill"><span class="bub wide2">push</span></div>
+      <div class="stop pill"><span class="bub wide2">hook</span></div>
+      <div class="stop"><span class="bub">1</span><span class="lab">design-system</span></div>
+      <div class="stop"><span class="bub">2</span><span class="lab">house-style</span></div>
+      <div class="stop"><span class="bub">3</span><span class="lab">backend</span></div>
+      <div class="stop"><span class="bub">4</span><span class="lab">sync-budget</span></div>
+      <div class="stop"><span class="bub">5</span><span class="lab">schema</span></div>
+      <div class="stop"><span class="bub">6</span><span class="lab">client</span></div>
+      <div class="stop"><span class="bub">7</span><span class="lab">browser</span></div>
+      <div class="stop pill"><span class="bub wide2">main</span></div>
+    </div>
+    <div class="figures small">
+      <div class="fig"><span class="v">254</span><span class="l">backend tests</span></div>
+      <div class="fig"><span class="v">150</span><span class="l">mutation guards</span></div>
+      <div class="fig"><span class="v">13</span><span class="l">design audit checks</span></div>
+      <div class="fig"><span class="v">105</span><span class="l">contrast pairs checked</span></div>
+    </div>
+  </div>
+  <p class="foot"><span class="src">Jobs: .github/workflows/verify.yml. Counts: AGENTS.md. Description: documentation/how-we-work.md</span><span class="pn"></span></p>
+</section>
+
+<!-- 15 -->
+<section class="slide" aria-label="Slide 15, demonstration">
+  <p class="kicker">Demonstration</p>
+  <h2 class="h1">Live demonstration</h2>
+  <p class="para">A photographed wall is sent for reading. One reading is corrected and accepted, one is rejected,
+  and an accepted note is moved on the canvas. The readings are placeholders; the workflow around them is real.</p>
+  <div class="body centre">
+    <div class="note model wide">
+      <p class="ntext">FIXTURE ONLY, sample note 1; no OCR performed.</p>
+      <p class="meta"><span class="dot"></span>Provisional, read by the placeholder adapter</p>
+    </div>
+  </div>
+  <p class="foot"><span class="src">Sequence: deliverables/week4-midpoint/demo/RUNBOOK.md</span><span class="pn"></span></p>
+</section>
+
+<!-- 16 -->
+<section class="slide" aria-label="Slide 16, next steps">
+  <p class="kicker">Next steps</p>
+  <h2 class="h1">Riskiest assumption and next steps</h2>
+  <p class="para">The first test is whether notes on a real wall can be read well enough to be worth correcting.
+  The thresholds are agreed before the test. Speech capture follows, subject to consent from everyone present.</p>
+  <div class="body figures">
+    <div class="fig"><span class="v">10</span><span class="l">photographs of real walls</span></div>
+    <div class="fig"><span class="v">80%</span><span class="l">of notes correctly separated</span></div>
+    <div class="fig"><span class="v">80%</span><span class="l">of notes correctly read</span></div>
+  </div>
+  <p class="foot"><span class="src">Test and thresholds: documentation/pipelines.md, unknowns table</span><span class="pn"></span></p>
+</section>
+
+</div>
+<div id="zoom" class="diagram"><p class="hint">Escape or click to return</p></div>
+
+<script>
+(function () {
+  var stage = document.getElementById('stage');
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var at = 0;
+  function fit() {
+    var s = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+    stage.style.transform = 'scale(' + s + ')';
+    stage.style.left = Math.round((window.innerWidth - 1920 * s) / 2) + 'px';
+    stage.style.top = Math.round((window.innerHeight - 1080 * s) / 2) + 'px';
+  }
+  function show(i) {
+    at = Math.max(0, Math.min(slides.length - 1, i));
+    slides.forEach(function (el, n) {
+      if (n === at) { el.setAttribute('data-active', ''); } else { el.removeAttribute('data-active'); }
+    });
+    if (window.location.hash !== '#' + (at + 1)) { window.history.replaceState(null, '', '#' + (at + 1)); }
+  }
+  document.addEventListener('keydown', function (e) {
+    var k = e.key;
+    if (k === 'ArrowRight' || k === 'ArrowDown' || k === ' ' || k === 'Spacebar' || k === 'PageDown') { show(at + 1); e.preventDefault(); }
+    else if (k === 'ArrowLeft' || k === 'ArrowUp' || k === 'PageUp' || k === 'Backspace') { show(at - 1); e.preventDefault(); }
+    else if (k === 'Home') { show(0); e.preventDefault(); }
+    else if (k === 'End') { show(slides.length - 1); e.preventDefault(); }
+  });
+  slides.forEach(function (el, n) {
+    Array.prototype.forEach.call(el.querySelectorAll('.pn'), function (pn) { pn.textContent = String(n + 1); });
+  });
+
+  var zoom = document.getElementById('zoom');
+  function openZoom() {
+    var svg = slides[at].querySelector('.diagram svg');
+    if (!svg) { return; }
+    Array.prototype.forEach.call(zoom.querySelectorAll('svg'), function (old) { old.remove(); });
+    zoom.appendChild(svg.cloneNode(true));
+    zoom.setAttribute('data-open', '');
+  }
+  function closeZoom() { zoom.removeAttribute('data-open'); }
+  zoom.addEventListener('click', closeZoom);
+  Array.prototype.forEach.call(document.querySelectorAll('.slide .diagram'), function (d) {
+    d.addEventListener('click', openZoom);
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') { closeZoom(); }
+    else if (e.key === 'z' || e.key === 'Z') { if (zoom.hasAttribute('data-open')) { closeZoom(); } else { openZoom(); } }
+  });
+
+  window.addEventListener('resize', fit);
+  fit();
+  var start = parseInt((window.location.hash || '').slice(1), 10);
+  show(isNaN(start) ? 0 : start - 1);
+}());
+</script>
+</body>
+</html>

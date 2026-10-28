@@ -1,0 +1,59 @@
+/* ==========================================================================
+   Quote notes: a transcript line pulled onto the canvas (DESIGN.md 1.2).
+   Owner: the phase 3 quote notes agent, with tools/quote.mjs. It has no
+   region of its own in index.html: it adds to the transcript rows and the
+   canvas through the tool registry.
+
+   What tools/quote.mjs adds, and the look of each:
+     .note.note-quote          the fill is the speaker's People colour, set
+                               inline as --note-fill: var(--person-N)
+     [data-quote-tone]         "full" for --person-1 to 5 (ink text), "deep"
+                               for --person-6 to 10 (paper text)
+     .quote-marker             the mono time, a button back to the line
+     .text .quote-time         the " · 14:02" the text carries for other
+                               devices; hidden, the marker says it
+     .transcript-row.quoted-highlight   the line, in --highlight, 2 seconds
+
+   Tokens only.
+   ========================================================================== */
+
+/* On a full accent the secondary lines are ink, as on an accepted note
+   (DESIGN.md 2.7): --ink-2 is under 4.5:1 on lilac, periwinkle and coral.
+   This holds for a quote still waiting for review too, because its fill is
+   the speaker's colour, not the soft yellow. */
+.note.note-quote { --note-text-2: var(--text); }
+.note.note-quote[data-quote-tone="deep"] { color: var(--text-on-deep); --note-text-2: var(--text-on-deep); }
+/* The board draws every note afresh and the fill is set just after, so a
+   fill transition would wash each quote from yellow to its colour on every
+   redraw. Rotation still eases. */
+@media (prefers-reduced-motion: no-preference) {
+  .note.note-quote { transition-property: rotate; }
+}
+
+/* The time the note's text ends with stays in its textContent, for other
+   devices and for search, but is not read as part of the sentence. */
+.note .text .quote-time { display: none; }
+
+.note .note-head .quote-marker { margin-left: auto; }
+.quote-marker {
+  display: inline-flex; align-items: center; flex: none;
+  min-height: var(--h-control-sm); padding: 0 var(--space-2);
+  border: 0; border-radius: var(--r-sm); background: transparent; color: var(--note-text-2, var(--text-2));
+  font-family: var(--font-mono); font-size: var(--fs-mono); line-height: var(--lh-mono); font-weight: var(--fw-mono);
+  font-variant-numeric: tabular-nums; cursor: pointer;
+  /* A line under the time says it goes somewhere; the words never get one. */
+  text-decoration: underline; text-decoration-thickness: var(--line-1); text-underline-offset: var(--line-2);
+}
+/* A tonal step of whatever ink the note is written in, so the hover reads
+   on a full accent and on a deep one alike. */
+.quote-marker:hover { background: color-mix(in srgb, currentColor 12%, transparent); }
+
+/* The line a marker points at. The margin and padding cancel, so the tone
+   reaches past the words without moving them. */
+.transcript-row.quoted-highlight {
+  background: var(--highlight); border-radius: var(--r-sm);
+  margin-inline: calc(-1 * var(--space-2)); padding-inline: var(--space-2);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .transcript-row { transition: background-color var(--t-slow) var(--ease-out); }
+}

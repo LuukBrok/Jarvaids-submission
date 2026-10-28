@@ -1,0 +1,42 @@
+{
+  "summary": [
+    "Make a summary.", "Summarise this.", "Summarize our discussion.", "Give us a summary.",
+    "Give me a quick recap.", "Sum up what we discussed.", "Tell us the main points.",
+    "Create a short overview of this meeting."
+  ],
+  "visualisation": [
+    "Make a visualisation.", "Visualize this.", "Visualise these ideas.", "Show this visually.",
+    "Turn our discussion into a diagram.", "Create a visual overview.",
+    "Draw a diagram of these ideas.", "Help us picture this."
+  ],
+  "comparison": [
+    "Make a comparison.", "Compare these ideas.", "Compare these two options.",
+    "Show us the differences.", "Show us the similarities.", "Give us a side-by-side comparison.",
+    "What are the differences between these concepts?", "Compare the pros and cons of these options."
+  ],
+  "voting": [
+    "Make a voting list.", "We want to vote.", "Let's vote.", "Set up a poll.",
+    "Create a list we can vote on.", "Start a vote on these ideas.",
+    "Help us vote on these options.", "Prepare these concepts for voting."
+  ],
+  "suggestions": [
+    "Give me a suggestion.", "Give us a few suggestions.", "Make a suggestion.", "Suggest something.",
+    "Suggest some ideas.", "Do you have any suggestions?", "What would you suggest?",
+    "Give us some options to consider."
+  ],
+  "todo": [
+    "Make a to-do list.", "Create a task list.", "List our action items.", "What do we need to do next?",
+    "Turn this into a to-do list.", "Give us a list of next steps.",
+    "List the tasks we still need to complete.", "Make an action list for our team."
+  ],
+  "requirements": [
+    "Make a list of requirements.", "List our requirements.", "Make a list of wishes.",
+    "Create a wish list.", "List our requirements and wishes.", "What requirements have we discussed?",
+    "Give us a list of must-haves.", "Collect our wishes into a list."
+  ],
+  "planning": [
+    "Make an agenda.", "Make a planning.", "Create a schedule.", "Plan our next meeting.",
+    "Make a timeline for our project.", "Give us an agenda for this session.",
+    "Organise our next steps into a plan.", "Create a plan for the coming week."
+  ]
+}

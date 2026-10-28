@@ -1,0 +1,613 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Vellum · spacious UI exploration 02 · Jarvaids review queue</title>
+<style>
+/* ==========================================================================
+   02 · VELLUM
+   The review queue, as a sheet lying over the live canvas.
+
+   This is the exploration that takes the iOS 26 reference literally:
+   concentric rounded containers, depth from translucency rather than from
+   edges, and a foreground that is at full strength while everything behind it
+   recedes by alpha. Every alpha used here is measured composited in
+   contrast.py; none of them is eyeballed.
+   ========================================================================== */
+
+@font-face {
+  font-family: "Archivo";
+  src: url("fonts/archivo-variable-latin.woff2") format("woff2");
+  font-weight: 400 700; font-stretch: 100%; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: "Nunito Sans";
+  src: url("fonts/nunito-sans-variable-latin.woff2") format("woff2");
+  font-weight: 400 700; font-stretch: 100%; font-style: normal; font-display: swap;
+}
+
+:root {
+  --font-signal: "Archivo", "Helvetica Neue", Arial, system-ui, sans-serif;
+  --font-reading: "Nunito Sans", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+
+  /* shipped tokens */
+  --color-canvas: #ffffff;
+  --color-ink: #141414;
+  --color-ink-inverse: #ffffff;
+  --color-accent: #a85a00;
+  --color-accent-pressed: #8c4b00;
+  --color-status-provisional: #5b46be;
+  --color-status-accepted: #1d7344;
+  --color-status-waiting: #19608c;
+  --color-status-failed: #a81f1a;
+  --color-hairline: #e4e4e2;
+  --color-hairline-strong: #8a8a86;
+  --color-ink-muted: #636363;
+  --color-ink-secondary: #545454;
+
+  /* PROPOSAL: ink alpha ladder: not yet in the design system.
+     Five steps replacing ink / ink-secondary / ink-muted / hairline-strong /
+     hairline. The values are not round numbers because the floors are not
+     round: 0.64 is the lowest alpha that still clears 4.5:1 as text on the
+     worst ground this screen can produce, and 0.48 is the lowest that clears
+     3:1 as a non-text edge on the same ground. See the table at the foot. */
+  --ink-1: 1;      /* the thing the screen is about        */
+  --ink-2: 0.78;   /* supporting content, still read       */
+  --ink-3: 0.64;   /* meta. THE TEXT FLOOR.                */
+  --ink-4: 0.48;   /* non-text edge that must be seen      */
+  --ink-5: 0.12;   /* decorative rule, carries no meaning  */
+
+  /* PROPOSAL: material: not yet in the design system.
+     Three steps of white over whatever is behind. The scrim is deliberately
+     weak, 30%, so the canvas is pushed back but stays plainly present beside
+     the sheet: a stronger scrim made the whole argument invisible, because a
+     white canvas behind a white sheet has no contrast left to lose. The sheet
+     is 86% because that is what the composited contrast maths allows once a
+     100% ink item stroke can sit behind it. */
+  --mat-scrim: 0.30;
+  --mat-sheet: 0.86;
+  --mat-panel: 0.92;
+
+  /* PROPOSAL: concentric radii: not yet in the design system.
+     28 outside, 20 inside an 8px pad, 12 inside the next. Each step is the
+     one before minus its padding, which is the only way nested corners stay
+     parallel. The shipped scale of 2 / 4 / full cannot express this. */
+  --radius-outer: 28px;
+  --radius-inner: 20px;
+  --radius-innermost: 12px;
+  --pad-concentric: 8px;
+
+  --spacing-1: 4px;  --spacing-2: 8px;  --spacing-3: 12px; --spacing-4: 16px;
+  --spacing-5: 24px; --spacing-6: 32px; --spacing-7: 48px; --spacing-8: 64px;
+  --radius-sm: 4px; --radius-full: 999px;
+  --line-provisional: 1.5px; --line-focus: 2px;
+  --motion-fast: 120ms; --motion-ease: cubic-bezier(0.22, 1, 0.36, 1); --motion-pulse: 2s;
+  color-scheme: light;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; background: var(--color-canvas); color: var(--color-ink);
+  font-family: var(--font-reading); font-size: 15px; line-height: 22px;
+  -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+
+.t-display   { font-family: var(--font-signal); font-size: 32px; line-height: 36px; letter-spacing: -0.02em; font-weight: 700; margin: 0; }
+.t-signal-lg { font-family: var(--font-signal); font-size: 22px; line-height: 26px; letter-spacing: -0.01em; font-weight: 600; margin: 0; font-variant-numeric: tabular-nums; }
+.t-signal    { font-family: var(--font-signal); font-size: 15px; line-height: 20px; font-weight: 500; font-variant-numeric: tabular-nums; }
+.t-structure { font-family: var(--font-signal); font-size: 12px; line-height: 16px; letter-spacing: 0.07em; font-weight: 600; text-transform: uppercase; color: rgb(20 20 20 / var(--ink-3)); }
+.t-body      { font-size: 15px; line-height: 22px; }
+.t-meta      { font-size: 13px; line-height: 18px; color: rgb(20 20 20 / var(--ink-3)); }
+.t-caption   { font-size: 12px; line-height: 16px; color: rgb(20 20 20 / var(--ink-3)); }
+.strong { font-weight: 600; }
+
+/* ── exploration frame ────────────────────────────────────────────────── */
+.frame { max-width: 68ch; margin: 0 auto; padding: var(--spacing-8) var(--spacing-4) var(--spacing-7); }
+.frame h1 { font-family: var(--font-signal); font-size: 22px; line-height: 26px; font-weight: 600; margin: 0 0 var(--spacing-2); }
+.frame p { margin: 0 0 var(--spacing-3); color: rgb(20 20 20 / var(--ink-2)); }
+.frame .eyebrow { display: block; margin-bottom: var(--spacing-3); }
+.rule { border: 0; border-top: 1px solid var(--color-hairline); margin: 0; }
+
+/* ── the stage: the live canvas, then a scrim, then the sheet ─────────── */
+.stage { position: relative; isolation: isolate; padding: var(--spacing-6) var(--spacing-4) var(--spacing-8);
+  min-height: 900px; overflow: hidden; }
+@media (min-width: 1024px) { .stage { padding-inline: var(--spacing-5); } }
+
+/* LAYER 0 · the canvas keeps running underneath. This is what makes the
+   translucency mean something: without content behind it, alpha is paint. */
+.canvas-behind { position: absolute; inset: 0; padding: var(--spacing-6) var(--spacing-4);
+  display: flex; flex-wrap: wrap; gap: var(--spacing-3); align-content: flex-start;
+  z-index: 0; }
+.behind-item { width: 210px; padding: var(--spacing-4); border-radius: var(--radius-innermost);
+  background: var(--color-canvas); }
+.behind-item .kind { display: block; font-family: var(--font-signal); font-size: 12px; line-height: 16px;
+  letter-spacing: 0.07em; font-weight: 600; text-transform: uppercase; color: rgb(20 20 20 / var(--ink-3)); }
+.behind-item .text { display: block; margin-top: var(--spacing-2); font-size: 15px; line-height: 22px; }
+.behind-accepted    { border: 1px solid rgb(20 20 20 / var(--ink-1)); }
+.behind-provisional { border: var(--line-provisional) dashed var(--color-status-provisional); }
+.behind-title { width: 100%; }
+
+/* LAYER 1 · the scrim. 86% white plus a real blur. The blur is not decoration:
+   it is what stops the text behind from competing as text while leaving enough
+   of its shape to say "the canvas is still there". */
+.scrim { position: absolute; inset: 0; z-index: 1;
+  background: rgb(255 255 255 / var(--mat-scrim));
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px); }
+
+/* LAYER 2 · the sheet. Outer container, concentric. No shadow anywhere on
+   this page: the material alone carries the elevation, which means
+   forbidden.md #9 survives this exploration untouched. */
+.sheet { position: relative; z-index: 2; max-width: 760px; margin: 0 auto;
+  border-radius: var(--radius-outer); padding: var(--pad-concentric);
+  background: rgb(255 255 255 / var(--mat-sheet));
+  backdrop-filter: blur(22px) saturate(1.3);
+  -webkit-backdrop-filter: blur(22px) saturate(1.3);
+  border: 1px solid rgb(20 20 20 / var(--ink-5)); }
+
+.sheet-head { display: flex; align-items: flex-end; gap: var(--spacing-5); flex-wrap: wrap;
+  padding: var(--spacing-5) var(--spacing-5) var(--spacing-6); }
+.sheet-head .spacer { margin-left: auto; }
+
+/* THE TWO NUMBERS. The reference has exactly two things that are big and
+   everything else recedes. Here they are the size of the queue and the
+   model's confidence in the item you are looking at. */
+.figure { display: flex; flex-direction: column; gap: var(--spacing-1); }
+.figure b { font-family: var(--font-signal); font-weight: 700; font-size: 56px; line-height: 52px;
+  letter-spacing: -0.03em; font-variant-numeric: tabular-nums; color: rgb(20 20 20 / var(--ink-1)); }
+.figure span { font-family: var(--font-signal); font-size: 12px; line-height: 16px; letter-spacing: 0.07em;
+  font-weight: 600; text-transform: uppercase; color: rgb(20 20 20 / var(--ink-3)); }
+
+/* LAYER 3 · the inner panel: the one item under review. Opaque, because it is
+   the foreground and the foreground does not recede. */
+.panel { background: rgb(255 255 255 / var(--mat-panel)); border-radius: var(--radius-inner);
+  padding: var(--spacing-6) var(--spacing-5) var(--spacing-5); }
+
+.panel-top { display: flex; align-items: center; gap: var(--spacing-3); flex-wrap: wrap; }
+.chip { display: inline-flex; align-items: center; gap: var(--spacing-1); padding: 5px 10px;
+  border-radius: var(--radius-full); font-family: var(--font-signal); font-size: 12px; line-height: 16px;
+  letter-spacing: 0.07em; font-weight: 600; text-transform: uppercase; }
+.chip-provisional { color: var(--color-status-provisional);
+  background: rgb(91 70 190 / 0.10); }
+.chip-failed { color: var(--color-status-failed); background: rgb(168 31 26 / 0.10); }
+.dot { width: 8px; height: 8px; border-radius: var(--radius-full); flex: none; display: inline-block; }
+
+.claim { font-size: 28px; line-height: 34px; font-weight: 600; margin: var(--spacing-5) 0 0;
+  max-width: 24ch; color: rgb(20 20 20 / var(--ink-1)); }
+.panel p.why { margin: var(--spacing-3) 0 0; max-width: 60ch; color: rgb(20 20 20 / var(--ink-2)); }
+
+/* LAYER 4 · the evidence, innermost. Radius 12 inside radius 20 inside 28. */
+.evidence { margin-top: var(--spacing-5); padding: var(--spacing-4);
+  border-radius: var(--radius-innermost); background: rgb(20 20 20 / 0.04); }
+.evidence blockquote { margin: var(--spacing-2) 0 0; font-size: 17px; line-height: 26px;
+  color: rgb(20 20 20 / var(--ink-1)); }
+.evidence .src { display: flex; gap: var(--spacing-2); align-items: baseline; margin-top: var(--spacing-3); flex-wrap: wrap; }
+.evidence a { color: var(--color-accent); }
+.crop { border-radius: var(--radius-innermost); background: rgb(20 20 20 / 0.06);
+  aspect-ratio: 4 / 3; display: flex; align-items: center; justify-content: center; text-align: center;
+  padding: var(--spacing-3); color: rgb(20 20 20 / var(--ink-3)); font-size: 12px; line-height: 16px; }
+
+.actions { display: flex; gap: var(--spacing-2); flex-wrap: wrap; margin-top: var(--spacing-6); }
+.btn { font-family: var(--font-reading); font-size: 15px; font-weight: 600; line-height: 1;
+  height: 44px; padding-inline: 20px; border-radius: var(--radius-full); border: 1px solid transparent;
+  display: inline-flex; align-items: center; gap: 6px; cursor: pointer; background: transparent;
+  color: rgb(20 20 20 / var(--ink-1));
+  transition: background var(--motion-fast) var(--motion-ease); }
+.btn-primary { background: var(--color-accent); color: var(--color-ink-inverse); }
+.btn-primary:hover { background: var(--color-accent-pressed); }
+.btn-secondary { border-color: rgb(20 20 20 / var(--ink-4)); }
+.btn-secondary:hover { background: rgb(20 20 20 / 0.05); }
+.btn-quiet { color: rgb(20 20 20 / var(--ink-2)); }
+.btn-quiet:hover { background: rgb(20 20 20 / 0.05); }
+.btn-sm { height: 34px; padding-inline: 14px; font-size: 13px; }
+:where(a, button, input, [tabindex]):focus-visible {
+  outline: var(--line-focus) solid var(--color-accent); outline-offset: 2px; }
+
+/* the rest of the queue: present, and recessive. Alpha, not grey. */
+.queue { padding: var(--spacing-5) var(--spacing-5) var(--spacing-3); }
+.queue-row { display: flex; gap: var(--spacing-3); align-items: baseline; flex-wrap: wrap;
+  padding-block: var(--spacing-4); }
+.queue-row + .queue-row { border-top: 1px solid rgb(20 20 20 / var(--ink-5)); }
+.queue-row .who { color: rgb(20 20 20 / var(--ink-2)); }
+.queue-row .conf { margin-left: auto; color: rgb(20 20 20 / var(--ink-3)); }
+.sheet-foot { padding: var(--spacing-3) var(--spacing-5) var(--spacing-5); }
+
+/* status marks keep FULL strength. Nothing that carries meaning takes alpha. */
+.status { display: inline-flex; align-items: center; gap: var(--spacing-1); }
+.status .word { font-size: 13px; line-height: 18px; }
+@keyframes jv-pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
+.pulse { animation: jv-pulse var(--motion-pulse) var(--motion-ease) infinite; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after {
+  animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; } }
+
+/* the session bar floats above the scrim, same material family */
+.bar { position: relative; z-index: 3; max-width: 760px; margin: 0 auto var(--spacing-6);
+  display: flex; align-items: center; gap: var(--spacing-4); flex-wrap: wrap;
+  padding: var(--spacing-3) var(--spacing-5); border-radius: var(--radius-full);
+  background: rgb(255 255 255 / 0.92);
+  backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px);
+  border: 1px solid rgb(20 20 20 / var(--ink-5)); }
+.bar .spacer { margin-left: auto; }
+
+/* ── notes ────────────────────────────────────────────────────────────── */
+.notes { max-width: 68ch; margin: 0 auto; padding: var(--spacing-8) var(--spacing-4); }
+.notes h2 { font-family: var(--font-signal); font-size: 22px; line-height: 26px; font-weight: 600; margin: 0 0 var(--spacing-4); }
+.notes h3 { font-family: var(--font-signal); font-size: 12px; line-height: 16px; letter-spacing: 0.07em;
+  font-weight: 600; text-transform: uppercase; color: rgb(20 20 20 / var(--ink-3)); margin: var(--spacing-7) 0 var(--spacing-3); }
+.notes p, .notes li { font-size: 15px; line-height: 22px; color: rgb(20 20 20 / var(--ink-2)); }
+.notes li { margin-bottom: var(--spacing-2); }
+table { border-collapse: collapse; width: 100%; font-size: 12px; line-height: 16px; }
+th { font-family: var(--font-signal); font-size: 12px; letter-spacing: 0.07em; font-weight: 600;
+  text-transform: uppercase; text-align: left; color: rgb(20 20 20 / var(--ink-3));
+  padding: var(--spacing-2) var(--spacing-2) var(--spacing-2) 0;
+  border-bottom: 1px solid rgb(20 20 20 / var(--ink-4)); }
+td { padding: var(--spacing-2) var(--spacing-2) var(--spacing-2) 0; vertical-align: top;
+  border-bottom: 1px solid rgb(20 20 20 / var(--ink-5)); color: rgb(20 20 20 / var(--ink-2)); }
+td.n { font-family: var(--font-signal); font-variant-numeric: tabular-nums; text-align: right;
+  white-space: nowrap; color: rgb(20 20 20 / var(--ink-1)); }
+code { font-family: var(--font-signal); font-size: 12px; }
+.tablewrap { overflow-x: auto; }
+</style>
+</head>
+<body>
+
+<header class="frame">
+  <span class="t-structure eyebrow">Spacious UI · exploration 02 of 05</span>
+  <h1>Vellum</h1>
+  <p><strong>Thesis.</strong> Reviewing is the one moment in Jarvaids where the
+  team is deliberately not looking at the canvas, and it is also the moment
+  where hiding the canvas would be a lie, because the thing being reviewed is
+  about to land on it. That is the job translucency is genuinely good at: a
+  sheet over the room, not a page replacing it. So this screen is the review
+  queue drawn as material. A live canvas underneath at full strength, a
+  deliberately weak 30% white scrim over it so the canvas is pushed back but
+  stays plainly present, the review sheet at 86% on top of that, and inside it
+  a 92% panel for the single item under review, with concentric corners at 28,
+  20 and 12 so the nesting reads as depth rather than as boxes. The scrim is
+  weak on purpose: a strong one made the whole argument invisible, because a
+  white canvas behind a white sheet has no contrast left to lose. Recession is
+  carried by five steps of ink alpha instead of three greys, and the two things
+  that matter, the size of the queue and the model's confidence, are the only
+  large numbers on the screen. Nothing here uses a shadow, which turned out to
+  be the most useful result: once a surface is translucent and blurred, it
+  already reads as being in front, and the system's ban on elevation survives
+  intact.</p>
+</header>
+<hr class="rule">
+
+<main class="stage">
+
+  <!-- LAYER 0: the canvas, still running -->
+  <div class="canvas-behind" aria-hidden="true">
+    <div class="behind-title">
+      <span class="t-display">Concept critique, week 3</span>
+    </div>
+    <article class="behind-item behind-accepted">
+      <span class="kind">Note · team</span><span class="text">Drop the paywall from the pilot</span>
+    </article>
+    <article class="behind-item behind-provisional">
+      <span class="kind">Decision · speech</span><span class="text">Pilot ships without payments</span>
+    </article>
+    <article class="behind-item behind-accepted">
+      <span class="kind">Note · team</span><span class="text">Nobody finishes step 3</span>
+    </article>
+    <article class="behind-item behind-provisional">
+      <span class="kind">Note · photograph</span><span class="text">Onboarding is the real bottleneck</span>
+    </article>
+    <article class="behind-item behind-provisional">
+      <span class="kind">Note · photograph</span><span class="text">Too many fields before value</span>
+    </article>
+    <article class="behind-item behind-accepted">
+      <span class="kind">Action · team</span><span class="text">Iris to redraw the step 3 flow</span>
+    </article>
+    <article class="behind-item behind-provisional">
+      <span class="kind">Question · speech</span><span class="text">Who owns the pilot success metric?</span>
+    </article>
+    <article class="behind-item behind-accepted">
+      <span class="kind">Note · team</span><span class="text">Revisit payments after the pilot</span>
+    </article>
+    <article class="behind-item behind-accepted">
+      <span class="kind">Note · team</span><span class="text">Step 3 asks for a VAT number</span>
+    </article>
+    <article class="behind-item behind-provisional">
+      <span class="kind">Note · photograph</span><span class="text">Nobody reads the tooltip</span>
+    </article>
+    <article class="behind-item behind-accepted">
+      <span class="kind">Decision · team</span><span class="text">Ship the pilot to twelve teams</span>
+    </article>
+    <article class="behind-item behind-provisional">
+      <span class="kind">Note · photograph</span><span class="text">Invite flow is three emails</span>
+    </article>
+    <article class="behind-item behind-accepted">
+      <span class="kind">Note · team</span><span class="text">Sanne to write the pilot brief</span>
+    </article>
+    <article class="behind-item behind-provisional">
+      <span class="kind">Question · speech</span><span class="text">What counts as finished?</span>
+    </article>
+    <article class="behind-item behind-accepted">
+      <span class="kind">Note · team</span><span class="text">Pilot runs for four weeks</span>
+    </article>
+    <article class="behind-item behind-provisional">
+      <span class="kind">Note · photograph</span><span class="text">Too much before the first win</span>
+    </article>
+    <article class="behind-item behind-accepted">
+      <span class="kind">Note · team</span><span class="text">Bram owns the invite copy</span>
+    </article>
+    <article class="behind-item behind-provisional">
+      <span class="kind">Note · photograph</span><span class="text">People screenshot step 2</span>
+    </article>
+    <article class="behind-item behind-accepted">
+      <span class="kind">Action · team</span><span class="text">Joost to pull the drop-off numbers</span>
+    </article>
+    <article class="behind-item behind-provisional">
+      <span class="kind">Decision · speech</span><span class="text">Park the matrix view for now</span>
+    </article>
+    <article class="behind-item behind-accepted">
+      <span class="kind">Note · team</span><span class="text">Twelve teams is enough signal</span>
+    </article>
+    <article class="behind-item behind-provisional">
+      <span class="kind">Question · speech</span><span class="text">Do guests need an account?</span>
+    </article>
+    <article class="behind-item behind-accepted">
+      <span class="kind">Note · team</span><span class="text">No payments means no VAT field</span>
+    </article>
+    <article class="behind-item behind-provisional">
+      <span class="kind">Note · photograph</span><span class="text">Step 3 is where people leave</span>
+    </article>
+    <article class="behind-item behind-accepted">
+      <span class="kind">Note · team</span><span class="text">Nadia joins from the Berlin office</span>
+    </article>
+    <article class="behind-item behind-provisional">
+      <span class="kind">Note · photograph</span><span class="text">Onboarding email arrives late</span>
+    </article>
+    <article class="behind-item behind-accepted">
+      <span class="kind">Decision · team</span><span class="text">Consent round every session</span>
+    </article>
+    <article class="behind-item behind-provisional">
+      <span class="kind">Question · speech</span><span class="text">What happens to the audio?</span>
+    </article>
+    <article class="behind-item behind-accepted">
+      <span class="kind">Note · team</span><span class="text">Audio deleted when we finish</span>
+    </article>
+    <article class="behind-item behind-provisional">
+      <span class="kind">Note · photograph</span><span class="text">Nobody finds the settings</span>
+    </article>
+    <article class="behind-item behind-accepted">
+      <span class="kind">Action · team</span><span class="text">Sanne to book the room again</span>
+    </article>
+    <article class="behind-item behind-provisional">
+      <span class="kind">Decision · speech</span><span class="text">Revisit the matrix in week 5</span>
+    </article>
+    <article class="behind-item behind-accepted">
+      <span class="kind">Note · team</span><span class="text">Iris has the old flow drawings</span>
+    </article>
+    <article class="behind-item behind-provisional">
+      <span class="kind">Note · photograph</span><span class="text">Two of these say the same thing</span>
+    </article>
+    <article class="behind-item behind-accepted">
+      <span class="kind">Note · team</span><span class="text">Keep the pilot to one market</span>
+    </article>
+    <article class="behind-item behind-provisional">
+      <span class="kind">Question · speech</span><span class="text">Who writes the summary?</span>
+    </article>
+    <article class="behind-item behind-accepted">
+      <span class="kind">Note · team</span><span class="text">Bram to send the notes on Friday</span>
+    </article>
+    <article class="behind-item behind-provisional">
+      <span class="kind">Note · photograph</span><span class="text">Step 1 is fine, step 3 is not</span>
+    </article>
+    <article class="behind-item behind-accepted">
+      <span class="kind">Decision · team</span><span class="text">Four weeks, then we decide</span>
+    </article>
+    <article class="behind-item behind-provisional">
+      <span class="kind">Note · photograph</span><span class="text">Too many fields, again</span>
+    </article>
+    <article class="behind-item behind-accepted">
+      <span class="kind">Note · team</span><span class="text">Joost has the analytics access</span>
+    </article>
+    <article class="behind-item behind-provisional">
+      <span class="kind">Question · speech</span><span class="text">Is the paywall a pilot problem?</span>
+    </article>
+  </div>
+
+  <!-- LAYER 1: the scrim -->
+  <div class="scrim"></div>
+
+  <!-- LAYER 2 and up -->
+  <div class="bar">
+    <span class="status">
+      <span class="dot pulse" style="background:var(--color-ink)"></span>
+      <span class="word strong">Recording</span>
+    </span>
+    <span class="t-signal">00:47:31</span>
+    <span class="t-meta">Quiet mode · 6 present</span>
+    <span class="spacer"></span>
+    <a class="t-meta" href="01-air.html" style="color:var(--color-accent)">Back to the canvas</a>
+  </div>
+
+  <section class="sheet" aria-label="Review queue">
+
+    <div class="sheet-head">
+      <div class="figure">
+        <b>12</b>
+        <span>Waiting for a person</span>
+      </div>
+      <div class="figure">
+        <b>94%</b>
+        <span>Confidence in this one</span>
+      </div>
+      <span class="spacer"></span>
+      <p class="t-caption" style="margin:0;max-width:22ch">Nothing here is on the
+      canvas as the team's work until someone accepts it.</p>
+    </div>
+
+    <article class="panel">
+      <div class="panel-top">
+        <span class="chip chip-provisional">
+          <span class="dot" style="background:var(--color-status-provisional)"></span>Provisional</span>
+        <span class="t-structure">Decision extracted from speech</span>
+      </div>
+
+      <p class="claim">Pilot ships without payments</p>
+      <p class="why">No owner was found in what was said, and Jarvaids did not
+      invent one. Accepting this puts the decision on the canvas under Pilot
+      scope, still without an owner.</p>
+
+      <div class="evidence">
+        <span class="t-structure">Heard</span>
+        <blockquote>Then the paywall is out of scope for now.</blockquote>
+        <div class="src">
+          <a class="t-signal" href="03-column.html">14:22:06</a>
+          <span class="t-meta">Sanne</span>
+          <span class="t-meta">·</span>
+          <span class="t-meta">Agenda item: Paywall, decide or park</span>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-primary" type="button">Accept</button>
+        <button class="btn btn-secondary" type="button">Edit first</button>
+        <button class="btn btn-quiet" type="button">Reject</button>
+      </div>
+    </article>
+
+    <div class="queue">
+      <span class="t-structure">Next</span>
+      <div class="queue-row">
+        <span class="chip chip-provisional">
+          <span class="dot" style="background:var(--color-status-provisional)"></span>Note</span>
+        <span class="t-body">Onboarding is the real bottleneck</span>
+        <span class="t-meta who">Wall photo 3, yellow</span>
+        <span class="t-signal conf">91%</span>
+      </div>
+      <div class="queue-row">
+        <span class="chip chip-failed">
+          <span class="dot" style="background:var(--color-status-failed)"></span>Unreadable</span>
+        <span class="t-body">Handwriting could not be read</span>
+        <span class="t-meta who">Wall photo 3, blue, centre</span>
+        <span class="t-signal conf">Type it in</span>
+      </div>
+      <div class="queue-row">
+        <span class="chip chip-provisional">
+          <span class="dot" style="background:var(--color-status-provisional)"></span>Layout</span>
+        <span class="t-body">Five notes put on a timeline, not in a cluster</span>
+        <span class="t-meta who">Discussed 14:02 to 14:19</span>
+        <span class="t-signal conf">76%</span>
+      </div>
+      <div class="queue-row">
+        <span class="chip chip-provisional">
+          <span class="dot" style="background:var(--color-status-provisional)"></span>Note</span>
+        <span class="t-body">Too many fields before value</span>
+        <span class="t-meta who">Wall photo 3, yellow</span>
+        <span class="t-signal conf">88%</span>
+      </div>
+    </div>
+
+    <div class="sheet-foot">
+      <p class="t-caption" style="margin:0">Showing 4 of 12. There is no
+      accept-all, on purpose. Your corrections stay in the session record, so
+      the team can see where Jarvaids was wrong.</p>
+    </div>
+
+  </section>
+</main>
+
+<hr class="rule">
+
+<footer class="notes">
+  <h2>What this costs and what it buys</h2>
+
+  <h3>Design system rules broken</h3>
+  <ul>
+    <li><strong>forbidden #3, no arbitrary radii.</strong> The scale is 2 / 4 /
+    full. This screen needs 28 / 20 / 12, because concentric corners are
+    arithmetic: an inner radius must be the outer radius minus the padding
+    between them or the curves stop being parallel and the nesting stops
+    reading. <em>Buys:</em> the whole depth effect. Without it the sheet is a
+    rectangle on a rectangle.</li>
+    <li><strong>forbidden #10, no grey panels to group content.</strong> The
+    scrim, the sheet and the evidence block are all surfaces used for
+    grouping. <em>Buys:</em> a foreground that is unambiguously in front of a
+    background that is unambiguously still running. Hairlines cannot say
+    "this is over that".</li>
+    <li><strong>forbidden #1, no colour literals, in spirit.</strong> Every
+    alpha here is <code>rgb(20 20 20 / x)</code>, which is the slash syntax the
+    rule permits, but the ladder of five steps is a new vocabulary sitting
+    beside the three ink greys rather than inside them. Marked
+    <code>PROPOSAL</code> in the stylesheet. <em>Buys:</em> recession that
+    survives being put on any ground, which the fixed greys do not.</li>
+    <li><strong>typography, no arbitrary font sizes.</strong> 56px for the two
+    figures, 28px for the claim, 17px for the quotation. Three sizes the scale
+    does not have. <em>Buys:</em> the reference's actual argument, which is that
+    two numbers dominate and everything else recedes. At 32px, the largest
+    shipped size, the figures do not dominate anything.</li>
+    <li><strong>principle 1, the canvas is white and stays white,</strong> is
+    bent rather than broken: the canvas itself is still white, but it is now
+    something you can see <em>through</em> a surface, which was not a state the
+    principle anticipated.</li>
+  </ul>
+
+  <h3>Rules it turned out not to need</h3>
+  <ul>
+    <li><strong>forbidden #9, no shadow, survives.</strong> There is no
+    <code>box-shadow</code> anywhere on this page. Blur plus alpha already reads
+    as "in front". This is the strongest evidence that an opacity aesthetic and
+    this system's ban on elevation are compatible.</li>
+    <li><strong>forbidden #11, no gradients, survives.</strong> Every material
+    step is a flat alpha.</li>
+    <li><strong>forbidden #13 to #18, status and the provisional
+    distinction, survive untouched.</strong> No status colour and no dashed
+    stroke anywhere on this page carries alpha. The chips are the status colour
+    at full strength on a 10% wash of itself, exactly as the shipped chips are.
+    Recession is something only ink does.</li>
+  </ul>
+
+  <h3>The honest weakness</h3>
+  <p>Translucency needs something behind it. On the four other screens in this
+  product there is nothing behind anything, and a translucent sheet over white
+  is white. If the team adopts material here, they adopt it for the two or three
+  screens that genuinely overlay the canvas and they get nothing from it
+  anywhere else. The second weakness is cost: <code>backdrop-filter</code> on a
+  large region is a real compositing expense on a projector-driven room screen
+  that is also decoding audio and rendering a live canvas.</p>
+
+  <h3>Composited contrast</h3>
+  <p>Every ratio below is the <em>composited</em> value, computed by
+  <code>contrast.py</code> in this folder, which flattens each layer stack onto
+  white before measuring. Every row is measured on the worst ground this screen
+  can produce, which is not white: it is a 100% ink canvas item stroke sitting
+  directly behind the sheet. That bound was then checked against the real
+  thing. With every glyph and fill hidden, the darkest pixel Chromium actually
+  paints anywhere inside the sheet is 249, against the 232 the table measures
+  from, so the table is conservative and conservative in the right direction:
+  the blur spreads a 1px stroke out before the scrim ever sees it.</p>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th scope="col">Pair</th><th scope="col">Composited</th><th scope="col">Ground</th><th scope="col" class="n">Ratio</th><th scope="col" class="n">Needs</th><th scope="col">Result</th></tr></thead>
+    <tbody>
+<!--CONTRAST:vellum-->
+<tr><td>ink 100% on the sheet, ink stroke behind it</td><td><code>#141414</code></td><td><code>#e8e8e8</code></td><td class="n">15.03:1</td><td class="n">4.5</td><td>pass</td></tr>
+<tr><td>ink 78% on the sheet, ink stroke behind it</td><td><code>#434343</code></td><td><code>#e8e8e8</code></td><td class="n">8.12:1</td><td class="n">4.5</td><td>pass</td></tr>
+<tr><td>ink 64% on the sheet, ink stroke behind it</td><td><code>#606060</code></td><td><code>#e8e8e8</code></td><td class="n">5.11:1</td><td class="n">4.5</td><td>pass</td></tr>
+<tr><td>ink 48% on the sheet, ink stroke behind it</td><td><code>#828282</code></td><td><code>#e8e8e8</code></td><td class="n">3.13:1</td><td class="n">3.0</td><td>pass</td></tr>
+<tr><td>ink 12% on the sheet, ink stroke behind it</td><td><code>#cfcfcf</code></td><td><code>#e8e8e8</code></td><td class="n">1.28:1</td><td class="n">1.0</td><td>pass</td></tr>
+<tr><td>ink 100% on the inner panel, ink stroke behind it</td><td><code>#141414</code></td><td><code>#fdfdfd</code></td><td class="n">18.14:1</td><td class="n">4.5</td><td>pass</td></tr>
+<tr><td>ink 78% on the inner panel, ink stroke behind it</td><td><code>#474747</code></td><td><code>#fdfdfd</code></td><td class="n">9.10:1</td><td class="n">4.5</td><td>pass</td></tr>
+<tr><td>ink 64% on the inner panel, ink stroke behind it</td><td><code>#686868</code></td><td><code>#fdfdfd</code></td><td class="n">5.49:1</td><td class="n">4.5</td><td>pass</td></tr>
+<tr><td>ink 48% on the inner panel, ink stroke behind it</td><td><code>#8d8d8d</code></td><td><code>#fdfdfd</code></td><td class="n">3.26:1</td><td class="n">3.0</td><td>pass</td></tr>
+<tr><td>ink 12% on the inner panel, ink stroke behind it</td><td><code>#e1e1e1</code></td><td><code>#fdfdfd</code></td><td class="n">1.29:1</td><td class="n">1.0</td><td>pass</td></tr>
+<tr><td>provisional chip at 100% on the sheet, ink stroke behind it</td><td><code>#5b46be</code></td><td><code>#e8e8e8</code></td><td class="n">5.59:1</td><td class="n">4.5</td><td>pass</td></tr>
+<tr><td>unreadable chip at 100% on the sheet, ink stroke behind it</td><td><code>#a81f1a</code></td><td><code>#e8e8e8</code></td><td class="n">5.96:1</td><td class="n">4.5</td><td>pass</td></tr>
+<tr><td>accepted mark at 100% on the sheet, ink stroke behind it</td><td><code>#1d7344</code></td><td><code>#e8e8e8</code></td><td class="n">4.78:1</td><td class="n">4.5</td><td>pass</td></tr>
+<tr><td>citation link at 100% on the inner panel</td><td><code>#a85a00</code></td><td><code>#fdfdfd</code></td><td class="n">5.01:1</td><td class="n">4.5</td><td>pass</td></tr>
+<tr><td>canvas ink beside the sheet, under the scrim only</td><td><code>#5a5a5a</code></td><td><code>#ffffff</code></td><td class="n">6.84:1</td><td class="n">3.0</td><td>pass</td></tr>
+<tr><td>canvas ink seen THROUGH the sheet</td><td><code>#e8e8e8</code></td><td><code>#ffffff</code></td><td class="n">1.23:1</td><td class="n">1.0</td><td>pass</td></tr>
+<!--/CONTRAST-->
+    </tbody>
+  </table>
+  </div>
+
+  <p style="margin-top:32px"><a href="index.html" style="color:var(--color-accent)">Back to the five explorations</a></p>
+</footer>
+
+</body>
+</html>

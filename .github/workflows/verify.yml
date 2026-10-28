@@ -1,0 +1,299 @@
+# The six commands AGENTS.md tells every contributor to run, run again on every
+# pull request and on main.
+#
+# It exists because of a specific failure. Two branches each added a schema
+# migration, both numbered it version 2, and nothing noticed until after the
+# merge: a database written by one side would have been misread by the other,
+# silently, because the version integer matched. Both branches were green on
+# their own. Nothing ran them together until a person did.
+name: verify
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: verify-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  design-system:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Design system audit, 13 checks
+        run: ./app/design-system/spec/audit.sh
+      - name: Contrast, every text-on-colour pair the client ships
+        # The client's tokens moved to app/client/tokens.css and the previous
+        # token file was deleted, so the Python contrast tool and its
+        # generated table no longer have a file to read. The client's test
+        # parses the token file itself, so its numbers cannot go stale.
+        run: node --test app/client/tests/contrast-unit.mjs
+
+  house-style:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: No em dashes in what this branch changed
+        # Scoped to the diff on purpose. The rule is repo-wide in AGENTS.md, but
+        # 102 lines predate it in evaluation and decision prose written before
+        # the rule existed. Failing every build on those would either block all
+        # work or train everyone to ignore a red check. This holds the line on
+        # new writing; the backlog is a separate, deliberate sweep.
+        run: |
+          base="${{ github.event.pull_request.base.sha }}"
+          [ -n "$base" ] || base="$(git rev-parse HEAD~1 2>/dev/null || git rev-parse HEAD)"
+          files="$(git diff --name-only --diff-filter=d "$base" HEAD \
+                   -- '*.md' '*.py' '*.css' '*.mjs' | grep -v node_modules || true)"
+          if [ -z "$files" ]; then echo "no prose or code files changed"; exit 0; fi
+          # shellcheck disable=SC2086
+          if grep -n -- '—' $files; then
+            echo
+            echo "Em dash found in a file this branch changed."
+            echo "Use a comma, a colon, or the word 'and'."
+            exit 1
+          fi
+          echo "clean"
+
+  backend:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.11', '3.12', '3.13']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install the one dependency
+        run: python3 -m pip install -r app/server/requirements.txt
+      - name: Backend suite
+        working-directory: app/server
+        run: python3 -m unittest discover -s tests
+      - name: Every guard is load-bearing
+        working-directory: app/server
+        run: python3 tests/mutation_check.py
+      - name: Media guards
+        working-directory: app/server
+        run: python3 tests/media_mutation_check.py
+      - name: Isolation guards
+        working-directory: app/server
+        run: python3 tests/isolated_mutation_check.py
+      - name: Schema guards
+        working-directory: app/server
+        run: python3 tests/schema_mutation_check.py
+      - name: Automatic intake guards
+        working-directory: app/server
+        run: python3 tests/automatic_mutation_check.py
+      - name: Runtime guards
+        working-directory: app/server
+        run: python3 tests/runtime_mutation_check.py
+      - name: Synthesis guards
+        working-directory: app/server
+        run: python3 tests/synthesis_mutation_check.py
+      - name: Poll interpretation and attribution guards
+        working-directory: app/server
+        run: python3 tests/poll_mutation_check.py
+      - name: Document evidence, authority and correction guards
+        working-directory: app/server
+        run: python3 tests/document_mutation_check.py
+      - name: Requirement inference, numbers and conflict guards
+        working-directory: app/server
+        run: python3 tests/requirements_mutation_check.py
+      - name: Calendar and shared-task guard removals
+        working-directory: app/server
+        run: python3 tests/calendar_mutation_check.py
+      - name: Persisted summary evidence and protected edit guards
+        working-directory: app/server
+        run: python3 tests/summary_mutation_check.py
+      - name: Photo extractor guards
+        working-directory: app/server
+        run: python3 tests/extractor_mutation_check.py
+      - name: Nothing was left mutated
+        # A killed harness never reaches the finally that restores its target.
+        # H02 is open; this makes the consequence visible instead of silent.
+        run: |
+          if ! git diff --quiet; then
+            echo "The working tree changed while the harnesses ran:"
+            git diff --stat
+            exit 1
+          fi
+          if ls app/server/genai_server/*.mutation-backup 2>/dev/null; then
+            echo "A mutation backup was left behind."
+            exit 1
+          fi
+          echo "clean"
+
+  sync-budget:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python3 -m pip install -r app/server/requirements.txt
+      - name: One acceptance stays under 5 KB per client
+        # Exits non-zero when a fixture goes over budget. INT13 was a delta that
+        # grew with the board, and it was invisible because the realistic
+        # fixture was behind a flag.
+        working-directory: app/server
+        run: python3 tests/measure_sync.py
+
+  schema:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python3 -m pip install -r app/server/requirements.txt
+      - name: One meaning per schema version
+        # The check that would have caught the collision. Every PRAGMA
+        # user_version=N in db.py must describe the same schema everywhere, and
+        # the accepted set must match what the migration chain can produce.
+        run: python3 .github/scripts/check_schema_versions.py
+
+  client:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: python3 -m pip install -r app/server/requirements.txt
+      - name: Client contract and lifecycle
+        # board-order-unit.mjs runs the client's ordering over a fixture the
+        # Python service generated, so a drift between the two copies of the
+        # z-order rule fails here. The server job checks the fixture still
+        # matches what the service produces, so it cannot go stale.
+        working-directory: app/server
+        run: |
+          node tests/client-unit.mjs
+          node --test --test-isolation=none tests/client-transport-unit.mjs tests/session-sync-unit.mjs tests/board-order-unit.mjs
+          node --test tests/capture-audio-unit.mjs tests/capture-command-context-unit.mjs tests/voice-command-feedback-unit.mjs tests/wake-confirmation-unit.mjs
+          node --test tests/wakeword-unit.mjs
+      - name: Client unit tests, every one (contrast, board, canvas objects, tools, header, rail, strip, quote, parked, threads)
+        # One glob, so a new *-unit.mjs file runs without anyone editing this
+        # file; before phase 4 of the UI overhaul only the contrast test ran
+        # here and the phase 3 tools' unit tests ran nowhere in CI.
+        working-directory: app/client
+        run: node --test tests/*-unit.mjs
+      - name: Client named guard mutations
+        working-directory: app/server
+        run: python3 tests/client_mutation_check.py
+      - name: Real CLI and two-client HTTP journeys
+        working-directory: app/server
+        run: python3 tests/client_http_check.py
+      - name: Client checks leave tracked files unchanged
+        run: git diff --exit-code
+      - name: Tutor demo reader boundaries and credential isolation
+        run: python3 -m unittest discover -s tools -p test_tutor_demo.py
+
+  browser:
+    # The only job with a person's view of the product in it. The client's first
+    # three defects were a favicon 404, a library timer that throws only in a
+    # browser, and invisible text on a tab: none of them was visible to any
+    # other check in this file.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: python3 -m pip install -r app/server/requirements.txt
+      - name: Install a browser
+        working-directory: app/client
+        run: |
+          npm install --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: The board's pure rules
+        working-directory: app/client
+        run: node --test tests/board-unit.mjs ../server/tests/poll-model-unit.mjs
+      # The browser tests run one after another, as separate steps. Each
+      # starts its own servers on fixed ports, and two of them at once can
+      # collide (the journey's 5177 and 3077 did, between parallel agents);
+      # the pure rules they rest on run in the client job's unit step.
+      - name: The client journey, in a real browser
+        working-directory: app/client
+        run: node tests/journey.mjs
+      - name: Voice command indicators in the transcript
+        working-directory: app/client
+        run: node tests/command-recognition-browser.mjs
+      - name: Persisted summary, canvas and transcript evidence
+        working-directory: app/client
+        run: node tests/summary-browser.mjs
+      - name: Command menu and summary feedback
+        working-directory: app/client
+        run: node tests/command-menu-browser.mjs
+      - name: Speaker enrolment and transcript labels
+        working-directory: app/client
+        run: node tests/speaker-enrollment-browser.mjs
+      - name: Listen starts wake-word recognition automatically
+        working-directory: app/client
+        run: node tests/wakeword-listen-browser.mjs
+      - name: Voice polls, corrections and accepted results
+        working-directory: app/client
+        run: node tests/poll-browser.mjs
+      - name: To-do history, live collection and voice lifecycle
+        working-directory: app/client
+        run: node tests/document-browser.mjs
+      - name: Requirements, wishes, conflicts and deferred acceptance
+        working-directory: app/client
+        run: node tests/requirements-browser.mjs
+      - name: Command columns, readable zoom and manual placement
+        working-directory: app/client
+        run: node tests/command-layout-browser.mjs
+      - name: Calendar views, dates and shared-task review
+        working-directory: app/client
+        run: node tests/calendar-browser.mjs
+      - name: Automatic photo, text and command workspace
+        working-directory: app/client
+        run: node tests/automatic-workspace-browser.mjs
+      - name: Canvas objects drawn from a fixture, at 1440 and 400px
+        working-directory: app/client
+        run: node tests/canvas-objects-browser.mjs
+      - name: Canvas objects made through the real server, drawn and accepted
+        working-directory: app/client
+        run: node tests/canvas-objects-server-browser.mjs
+      - name: Canvas tools (ground, notes, motion, dock, pen, eraser, connector) through the real server
+        working-directory: app/client
+        run: node tests/canvas-browser.mjs
+      - name: Header, state chip, participant line and capture banner
+        working-directory: app/client
+        run: node tests/header-browser.mjs
+      - name: Review rail, transcript and people
+        working-directory: app/client
+        run: node tests/rail-browser.mjs
+      - name: Session strip and scrubbing
+        working-directory: app/client
+        run: node tests/strip-browser.mjs
+      - name: Quote notes through the real server
+        working-directory: app/client
+        run: node tests/quote-browser.mjs
+      - name: Parked margin through the real server
+        working-directory: app/client
+        run: node tests/parked-browser.mjs
+      - name: Provenance threads
+        working-directory: app/client
+        run: node tests/threads-browser.mjs
+      - name: All browser checks leave tracked files unchanged
+        run: git diff --exit-code

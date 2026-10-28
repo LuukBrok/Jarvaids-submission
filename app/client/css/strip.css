@@ -1,0 +1,140 @@
+/* ==========================================================================
+   The session strip: time along the bottom of the canvas (DESIGN.md 1.2).
+   Owner: the phase 3 session strip agent, with tools/strip.mjs and the
+   <!-- region: strip --> block in index.html.
+
+   Collapsed it is one line, --strip-h tall: the first moment's time, the
+   marks, now's time and the quiet control that opens it. Open (by that
+   control, or while the slider has focus, which a press on the strip gives
+   it) it is --strip-h-open tall and the marks sit in four lanes, one per
+   kind of moment, with the time row under them for the cursor's time. The
+   gutters are the same width open and closed, so a mark never moves
+   sideways when the strip opens under a pointer that is scrubbing.
+
+   Nothing here animates. Scrubbing is direct manipulation: a fade or a
+   growing strip that lagged the pointer would show a moment the pointer has
+   already left. So reduced motion needs nothing extra.
+
+   Tokens only. The four mark sizes are the brief's: an 8px square, an 8px
+   circle, a 3px by 12px bar and a 2px by 10px line.
+   ========================================================================== */
+
+.strip {
+  /* The gutters fit the longest lane word ("command") and a mono time at
+     the projector's scale. The quiet control has a column of its own. */
+  --strip-gutter-start: calc(var(--space-8) + var(--space-2));
+  --strip-gutter-end: var(--space-7);
+  --strip-row: calc(var(--fs-mono) * var(--lh-mono));
+
+  position: relative;
+  /* Its own stacking context, so the paper to the right of the cursor can
+     sit under the marks and words without going under the strip itself. */
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: var(--strip-gutter-start) minmax(0, 1fr) var(--strip-gutter-end) auto;
+  grid-template-rows: minmax(0, 1fr);
+  align-items: center;
+  column-gap: var(--space-2);
+  min-height: var(--strip-h);
+  margin-top: var(--space-3);
+  padding-inline: var(--space-2);
+  background: var(--surface-sunken);
+  border-top: var(--line-1) solid var(--edge);
+  font-family: var(--font-mono);
+  color: var(--text-2);
+  /* A sideways drag scrubs; an up or down swipe still scrolls the page. */
+  touch-action: pan-y;
+  user-select: none;
+  cursor: ew-resize;
+}
+
+/* ---- the gutters and the axis ---- */
+.strip-end { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.strip-start { grid-column: 1; grid-row: 1; justify-self: end; }
+.strip-now { grid-column: 3; grid-row: 1; justify-self: start; }
+.strip-toggle { grid-column: 4; grid-row: 1; }
+.strip-toggle svg { width: var(--icon); height: var(--icon); fill: none; stroke: currentColor;
+  stroke-width: var(--line-2); stroke-linecap: round; stroke-linejoin: round; }
+.strip[data-open="true"] .strip-toggle svg { rotate: 180deg; }
+.strip-lanes, .strip-timerow { display: none; }
+
+.strip-axis { grid-column: 2; grid-row: 1; position: relative; align-self: stretch; min-width: 0; }
+/* Inset so a mark at either end is drawn whole. */
+.strip-rail { position: absolute; inset: 0 var(--space-2); }
+/* The time line itself, closed only: open, the lanes carry it. */
+.strip-rail::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: var(--line-1); background: var(--edge); }
+.strip-empty { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-ui); color: var(--text-3); white-space: nowrap; overflow: hidden; }
+.strip:not([data-empty="true"]) .strip-empty { display: none; }
+
+/* ---- the marks ---- */
+/* No hit area of their own: the script finds the mark nearest the pointer,
+   so marks a few seconds apart do not hide each other. */
+.strip-mark { position: absolute; top: 50%; translate: -50% -50%; pointer-events: none; }
+.strip-mark-photo { width: var(--space-2); height: var(--space-2); background: var(--text-2); }
+/* The note's own colour, read from the drawn note. A full accent on the
+   sunken ground is under 2:1, so the circle carries a 1px --ink-2 ring to
+   read as a mark at 3:1. */
+.strip-mark-accept { width: var(--space-2); height: var(--space-2); border-radius: var(--r-pill);
+  background: var(--mark-fill, var(--note-accepted-fill)); outline: var(--line-1) solid var(--text-2); }
+/* The command bar is the --mark-command role (periwinkle, as the brief names). */
+/* Periwinkle on the sunken ground measures 1.86:1, under the 3:1 a mark
+   needs on its own, and the closed strip has no lane word beside it; so it
+   carries the accept circle's --ink-2 ring (phase 5 review). */
+.strip-mark-command { width: calc(3 * var(--line-1)); height: var(--space-3); background: var(--mark-command);
+  outline: var(--line-1) solid var(--text-2); }
+.strip-mark-quote { width: var(--line-2); height: var(--glyph); background: var(--text-3); }
+
+/* ---- open: four lanes and a time row ---- */
+.strip[data-open="true"], .strip.strip-focused {
+  grid-template-rows: minmax(0, 1fr) var(--strip-row);
+  min-height: var(--strip-h-open);
+  padding-block: var(--space-1);
+}
+.strip[data-open="true"] .strip-lanes, .strip.strip-focused .strip-lanes {
+  display: grid; grid-column: 1; grid-row: 1; align-self: stretch;
+  grid-template-rows: repeat(4, minmax(0, 1fr)); align-items: center; justify-items: end;
+  color: var(--text-3); white-space: nowrap;
+  /* Four lane words at Mono's line height (13px since the phase 5 review)
+     stacked 3px past --strip-h-open; each sits centred in its lane, so it
+     needs no leading of its own. */
+  line-height: 1;
+}
+.strip[data-open="true"] .strip-timerow, .strip.strip-focused .strip-timerow { display: block; grid-column: 2; grid-row: 2; }
+.strip[data-open="true"] .strip-start, .strip.strip-focused .strip-start,
+.strip[data-open="true"] .strip-now, .strip.strip-focused .strip-now { grid-row: 2; }
+.strip[data-open="true"] .strip-toggle, .strip.strip-focused .strip-toggle { align-self: start; }
+.strip[data-open="true"] .strip-rail::before, .strip.strip-focused .strip-rail::before { display: none; }
+.strip[data-open="true"] .strip-mark-photo,   .strip.strip-focused .strip-mark-photo   { top: 12.5%; }
+.strip[data-open="true"] .strip-mark-accept,  .strip.strip-focused .strip-mark-accept  { top: 37.5%; }
+.strip[data-open="true"] .strip-mark-command, .strip.strip-focused .strip-mark-command { top: 62.5%; }
+.strip[data-open="true"] .strip-mark-quote,   .strip.strip-focused .strip-mark-quote   { top: 87.5%; }
+
+/* ---- scrubbing: the cursor, and the paper to its right ---- */
+.strip-future { display: none; position: absolute; top: 0; bottom: 0; right: 0; left: var(--cursor-x, 100%);
+  z-index: -1; background: var(--surface); pointer-events: none; }
+.strip-scrubbing .strip-future { display: block; }
+.strip-cursor { position: absolute; top: 0; bottom: 0; left: var(--cursor-x, 0); translate: -50% 0;
+  display: flex; flex-direction: column; align-items: center; pointer-events: none; }
+.strip[data-open="true"] .strip-cursor, .strip.strip-focused .strip-cursor { bottom: var(--space-1); }
+.strip-cursor-line { flex: 1; width: var(--line-2); background: var(--text); }
+.strip-cursor-time { padding-inline: var(--space-1); border-radius: var(--r-sm); background: var(--surface); color: var(--text);
+  white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+/* ---- a moment's words, over its mark ---- */
+.strip-tip {
+  position: absolute; bottom: calc(100% + var(--space-1)); left: 0; z-index: var(--z-menu);
+  max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  padding: var(--space-1) var(--space-2); border: var(--line-1) solid var(--edge); border-radius: var(--r-sm);
+  background: var(--surface); color: var(--text); font-family: var(--font-ui); pointer-events: none;
+}
+
+/* ---- what the strip does to the canvas while a moment is set ----
+   Added by tools/strip.mjs to other regions' elements and removed at now.
+   !important because these must win over the elements' own rules for as
+   long as a moment is set: a hull label's or tag's pointer-events, and the
+   landing animation's opacity, which a normal declaration cannot beat. */
+.after-moment { opacity: 0.2 !important; pointer-events: none !important; }
+.after-moment * { pointer-events: none !important; }
+/* A proposal made after the moment did not exist then, so it is not shown. */
+.after-moment-proposal { visibility: hidden !important; }

@@ -1,0 +1,443 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Column · spacious UI exploration 03 · Jarvaids session and transcript</title>
+<style>
+/* ==========================================================================
+   03 · COLUMN
+   Session and transcript. Nothing is drawn.
+
+   One rule governs this file: if a mark is not a letter, it does not exist.
+   No border, no rule, no fill, no radius, no panel, no card, no shadow, no
+   tint. Hierarchy comes from size, weight, alpha and position, and grouping
+   comes from distance and from one hard left edge that every line shares.
+
+   There is exactly one exception and it is deliberate: the ask field carries
+   an underline, because WCAG 1.4.11 requires a visible boundary on an input
+   and "you cannot see where to type" is not a design position.
+   ========================================================================== */
+
+@font-face {
+  font-family: "Archivo";
+  src: url("fonts/archivo-variable-latin.woff2") format("woff2");
+  font-weight: 400 700; font-stretch: 100%; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: "Nunito Sans";
+  src: url("fonts/nunito-sans-variable-latin.woff2") format("woff2");
+  font-weight: 400 700; font-stretch: 100%; font-style: normal; font-display: swap;
+}
+
+:root {
+  --font-signal: "Archivo", "Helvetica Neue", Arial, system-ui, sans-serif;
+  --font-reading: "Nunito Sans", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+
+  --color-canvas: #ffffff;
+  --color-ink: #141414;
+  --color-ink-inverse: #ffffff;
+  --color-accent: #a85a00;
+  --color-accent-pressed: #8c4b00;
+  --color-status-provisional: #5b46be;
+  --color-status-accepted: #1d7344;
+  --color-status-failed: #a81f1a;
+
+  /* PROPOSAL: ink alpha ladder: not yet in the design system. Same five steps
+     as exploration 02, measured composited in contrast.py. */
+  --ink-1: 1; --ink-2: 0.78; --ink-3: 0.64; --ink-4: 0.48; --ink-5: 0.12;
+
+  /* PROPOSAL: a five-step type scale: not yet in the design system.
+     The shipped scale has seven sizes but only one of them, 32px, is large,
+     and a hierarchy that has to be carried by type alone needs a bigger top
+     and a real gap between each step. The ratio here is roughly 1.35 between
+     neighbours, which is the point where a reader stops comparing two sizes
+     and simply reads one as more important. */
+  --t-xl: 76px;   --t-xl-lh: 70px;   /* the two figures, once per screen */
+  --t-lg: 34px;   --t-lg-lh: 42px;   /* the page title, the answer       */
+  --t-md: 19px;   --t-md-lh: 30px;   /* speech: the thing you read       */
+  --t-sm: 15px;   --t-sm-lh: 22px;   /* supporting prose                 */
+  --t-xs: 12px;   --t-xs-lh: 16px;   /* structure labels, uppercase      */
+
+  --spacing-1: 4px;  --spacing-2: 8px;  --spacing-3: 12px; --spacing-4: 16px;
+  --spacing-5: 24px; --spacing-6: 32px; --spacing-7: 48px; --spacing-8: 64px;
+  --radius-full: 999px; --line-focus: 2px;
+  --motion-fast: 120ms; --motion-ease: cubic-bezier(0.22, 1, 0.36, 1); --motion-pulse: 2s;
+  color-scheme: light;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; background: var(--color-canvas); color: rgb(20 20 20 / var(--ink-1));
+  font-family: var(--font-reading); font-size: var(--t-sm); line-height: var(--t-sm-lh);
+  -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+
+.structure { font-family: var(--font-signal); font-size: var(--t-xs); line-height: var(--t-xs-lh);
+  letter-spacing: 0.07em; font-weight: 600; text-transform: uppercase;
+  color: rgb(20 20 20 / var(--ink-3)); }
+.signal { font-family: var(--font-signal); font-weight: 500; font-variant-numeric: tabular-nums; }
+.strong { font-weight: 600; }
+
+/* ── exploration frame ────────────────────────────────────────────────── */
+.frame { max-width: 68ch; margin: 0 auto; padding: var(--spacing-8) var(--spacing-4) var(--spacing-7); }
+.frame h1 { font-family: var(--font-signal); font-size: 22px; line-height: 26px; font-weight: 600; margin: 0 0 var(--spacing-2); }
+.frame p { margin: 0 0 var(--spacing-3); color: rgb(20 20 20 / var(--ink-2)); }
+.frame .eyebrow { display: block; margin-bottom: var(--spacing-3); }
+.rule { border: 0; border-top: 1px solid rgb(20 20 20 / var(--ink-5)); margin: 0; }
+
+/* ── the screen ───────────────────────────────────────────────────────── */
+.screen { padding: var(--spacing-8) var(--spacing-4) var(--spacing-8); }
+@media (min-width: 1024px) { .screen { padding-inline: var(--spacing-7); } }
+.wrap { max-width: 1120px; margin: 0 auto; }
+
+/* nav: position and weight only. The current screen is heavier and darker,
+   the rest recede by alpha. No underline, no tab, no pill. */
+.nav { display: flex; gap: var(--spacing-6); flex-wrap: wrap; }
+.nav a { text-decoration: none; font-size: var(--t-sm); color: rgb(20 20 20 / var(--ink-3)); }
+.nav a[aria-current="page"] { color: rgb(20 20 20 / var(--ink-1)); font-weight: 600; }
+.nav a:hover { color: rgb(20 20 20 / var(--ink-1)); }
+
+/* THE TWO FIGURES. Everything above and below them is at most 34px, so the
+   ratio at the top of the page is 76 against 34 against 19 against 12. Four
+   steps, each unmistakable. */
+.figures { display: flex; gap: var(--spacing-8); flex-wrap: wrap; margin-top: var(--spacing-8); }
+.figure b { display: block; font-family: var(--font-signal); font-weight: 700;
+  font-size: var(--t-xl); line-height: var(--t-xl-lh); letter-spacing: -0.035em;
+  font-variant-numeric: tabular-nums; color: rgb(20 20 20 / var(--ink-1)); }
+.figure .structure { display: block; margin-top: var(--spacing-3); }
+.figure.quiet b { color: rgb(20 20 20 / var(--ink-2)); }
+
+h1.title { font-family: var(--font-signal); font-size: var(--t-lg); line-height: var(--t-lg-lh);
+  letter-spacing: -0.02em; font-weight: 700; margin: var(--spacing-8) 0 0; }
+.lede { margin: var(--spacing-4) 0 0; max-width: 56ch; font-size: var(--t-sm); line-height: var(--t-sm-lh);
+  color: rgb(20 20 20 / var(--ink-2)); }
+
+/* the live indicator: a dot and a word, the only non-letter marks allowed */
+.status { display: inline-flex; align-items: center; gap: var(--spacing-2); }
+.dot { width: 8px; height: 8px; border-radius: var(--radius-full); flex: none; display: inline-block; }
+@keyframes col-pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
+.pulse { animation: col-pulse var(--motion-pulse) var(--motion-ease) infinite; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after {
+  animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; } }
+
+/* the ask: THE ONE LINE ON THIS SCREEN, and only because 1.4.11 says so */
+.ask { margin-top: var(--spacing-8); max-width: 640px; }
+.ask label { display: block; }
+.ask .field { display: flex; gap: var(--spacing-4); align-items: flex-end; flex-wrap: wrap; margin-top: var(--spacing-3); }
+.ask input { flex: 1 1 260px; min-width: 0; font-family: var(--font-reading);
+  font-size: var(--t-md); line-height: var(--t-md-lh); color: rgb(20 20 20 / var(--ink-1));
+  background: transparent; border: 0; border-bottom: 1px solid rgb(20 20 20 / var(--ink-4));
+  padding: var(--spacing-2) 0; }
+.ask input:hover, .ask input:focus { border-bottom-color: rgb(20 20 20 / var(--ink-1)); }
+.btn { font-family: var(--font-reading); font-size: var(--t-sm); font-weight: 600; line-height: 1;
+  height: 44px; padding-inline: 22px; border: 0; border-radius: var(--radius-full); cursor: pointer;
+  background: rgb(20 20 20 / var(--ink-1)); color: var(--color-ink-inverse);
+  transition: background var(--motion-fast) var(--motion-ease); }
+.btn:hover { background: var(--color-accent-pressed); }
+:where(a, button, input, [tabindex]):focus-visible {
+  outline: var(--line-focus) solid var(--color-accent); outline-offset: 3px; }
+
+/* the answer: indented, large, and cited. No box. The indent is the box. */
+.answer { margin-top: var(--spacing-8); max-width: 780px; }
+.answer p { font-size: var(--t-lg); line-height: var(--t-lg-lh); font-weight: 600;
+  margin: var(--spacing-4) 0 0; letter-spacing: -0.01em; }
+.cites { display: flex; gap: var(--spacing-5); flex-wrap: wrap; margin-top: var(--spacing-5); }
+.cites a { font-family: var(--font-signal); font-size: var(--t-sm); font-weight: 500;
+  font-variant-numeric: tabular-nums; color: var(--color-accent); text-decoration: none; }
+.cites a:hover { text-decoration: underline; }
+.answer .caveat { margin-top: var(--spacing-4); max-width: 56ch;
+  font-size: var(--t-sm); line-height: var(--t-sm-lh); color: rgb(20 20 20 / var(--ink-3)); }
+
+/* THE TRANSCRIPT.
+   Turns are 44px apart. The two lines inside a turn are 4px apart. The ratio
+   is 11:1 and the grouping is not arguable. Every timestamp starts on the same
+   x, and that shared edge is the only continuity cue on the page. */
+.transcript { margin-top: var(--spacing-8); }
+.turns { margin-top: var(--spacing-6); display: flex; flex-direction: column; gap: 44px; }
+.turn { display: grid; grid-template-columns: 96px minmax(0,1fr); gap: var(--spacing-5);
+  align-items: baseline; max-width: 880px; }
+@media (max-width: 599px) { .turn { grid-template-columns: minmax(0,1fr); gap: var(--spacing-2); } }
+.turn > a, .turn > .stamp { font-family: var(--font-signal); font-size: var(--t-sm); line-height: var(--t-md-lh);
+  font-weight: 500; font-variant-numeric: tabular-nums; color: var(--color-accent); text-decoration: none; }
+.turn > a:hover { text-decoration: underline; }
+.turn .who { display: block; font-family: var(--font-signal); font-size: var(--t-xs); line-height: var(--t-xs-lh);
+  letter-spacing: 0.07em; font-weight: 600; text-transform: uppercase; color: rgb(20 20 20 / var(--ink-3)); }
+.turn .said { margin: var(--spacing-1) 0 0; font-size: var(--t-md); line-height: var(--t-md-lh);
+  color: rgb(20 20 20 / var(--ink-1)); max-width: 54ch; }
+/* a decision is heavier, not coloured and not boxed */
+.turn.decision .said { font-weight: 600; }
+.turn.decision .who { color: var(--color-status-accepted); }
+/* a gap is a fact, at the reading size, in its own colour, with no container */
+.turn.gap .said { font-size: var(--t-sm); line-height: var(--t-sm-lh); color: rgb(20 20 20 / var(--ink-2)); }
+.turn.gap > .stamp { color: var(--color-status-failed); }
+.turn.playing .said { box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+.turn.playing .who { color: rgb(20 20 20 / var(--ink-1)); }
+mark { background: transparent; color: inherit; font-weight: 700; }
+
+/* the tally: right column on wide screens, stacked under on narrow.
+   A definition list with no rules and a lot of space. */
+.layout { display: grid; grid-template-columns: minmax(0,1fr); gap: var(--spacing-8); }
+@media (min-width: 1024px) { .layout { grid-template-columns: minmax(0,1fr) 260px; gap: var(--spacing-8);
+  align-items: start; } }
+.layout > aside { padding-top: var(--spacing-8); }
+.tally { display: flex; flex-direction: column; gap: var(--spacing-5); margin-top: var(--spacing-5); }
+.tally div { display: flex; align-items: baseline; gap: var(--spacing-3); }
+.tally dt { font-size: var(--t-sm); color: rgb(20 20 20 / var(--ink-2)); }
+.tally dd { margin: 0 0 0 auto; font-family: var(--font-signal); font-size: var(--t-md);
+  font-weight: 600; font-variant-numeric: tabular-nums; }
+.tally dd.bad { color: var(--color-status-failed); }
+
+/* ── notes ────────────────────────────────────────────────────────────── */
+.notes { max-width: 68ch; margin: 0 auto; padding: var(--spacing-8) var(--spacing-4); }
+.notes h2 { font-family: var(--font-signal); font-size: 22px; line-height: 26px; font-weight: 600; margin: 0 0 var(--spacing-4); }
+.notes h3 { font-family: var(--font-signal); font-size: 12px; line-height: 16px; letter-spacing: 0.07em;
+  font-weight: 600; text-transform: uppercase; color: rgb(20 20 20 / var(--ink-3)); margin: var(--spacing-7) 0 var(--spacing-3); }
+.notes p, .notes li { font-size: 15px; line-height: 22px; color: rgb(20 20 20 / var(--ink-2)); }
+.notes li { margin-bottom: var(--spacing-2); }
+table { border-collapse: collapse; width: 100%; font-size: 12px; line-height: 16px; }
+th { font-family: var(--font-signal); font-size: 12px; letter-spacing: 0.07em; font-weight: 600;
+  text-transform: uppercase; text-align: left; color: rgb(20 20 20 / var(--ink-3));
+  padding: var(--spacing-2) var(--spacing-2) var(--spacing-2) 0;
+  border-bottom: 1px solid rgb(20 20 20 / var(--ink-4)); }
+td { padding: var(--spacing-2) var(--spacing-2) var(--spacing-2) 0; vertical-align: top;
+  border-bottom: 1px solid rgb(20 20 20 / var(--ink-5)); color: rgb(20 20 20 / var(--ink-2)); }
+td.n { font-family: var(--font-signal); font-variant-numeric: tabular-nums; text-align: right;
+  white-space: nowrap; color: rgb(20 20 20 / var(--ink-1)); }
+code { font-family: var(--font-signal); font-size: 12px; }
+.tablewrap { overflow-x: auto; }
+</style>
+</head>
+<body>
+
+<header class="frame">
+  <span class="structure eyebrow">Spacious UI · exploration 03 of 05</span>
+  <h1>Column</h1>
+  <p><strong>Thesis.</strong> Take the opposite bet from Vellum. If hierarchy
+  is genuinely carried by size, weight, contrast and position, then a screen
+  should survive deleting every mark that is not a letter. This one does: no
+  border, no rule, no fill, no card, no radius, no tint, no divider anywhere,
+  with one deliberate exception, the underline on the ask field, because 1.4.11
+  requires an input to have a visible boundary and hiding it would be a
+  posture, not a decision. Everything else is arranged. The transcript hangs
+  off one shared left edge so that continuity does the work a rule would do,
+  turns sit 44px apart while the two lines inside a turn sit 4px apart, and the
+  session's two facts, how long it has been running and how many decisions came
+  out of it, are set at 76px against a reading size of 19px so that the
+  hierarchy is settled before anyone reads a word. Opacity appears here not as
+  material but as the only thing that replaces grey: five measured steps of ink
+  alpha, with the floor set at exactly the point where text stops being legal.</p>
+</header>
+<hr class="rule">
+
+<main class="screen">
+<div class="wrap">
+
+  <nav class="nav" aria-label="Screens">
+    <a href="01-air.html">Canvas</a>
+    <a href="#" aria-current="page">Session</a>
+    <a href="02-vellum.html">Review</a>
+    <a href="04-glance.html">Set up</a>
+    <a href="#">Export</a>
+  </nav>
+
+  <div class="layout">
+  <div>
+  <div class="figures">
+    <div class="figure">
+      <b>00:47:31</b>
+      <span class="structure">
+        <span class="status"><span class="dot pulse" style="background:var(--color-ink)"></span>Recording, quiet mode</span>
+      </span>
+    </div>
+    <div class="figure quiet">
+      <b>7</b>
+      <span class="structure">Decisions so far</span>
+    </div>
+  </div>
+
+  <h1 class="title">Concept critique, week 3</h1>
+  <p class="lede">The transcript is working material, not a deliverable. Every
+  line is a handle: click a time and the canvas jumps to what was on it at that
+  moment.</p>
+
+  <form class="ask" onsubmit="return false">
+    <label>
+      <span class="structure">Ask the session</span>
+      <span class="field">
+        <input type="text" value="What did Sanne say about the paywall?">
+        <button class="btn" type="submit">Ask</button>
+      </span>
+    </label>
+  </form>
+
+  <section class="answer" aria-label="Answer">
+    <span class="structure">Answer</span>
+    <p>Sanne put the paywall out of scope for the pilot. Bram, probably, pushed
+    back that out of scope for the pilot is not out of scope for the product,
+    and Sanne agreed to revisit it afterwards.</p>
+    <div class="cites">
+      <a href="#">14:22:06</a>
+      <a href="#">14:22:41</a>
+      <a href="#">14:23:28</a>
+    </div>
+    <p class="caveat">Three moments. Check the answer against them. Jarvaids will
+    not answer without them, and the speaker at 14:22:41 is a guess.</p>
+  </section>
+
+    <section class="transcript" aria-label="Transcript">
+      <span class="structure">Transcript · 412 lines · 2 gaps</span>
+
+      <div class="turns">
+
+        <div class="turn">
+          <a href="#">14:21:58</a>
+          <div>
+            <span class="who">Sanne</span>
+            <p class="said">Can we just agree the pilot has no payments in it?
+            Every time we open this we lose twenty minutes.</p>
+          </div>
+        </div>
+
+        <div class="turn decision">
+          <a href="#">14:22:06</a>
+          <div>
+            <span class="who">Sanne · decision</span>
+            <p class="said">Then the <mark>paywall</mark> is out of scope for now.</p>
+          </div>
+        </div>
+
+        <div class="turn">
+          <a href="#">14:22:41</a>
+          <div>
+            <span class="who">
+              <span class="status" style="color:var(--color-status-provisional)">
+                <span class="dot" style="background:var(--color-status-provisional)"></span>
+                Unknown speaker, the name is a guess</span>
+            </span>
+            <p class="said">Out of scope for the pilot, not for the product.
+            Those are different things.</p>
+          </div>
+        </div>
+
+        <div class="turn gap">
+          <span class="stamp">14:23:10</span>
+          <div>
+            <span class="who" style="color:var(--color-status-failed)">
+              <span class="status"><span class="dot" style="background:var(--color-status-failed)"></span>Gap</span>
+            </span>
+            <p class="said">18 seconds could not be transcribed. Audio was still
+            recorded, so this can be tried again after the session.</p>
+          </div>
+        </div>
+
+        <div class="turn playing">
+          <a href="#">14:23:28</a>
+          <div>
+            <span class="who">Bram · playing now</span>
+            <p class="said">Fine. Revisit after the pilot then.</p>
+          </div>
+        </div>
+
+        <div class="turn">
+          <a href="#">14:24:02</a>
+          <div>
+            <span class="who">Iris</span>
+            <p class="said">I will redraw the step 3 flow before Thursday, so we
+            have something to argue with.</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </div>
+
+    <aside aria-label="Session tally">
+      <span class="structure">This session</span>
+      <dl class="tally">
+        <div><dt>Decisions</dt><dd>7</dd></div>
+        <div><dt>Actions with an owner</dt><dd>4</dd></div>
+        <div><dt>Actions without one</dt><dd>3</dd></div>
+        <div><dt>Open questions</dt><dd>9</dd></div>
+        <div><dt>Still provisional</dt><dd>12</dd></div>
+        <div><dt>Transcription gaps</dt><dd class="bad">2</dd></div>
+      </dl>
+    </aside>
+
+  </div>
+</div>
+</main>
+
+<hr class="rule">
+
+<footer class="notes">
+  <h2>What this costs and what it buys</h2>
+
+  <h3>Design system rules broken</h3>
+  <ul>
+    <li><strong>typography, no arbitrary font sizes, and the seven-size
+    scale.</strong> This screen runs on five sizes, 76 / 34 / 19 / 15 / 12, and
+    only two of them exist today. <em>Buys:</em> the reference's actual
+    hierarchy. The shipped scale tops out at 32px and has four sizes clustered
+    between 12 and 15, which is a scale built for density, not for glancing.
+    19px for speech is also the single biggest legibility gain in the whole set
+    of five: the transcript is the densest surface in the product and 15/22 is
+    tight for it.</li>
+    <li><strong>principle 1 and the hairline vocabulary, by omission.</strong>
+    The system separates regions with 1px hairlines. This screen has none.
+    <em>Buys:</em> proof that the hairlines were never load bearing. It also
+    costs something real: see below.</li>
+    <li><strong>forbidden #1, in spirit,</strong> for the same ink alpha ladder
+    as exploration 02. Marked <code>PROPOSAL</code> in the stylesheet.</li>
+    <li><strong>typography, rule T1 and the h1 rule,</strong> partly. The two
+    figures are Archivo at a size that has no Nunito partner, so the
+    "two faces pair at the same size" measurement does not apply to them. The
+    page also has a visible 76px number above its actual <code>h1</code>, which
+    is a heading-order question the system has not had to answer before.</li>
+  </ul>
+
+  <h3>Rules it turned out not to need</h3>
+  <p>No surface, no shadow, no gradient, no tint, no second accent, no
+  categorical colour, no status colour reused for emphasis. A decision line is
+  marked by <em>weight</em>, not by a green pill. The accent appears only on
+  things you can click, which is exactly what principle 3 asks for and is
+  easier to hold to here than in the shipped exemplars, because there is
+  nothing else competing to be coloured.</p>
+
+  <h3>The honest weakness</h3>
+  <p>With nothing drawn, the screen depends entirely on its whitespace budget,
+  and whitespace is the first thing that goes when real data arrives. Four
+  hundred and twelve transcript lines at 44px apart is a very long page, and the
+  moment somebody asks for a denser mode the whole argument collapses back into
+  needing rules. The second weakness is that scan-stopping is weak: with no
+  region edges, a reader coming back to the screen after looking away has no
+  landmark except the figures at the top. Air handles that better with one
+  hairline than Column does with none.</p>
+
+  <h3>Composited contrast</h3>
+  <p>The only compositing on this screen is the ink ladder over white, because
+  there is no other ground. Computed by <code>contrast.py</code> in this folder.
+  Note where the floor sits: 64% ink is the lowest alpha that still clears
+  4.5:1, so "faded body text" in this system stops at 64% and not a step lower.</p>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th scope="col">Pair</th><th scope="col">Composited</th><th scope="col">Ground</th><th scope="col" class="n">Ratio</th><th scope="col" class="n">Needs</th><th scope="col">Result</th></tr></thead>
+    <tbody>
+<!--CONTRAST:column-->
+<tr><td>ink 100% on white</td><td><code>#141414</code></td><td><code>#ffffff</code></td><td class="n">18.42:1</td><td class="n">4.5</td><td>pass</td></tr>
+<tr><td>ink 78% on white</td><td><code>#484848</code></td><td><code>#ffffff</code></td><td class="n">9.19:1</td><td class="n">4.5</td><td>pass</td></tr>
+<tr><td>ink 64% on white</td><td><code>#696969</code></td><td><code>#ffffff</code></td><td class="n">5.52:1</td><td class="n">4.5</td><td>pass</td></tr>
+<tr><td>ink 48% on white</td><td><code>#8e8e8e</code></td><td><code>#ffffff</code></td><td class="n">3.27:1</td><td class="n">3.0</td><td>pass</td></tr>
+<tr><td>ink 12% on white</td><td><code>#e3e3e3</code></td><td><code>#ffffff</code></td><td class="n">1.29:1</td><td class="n">1.0</td><td>pass</td></tr>
+<!--/CONTRAST-->
+    </tbody>
+  </table>
+  </div>
+  <p>The coloured marks on this screen, the provisional dot, the gap colour and
+  the accent on citations, are all used at full strength and are the shipped
+  token values, so their ratios are the ones already in
+  <code>spec/accessibility.md</code>: 6.85:1, 7.30:1 and 5.09:1 on white.</p>
+
+  <p style="margin-top:32px"><a href="index.html" style="color:var(--color-accent)">Back to the five explorations</a></p>
+</footer>
+
+</body>
+</html>

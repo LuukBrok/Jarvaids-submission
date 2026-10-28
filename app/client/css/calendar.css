@@ -1,0 +1,190 @@
+/* ==========================================================================
+   The Calendar view (calendar-view.mjs) and the calendar card's summary on
+   the canvas (calendar.mjs calendarSummary).
+
+   The view fills the area the canvas uses, beside the rail. Month and week
+   are a grid of day cells holding the entries as pills; day is a list by
+   time; year is twelve month cards. Pills take their accent from their kind
+   (--calendar-event-*, --calendar-task-*): a soft field with a deep edge on
+   the leading side. An entry the interpreter made that nobody accepted also
+   carries the machine mark, a dashed --mark-machine line, so a model's
+   guess never looks like a person's entry. Pills use --r-sm, not the full
+   pill radius, which the system keeps for toggles (DESIGN.md 2.7).
+
+   Every size is a token; the cell heights are calc()s of --scale, so the
+   projector grows the grid with the type inside it.
+   ========================================================================== */
+
+/* ---- the view in the workspace ---- */
+.calendar-view {
+  container: cal / inline-size;
+  display: flex; flex-direction: column; gap: var(--space-4); min-width: 0;
+}
+@media (min-width: 1024px) {
+  .ws-main > .calendar-view { flex: 1 1 0; min-height: 0; overflow-y: auto; }
+}
+.cal-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: var(--space-3); }
+.cal-name { display: flex; flex-direction: column; gap: var(--space-1); min-width: 0; }
+.cal-name h2 { overflow-wrap: anywhere; }
+.cal-state { color: var(--text-2); }
+.cal-picker { min-width: 0; max-width: 100%; }
+
+/* The toolbar: the views, then Previous, Today, Next and the date, then
+   the time zone line. */
+.cal-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4); }
+.cal-toolbar .calendar-tools { margin: 0; align-items: center; }
+/* The chosen view stays the ink toggle under the pointer too: the secondary
+   button's hover would otherwise turn it --line with paper words. */
+.calendar-tools .btn[aria-pressed="true"]:hover:not([disabled]) { color: var(--text-on-deep); background: var(--text); }
+.cal-toolbar .calendar-zone { margin: 0; }
+.calendar-view :is(input:not([type="checkbox"]), select) {
+  font: inherit; font-size: var(--fs-small); min-height: var(--h-control-sm); min-width: 0; max-width: 100%;
+  padding-inline: var(--space-2); color: var(--text); background: var(--surface);
+  border: var(--line-1) solid var(--edge); border-radius: var(--r-sm);
+}
+.calendar-view input[type="checkbox"] { width: auto; accent-color: var(--action-primary); }
+.calendar-view .poll-field { display: grid; gap: var(--space-1); margin-block: var(--space-2); }
+
+/* The key to the pills, in words. */
+.cal-legend { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-4); margin: 0; color: var(--text-2); }
+.cal-key { display: inline-flex; align-items: center; gap: var(--space-2); }
+.cal-key::before {
+  content: ""; flex: none; width: var(--space-5); height: var(--space-3); border-radius: var(--r-sm);
+  background: var(--cal-fill); border-inline-start: var(--bar-w) solid var(--cal-edge);
+}
+.cal-key-machine::before { background: transparent; border: var(--line-1) dashed var(--mark-machine); }
+
+/* ---- the body: the period, and the side column beside it when there is room ---- */
+.cal-body { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-5); align-items: start; }
+@container cal (min-width: 880px) {
+  .cal-body { grid-template-columns: minmax(0, 1fr) var(--cal-side); }
+}
+.cal-main { min-width: 0; display: flex; flex-direction: column; gap: var(--space-3); }
+.cal-period { margin: 0; }
+
+/* ---- month and week: a grid of day cells ---- */
+.cal-grid {
+  display: grid; grid-template-columns: repeat(7, minmax(0, 1fr));
+  border-top: var(--line-1) solid var(--edge); border-inline-start: var(--line-1) solid var(--edge);
+}
+.cal-weekday, .cal-cell { border-inline-end: var(--line-1) solid var(--edge); border-bottom: var(--line-1) solid var(--edge); }
+.cal-weekday { padding: var(--space-1) var(--space-2); color: var(--text-2); }
+.cal-cell {
+  display: flex; flex-direction: column; gap: var(--space-1); min-width: 0;
+  min-height: var(--cal-cell-month); padding: var(--space-1);
+}
+.cal-grid-week .cal-cell { min-height: var(--cal-cell-week); }
+/* Days outside the month sit on the sunken tone, so the month reads as a block. */
+.cal-outside { background: var(--surface-sunken); }
+.cal-outside .cal-daynum { color: var(--text-3); }
+.cal-daynum {
+  align-self: flex-start; min-height: var(--h-control-sm); min-width: var(--h-control-sm);
+  padding-inline: var(--space-1); border: var(--line-2) solid transparent; border-radius: var(--r-sm);
+  background: transparent; color: var(--text); cursor: pointer;
+}
+.cal-daynum:hover { background: var(--action-quiet-hover); }
+/* Today is the ink chip (paper words on ink, asserted); the chosen date
+   carries the selection outline. */
+.cal-today .cal-daynum, .cal-today .cal-daynum:hover { background: var(--text); color: var(--text-on-deep); }
+.cal-daynum[aria-current="date"] { border-color: var(--selected); }
+.cal-pills { display: flex; flex-direction: column; gap: var(--space-1); min-width: 0; }
+.cal-more {
+  align-self: flex-start; padding: 0 var(--space-1); border: 0; border-radius: var(--r-sm);
+  background: transparent; color: var(--text-2); cursor: pointer;
+}
+.cal-more:hover { background: var(--action-quiet-hover); color: var(--text); }
+/* Only on a phone, where the month's pills give way to a count. */
+.cal-count { display: none; color: var(--text-2); }
+
+/* ---- the pill ---- */
+.cal-pill, .cal-key { --cal-fill: var(--calendar-event-fill); --cal-edge: var(--calendar-event-edge); }
+.cal-pill-task, .cal-key-task { --cal-fill: var(--calendar-task-fill); --cal-edge: var(--calendar-task-edge); }
+.cal-pill {
+  display: flex; align-items: baseline; gap: var(--space-1); min-width: 0; max-width: 100%;
+  padding: var(--line-2) var(--space-2);
+  border: var(--line-1) solid transparent; border-inline-start: var(--bar-w) solid var(--cal-edge);
+  border-radius: var(--r-sm); background: var(--cal-fill); color: var(--text);
+  font-family: var(--font-ui); font-size: var(--fs-small); line-height: var(--lh-small); font-weight: var(--fw-small);
+  text-align: start;
+}
+button.cal-pill { cursor: pointer; }
+button.cal-pill:hover { border-block-color: var(--cal-edge); border-inline-end-color: var(--cal-edge); }
+/* The machine mark: dashed on three sides, the kind's edge kept on the fourth. */
+.cal-pill.cal-pill-machine {
+  border-block-style: dashed; border-inline-end-style: dashed;
+  border-block-color: var(--mark-machine); border-inline-end-color: var(--mark-machine);
+}
+.cal-pill-time { flex: none; font-family: var(--font-mono); font-size: var(--fs-mono); font-variant-numeric: tabular-nums; }
+.cal-pill-text { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cal-pill-owner { flex: 0 10 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-2); }
+/* Where there is room, a pill wraps its words instead of cutting them. */
+:is(.cal-grid-week, .cal-day, .cal-undated, .cal-period-list, .calendar-summary) .cal-pill { flex-wrap: wrap; }
+:is(.cal-grid-week, .cal-day, .cal-undated, .cal-period-list, .calendar-summary) :is(.cal-pill-text, .cal-pill-owner) { white-space: normal; overflow-wrap: anywhere; }
+.cal-day .cal-pill { font-size: var(--fs-body); line-height: var(--lh-body); padding-block: var(--space-1); }
+/* In a month cell the words get two lines and the owner a line of their
+   own, so a task's owner is never the part that is cut. */
+.cal-grid-month .cal-pill { flex-wrap: wrap; }
+.cal-grid-month .cal-pill-text {
+  white-space: normal; overflow-wrap: anywhere;
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2;
+}
+.cal-grid-month .cal-pill-owner { flex-basis: 100%; }
+
+/* ---- day: a list by time ---- */
+.cal-day, .cal-period-list, .cal-undated { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-2); }
+.cal-day-row {
+  display: grid; grid-template-columns: var(--cal-time-w) minmax(0, 1fr); align-items: baseline; gap: var(--space-3);
+  padding-block: var(--space-2); border-bottom: var(--line-1) solid var(--edge);
+}
+.cal-day-row > .cal-pill { justify-self: start; }
+.cal-day-time { color: var(--text-2); }
+.cal-period-list { display: none; }
+
+/* ---- year: twelve month cards ---- */
+.cal-year { display: grid; grid-template-columns: repeat(auto-fill, minmax(var(--cal-month-card), 1fr)); gap: var(--space-3); }
+.cal-month-card {
+  display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-1); min-width: 0;
+  padding: var(--space-3) var(--space-4); border: var(--line-1) solid var(--edge); border-radius: var(--r-lg);
+  background: var(--surface); color: var(--text); font: inherit; text-align: start; cursor: pointer;
+}
+.cal-month-card:hover { border-color: var(--text-3); }
+.cal-month-total { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.cal-month-split { color: var(--text-2); }
+
+/* ---- the side: Unscheduled, the chosen entry, adding one ---- */
+.cal-side {
+  display: flex; flex-direction: column; gap: var(--space-4); min-width: 0;
+  padding: var(--space-4); border-radius: var(--r-lg); background: var(--surface-sunken);
+}
+.cal-side h3 { margin: 0 0 var(--space-2); }
+.cal-undated > li { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-1); }
+.cal-question { margin: 0; color: var(--text); overflow-wrap: anywhere; }
+.cal-hint { margin: 0; color: var(--text-2); }
+.cal-detail { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-2); padding-top: var(--space-3); border-top: var(--line-1) solid var(--edge); }
+.cal-detail .calendar-entry { border-top: 0; padding-top: 0; align-self: stretch; }
+.cal-detail p, .cal-side .task-changes p { margin: var(--space-1) 0; }
+.cal-side details summary { cursor: pointer; }
+
+/* ---- no calendar yet ---- */
+.cal-empty { max-width: var(--reading-max); display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-3); padding-block: var(--space-6); }
+.cal-empty p { margin: 0; }
+
+/* ---- a phone: the month gives its pills' room to counts, the week stacks ---- */
+@container cal (max-width: 639px) {
+  .cal-grid-month .cal-cell { min-height: var(--h-control-lg); padding: var(--line-2); }
+  .cal-grid-month .cal-pills { display: none; }
+  .cal-grid-month .cal-count { display: block; padding-inline: var(--space-1); }
+  .cal-period-list { display: flex; }
+  .cal-grid-week { grid-template-columns: minmax(0, 1fr); }
+  .cal-grid-week .cal-weekday { display: none; }
+  .cal-grid-week .cal-cell { min-height: 0; flex-direction: row; flex-wrap: wrap; align-items: baseline; }
+  .cal-grid-week .cal-pills { flex: 1 1 0; }
+}
+
+/* ---- the canvas card's summary ---- */
+.calendar-summary { display: flex; flex-direction: column; gap: var(--space-2); margin-top: var(--space-2); }
+.calendar-summary p { margin: 0; }
+.calendar-summary-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-1); }
+.calendar-summary-entry { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: baseline; gap: var(--space-2); }
+.calendar-summary-entry > .cal-pill { justify-self: start; }
+.calendar-open { align-self: flex-start; }

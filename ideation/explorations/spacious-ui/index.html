@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Spacious UI · five explorations for Jarvaids</title>
+<style>
+@font-face {
+  font-family: "Archivo";
+  src: url("fonts/archivo-variable-latin.woff2") format("woff2");
+  font-weight: 400 700; font-stretch: 100%; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: "Nunito Sans";
+  src: url("fonts/nunito-sans-variable-latin.woff2") format("woff2");
+  font-weight: 400 700; font-stretch: 100%; font-style: normal; font-display: swap;
+}
+
+:root {
+  --font-signal: "Archivo", "Helvetica Neue", Arial, system-ui, sans-serif;
+  --font-reading: "Nunito Sans", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --color-canvas: #ffffff;
+  --color-accent: #a85a00;
+  --color-status-accepted: #1d7344;
+  --color-status-provisional: #5b46be;
+  --color-status-failed: #a81f1a;
+  --ink-1: 1; --ink-2: 0.78; --ink-3: 0.64; --ink-4: 0.48; --ink-5: 0.12;
+  --spacing-2: 8px; --spacing-3: 12px; --spacing-4: 16px; --spacing-5: 24px;
+  --spacing-6: 32px; --spacing-7: 48px; --spacing-8: 64px;
+  --radius-full: 999px; --line-focus: 2px;
+  color-scheme: light;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; background: var(--color-canvas); color: rgb(20 20 20 / var(--ink-1));
+  font-family: var(--font-reading); font-size: 15px; line-height: 22px;
+  -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+
+.page { max-width: 880px; margin: 0 auto; padding: var(--spacing-8) var(--spacing-4) var(--spacing-8); }
+@media (min-width: 1024px) { .page { padding-inline: var(--spacing-7); } }
+
+.structure { font-family: var(--font-signal); font-size: 12px; line-height: 16px;
+  letter-spacing: 0.07em; font-weight: 600; text-transform: uppercase;
+  color: rgb(20 20 20 / var(--ink-3)); }
+
+h1 { font-family: var(--font-signal); font-size: clamp(34px, 5vw, 48px); line-height: 1.08;
+  letter-spacing: -0.03em; font-weight: 700; margin: var(--spacing-5) 0 0; }
+.lede { margin: var(--spacing-5) 0 0; max-width: 62ch; font-size: 19px; line-height: 30px;
+  color: rgb(20 20 20 / var(--ink-2)); }
+h2 { font-family: var(--font-signal); font-size: 22px; line-height: 26px; font-weight: 600;
+  margin: var(--spacing-8) 0 var(--spacing-4); }
+p, li { color: rgb(20 20 20 / var(--ink-2)); }
+.prose { max-width: 66ch; }
+a { color: var(--color-accent); }
+
+/* the five, as a list. Number, name, one line, one paragraph. No cards:
+   this page is the index, not one of the explorations. */
+.list { list-style: none; padding: 0; margin: var(--spacing-6) 0 0;
+  display: flex; flex-direction: column; gap: var(--spacing-7); }
+.entry { display: grid; grid-template-columns: 64px minmax(0,1fr); gap: var(--spacing-5);
+  align-items: start; }
+@media (max-width: 559px) { .entry { grid-template-columns: minmax(0,1fr); gap: var(--spacing-2); } }
+.entry .num { font-family: var(--font-signal); font-size: 34px; line-height: 34px; font-weight: 700;
+  letter-spacing: -0.03em; font-variant-numeric: tabular-nums; color: rgb(20 20 20 / var(--ink-4)); }
+.entry h3 { margin: 0; font-family: var(--font-signal); font-size: 28px; line-height: 34px;
+  letter-spacing: -0.02em; font-weight: 700; }
+.entry h3 a { text-decoration: none; color: rgb(20 20 20 / var(--ink-1)); }
+.entry h3 a:hover { color: var(--color-accent); text-decoration: underline; }
+.entry .screen-of { display: block; margin-top: var(--spacing-2); }
+.entry p { margin: var(--spacing-3) 0 0; max-width: 60ch; }
+.entry .breaks { margin: var(--spacing-3) 0 0; font-size: 13px; line-height: 20px;
+  color: rgb(20 20 20 / var(--ink-3)); max-width: 60ch; }
+.entry .breaks b { font-family: var(--font-signal); font-size: 12px; letter-spacing: 0.07em;
+  text-transform: uppercase; font-weight: 600; }
+
+table { border-collapse: collapse; width: 100%; font-size: 13px; line-height: 20px;
+  margin-top: var(--spacing-4); }
+th { font-family: var(--font-signal); font-size: 12px; letter-spacing: 0.07em; font-weight: 600;
+  text-transform: uppercase; text-align: left; color: rgb(20 20 20 / var(--ink-3));
+  padding: var(--spacing-2) var(--spacing-3) var(--spacing-2) 0;
+  border-bottom: 1px solid rgb(20 20 20 / var(--ink-4)); }
+td { padding: var(--spacing-3) var(--spacing-3) var(--spacing-3) 0; vertical-align: top;
+  border-bottom: 1px solid rgb(20 20 20 / var(--ink-5)); color: rgb(20 20 20 / var(--ink-2)); }
+td:first-child { color: rgb(20 20 20 / var(--ink-1)); font-weight: 600; white-space: nowrap; }
+td.n { font-family: var(--font-signal); font-variant-numeric: tabular-nums; text-align: center;
+  white-space: nowrap; }
+.tablewrap { overflow-x: auto; }
+code { font-family: var(--font-signal); font-size: 13px; }
+:where(a, button):focus-visible { outline: var(--line-focus) solid var(--color-accent); outline-offset: 3px; }
+.foot { margin-top: var(--spacing-8); padding-top: var(--spacing-5);
+  border-top: 1px solid rgb(20 20 20 / var(--ink-5)); }
+.foot p { font-size: 13px; line-height: 20px; color: rgb(20 20 20 / var(--ink-3)); max-width: 66ch; }
+</style>
+</head>
+<body>
+<main class="page">
+
+  <span class="structure">Ideation · explorations · Jarvaids</span>
+  <h1>Spacious UI</h1>
+  <p class="lede">Five real product screens, each arguing a different reading of
+  "clean, opacity-driven, strong hierarchy and gestalt". They are meant to be
+  compared, not averaged.</p>
+
+  <div class="prose">
+    <p style="margin-top:32px">The brief came with an iOS Live Activity as a
+    reference: an outer rounded container, a rounded inner panel, concentric
+    corners, and a type hierarchy where two large numbers dominate and
+    everything else recedes. Unpacked, that is four separate claims, and they
+    do not all cost the same:</p>
+    <ul>
+      <li><strong>Opacity-driven</strong> means depth and grouping come from
+      translucency and layering rather than from borders and fills.</li>
+      <li><strong>Strong hierarchy</strong> means size, weight, contrast and
+      position tell the eye what matters, and decoration never does.</li>
+      <li><strong>Gestalt</strong> means grouping is produced by proximity,
+      common region, continuity and similarity, so you can delete a divider and
+      the group still reads.</li>
+      <li><strong>Spacious</strong> means the negative space is load bearing,
+      not left over.</li>
+    </ul>
+    <p>Only the first of those four is actually in tension with the Jarvaids
+    design system. The system is hairline-driven and forbids shadows, cards,
+    gradients, tinted surfaces beyond one wash, and dark mode. Hierarchy,
+    gestalt and space cost it nothing: exploration 01 gets all three without
+    breaking a single rule. What the material and the concentric containers buy,
+    and what they cost, is the decision in front of the team, and each file says
+    exactly which rules it breaks and what it got for them.</p>
+  </div>
+
+  <h2>The five</h2>
+  <ol class="list">
+
+    <li class="entry">
+      <span class="num">01</span>
+      <div>
+        <h3><a href="01-air.html">Air</a></h3>
+        <span class="structure screen-of">The live canvas · breaks nothing</span>
+        <p>The control condition. The shipped tokens, unchanged. The exemplar
+        of this screen paints 39 one-pixel edges; this version paints 5, and
+        the grouping the other 34 were doing is redrawn in distance: 12px
+        inside a group against 56px between groups. It exists so
+        that the other four are measured against a fair baseline rather than
+        against the cramped exemplar. Its finding is that most of the brief is a
+        spacing brief, and its limit is that 15px does not carry across a room.</p>
+        <p class="breaks"><b>Breaks</b> nothing. Every value is a shipped token
+        doing its stated job.</p>
+      </div>
+    </li>
+
+    <li class="entry">
+      <span class="num">02</span>
+      <div>
+        <h3><a href="02-vellum.html">Vellum</a></h3>
+        <span class="structure screen-of">The review queue, over the canvas · the full material reading</span>
+        <p>The literal opacity argument, put on the one screen where it is
+        honest: reviewing happens while the canvas is still running, so the
+        review surface is a sheet over the room rather than a page replacing
+        it. Live canvas at full strength, a deliberately weak 30% scrim with a
+        real blur, an 86% sheet, a 92% panel for the single item under review,
+        and concentric corners at 28, 20 and 12. No shadow anywhere, which turned out to be the most
+        useful result on this page.</p>
+        <p class="breaks"><b>Breaks</b> no arbitrary radii, no grey panels for
+        grouping, no arbitrary font sizes, and adds a five-step ink alpha ladder.
+        <b>Keeps</b> no shadow, no gradient, and the whole status and provisional
+        vocabulary untouched.</p>
+      </div>
+    </li>
+
+    <li class="entry">
+      <span class="num">03</span>
+      <div>
+        <h3><a href="03-column.html">Column</a></h3>
+        <span class="structure screen-of">Session and transcript · nothing is drawn</span>
+        <p>The opposite bet. If hierarchy is really carried by size, weight and
+        position, a screen should survive deleting every mark that is not a
+        letter, so this one does: no border, no rule, no fill, no radius, no
+        tint, with one deliberate exception, the underline under the ask field,
+        because 1.4.11 requires an input to have a visible boundary. Turns sit
+        44px apart, the two lines inside a turn sit 4px apart, and the session's
+        two facts are set at 76px.</p>
+        <p class="breaks"><b>Breaks</b> the seven-size type scale and the
+        hairline vocabulary, by omission. <b>Keeps</b> everything about surfaces,
+        colour and status, because it has no surfaces.</p>
+      </div>
+    </li>
+
+    <li class="entry">
+      <span class="num">04</span>
+      <div>
+        <h3><a href="04-glance.html">Glance</a></h3>
+        <span class="structure screen-of">Consent and setup · the reference, taken literally</span>
+        <p>The Live Activity read as a brief rather than as a style: read from a
+        distance, by someone doing something else, saying one thing. Jarvaids has
+        exactly one screen like that, the consent round, where six people watch a
+        number climb towards another number. An outer container at 4% ink, an
+        opaque panel inside it, a quoted block inside that, radii of 32, 24 and
+        16, and two figures at up to 116px against a next size down of 28px.
+        Depth from four percent of ink, with no blur and no shadow.</p>
+        <p class="breaks"><b>Breaks</b> no grey panels for grouping, no arbitrary
+        radii, no arbitrary font sizes. <b>Keeps</b> everything else, and costs
+        nothing at render time.</p>
+      </div>
+    </li>
+
+    <li class="entry">
+      <span class="num">05</span>
+      <div>
+        <h3><a href="05-attenuation.html">Attenuation</a></h3>
+        <span class="structure screen-of">The live canvas, reviewing · opacity as attention</span>
+        <p>Opacity used to take something away rather than to build something.
+        Open an item for review and nothing is covered, moved or drawn: the page
+        re-weights itself and the item under review is the only thing left at
+        full ink. Focus without a modal, in a product that forbids modals. The
+        mechanism is the argument: it is a rewrite of four alpha variables, not
+        <code>opacity</code> on a container, so status colours are exempt by
+        construction rather than by discipline. The page carries a switch so the
+        two states can be compared.</p>
+        <p class="breaks"><b>Breaks</b> one font size, and raises a real question
+        against "never grey out a provisional item" that the team should rule on
+        explicitly. <b>Keeps</b> no modal, no toast, no overlay, no new surface
+        of any kind.</p>
+      </div>
+    </li>
+
+  </ol>
+
+  <h2>What each one costs, side by side</h2>
+  <div class="tablewrap">
+  <table>
+    <thead>
+      <tr>
+        <th scope="col">Rule</th>
+        <th scope="col" class="n">01 Air</th>
+        <th scope="col" class="n">02 Vellum</th>
+        <th scope="col" class="n">03 Column</th>
+        <th scope="col" class="n">04 Glance</th>
+        <th scope="col" class="n">05 Atten.</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>#3 no arbitrary radii</td><td class="n">kept</td><td class="n">broken</td><td class="n">kept</td><td class="n">broken</td><td class="n">broken</td></tr>
+      <tr><td>#9 no shadow</td><td class="n">kept</td><td class="n">kept</td><td class="n">kept</td><td class="n">kept</td><td class="n">kept</td></tr>
+      <tr><td>#10 no panels for grouping</td><td class="n">kept</td><td class="n">broken</td><td class="n">kept</td><td class="n">broken</td><td class="n">kept</td></tr>
+      <tr><td>#11 no gradients</td><td class="n">kept</td><td class="n">kept</td><td class="n">kept</td><td class="n">kept</td><td class="n">kept</td></tr>
+      <tr><td>#13 to #16 status and provisional</td><td class="n">kept</td><td class="n">kept</td><td class="n">kept</td><td class="n">kept</td><td class="n">kept</td></tr>
+      <tr><td>#17 never grey out provisional</td><td class="n">kept</td><td class="n">kept</td><td class="n">kept</td><td class="n">kept</td><td class="n">argued</td></tr>
+      <tr><td>#19 to #21 no toast, modal, spinner</td><td class="n">kept</td><td class="n">kept</td><td class="n">kept</td><td class="n">kept</td><td class="n">kept</td></tr>
+      <tr><td>#28 no dark mode</td><td class="n">kept</td><td class="n">kept</td><td class="n">kept</td><td class="n">kept</td><td class="n">kept</td></tr>
+      <tr><td>Seven-size type scale</td><td class="n">kept</td><td class="n">broken</td><td class="n">broken</td><td class="n">broken</td><td class="n">broken</td></tr>
+      <tr><td>Three ink greys</td><td class="n">kept</td><td class="n">replaced</td><td class="n">replaced</td><td class="n">replaced</td><td class="n">replaced</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="prose" style="margin-top:24px">Two things stand out from that table.
+  The first is that no exploration needed a shadow, a gradient or a second
+  accent, so the parts of <code>forbidden.md</code> that people usually assume
+  an iOS-style aesthetic tramples over turn out to survive it completely. The
+  second is that four of the five broke the type scale, and all four broke it in
+  the same direction: they needed a size above 32px. That is the single clearest
+  signal in this set.</p>
+
+  <h2>A note on opacity and contrast, because it is easy to get wrong</h2>
+  <div class="prose">
+    <p>A colour written as <code>rgb(20 20 20 / 0.6)</code> is not the colour the
+    token says it is. The browser composites it over whatever is behind it, and
+    the ratio you get is the ratio of the <em>composited</em> value. Every
+    exploration here prints its own table of real composited ratios, generated
+    by <code>contrast.py</code> in this folder, which borrows the luminance maths
+    from <code>app/design-system/spec/contrast-check.py</code> and adds
+    source-over compositing on top of it. Re-run it with
+    <code>python3 contrast.py</code>, and rebuild the tables in the pages with
+    <code>python3 inject.py</code>. The two layered screens were then checked
+    the other way round as well, by hiding every glyph and fill in Chromium and
+    sampling the darkest pixel the compositor actually paints: inside Glance's
+    container it is 245 against a computed 246, and inside Vellum's sheet it is
+    249 against a computed worst case of 232. Both tables are conservative.</p>
+    <p>The numbers that came out of it decided several design questions
+    outright:</p>
+    <ul>
+      <li><strong>64% is the floor for ink as text.</strong> Not 60, not 50. At
+      55% ink on white the ratio is 4.07:1 and it is already illegal. Every
+      "faded" text style in these five stops at 64%, which composites to
+      <code>#696969</code> at 5.52:1.</li>
+      <li><strong>48% is the floor for a non-text edge</strong> that has to be
+      seen under 1.4.11, composited to <code>#8e8e8e</code> at 3.27:1.</li>
+      <li><strong>Status colour can never carry alpha.</strong> Provisional
+      violet at 55% is 2.56:1 and at 35% it is 1.76:1. This is why attenuation
+      in exploration 05 is a token swap rather than a container opacity: it is
+      the only construction where the status colours cannot accidentally be
+      dimmed.</li>
+      <li><strong>The accent has almost no headroom on a wash.</strong> Burnt
+      amber on the 4% container in exploration 04 is 4.69:1 against a 4.5:1
+      requirement. That margin is the arithmetic reason Glance has one container
+      tone and not three.</li>
+    </ul>
+  </div>
+
+  <div class="foot">
+    <p>Five files, one index, one contrast script, one table generator, and the
+    two vendored typefaces. Everything is offline: no CDN, no network font, no
+    external request of any kind, so each file opens by double-clicking it.
+    Light mode only, as the system requires. If anyone wants to argue for dark,
+    the argument belongs in prose and in an extended contrast table, not in a
+    shipped variant.</p>
+  </div>
+
+</main>
+</body>
+</html>

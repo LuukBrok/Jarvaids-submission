@@ -1,0 +1,106 @@
+/* Voice polls, lists and calendars use the current client token system. */
+.poll { padding: var(--space-4); overflow-wrap: anywhere; }
+.poll h2 { margin: var(--space-2) 0; }
+.poll .badge .dot { background: var(--status-proposed); }
+.poll.item-accepted .badge .dot { background: var(--status-accepted); }
+.poll p { margin: var(--space-2) 0; }
+.poll-form, .poll-field { display: grid; gap: var(--space-1); margin-block: var(--space-2); }
+.poll input, .poll textarea, .poll select {
+  width: 100%; min-width: 0; box-sizing: border-box; font: inherit;
+  color: var(--text); background: var(--surface);
+  border: var(--line-1) solid var(--edge); padding: var(--space-1);
+}
+.poll input[type="checkbox"] { width: auto; justify-self: start; }
+.poll-options { list-style: none; padding: 0; margin: var(--space-3) 0; }
+.poll-option { display: grid; gap: var(--space-1); margin-block: var(--space-2); }
+.poll-option-heading { display: flex; justify-content: space-between; gap: var(--space-2); }
+/* The tally (polls.mjs pollTally): one bar per choice, its count and voters
+   written on the bar. The fill is the share of votes cast; the choice with
+   the most votes, or each choice in a tie, fills with the full accent and
+   says so in a word beside its label. */
+.poll-bar {
+  position: relative; display: block; min-height: var(--h-chip); border-radius: var(--r-sm);
+  background: var(--tally-track); overflow: hidden;
+}
+.poll-bar-fill {
+  position: absolute; inset: 0 auto 0 0; width: calc(var(--share, 0) * 100%); background: var(--tally-fill);
+}
+.poll-option[data-mark] .poll-bar-fill { background: var(--tally-lead); }
+.poll-bar-words {
+  position: relative; display: flex; align-items: center; gap: var(--space-2);
+  min-height: var(--h-chip); padding: 0 var(--space-2); color: var(--text);
+}
+.poll-voters { font-size: var(--fs-small); line-height: var(--lh-small); overflow-wrap: anywhere; }
+.poll-mark {
+  font-family: var(--font-mono); font-size: var(--fs-mono); line-height: var(--lh-mono);
+  padding: 0 var(--space-2); border-radius: var(--r-sm); background: var(--tally-lead); color: var(--text); white-space: nowrap;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .poll-bar-fill { transition: width var(--t-base) var(--ease-out); }
+}
+.poll details { padding-block: var(--space-2); border-top: var(--line-1) solid var(--edge); }
+.poll summary { cursor: pointer; }
+.list-view .poll { position: static; max-width: 100%; margin-block: var(--space-4); }
+.document-tasks { list-style: none; padding: 0; margin: 0; }
+.document-task { padding-block: var(--space-2); border-top: var(--line-1) solid var(--edge); }
+.document-task-heading { display: flex; align-items: baseline; gap: var(--space-2); }
+.document-task-text { min-width: 0; overflow-wrap: anywhere; }
+/* A task row: the done mark and the text, then the owner and date chips. */
+.document-task[data-done="true"] .document-task-text { text-decoration: line-through; }
+.document-task-chips { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-1); margin-top: var(--space-1); }
+.owner-chip {
+  display: inline-flex; align-items: center; min-height: var(--h-chip); padding: 0 var(--space-2);
+  border-radius: var(--r-sm); background: var(--surface-sunken); color: var(--text);
+  font-size: var(--fs-small); line-height: var(--lh-small); font-weight: var(--fw-small); white-space: nowrap;
+}
+.document-task .date-chip[data-tone="plain"] { color: var(--text); }
+.command-document input[type="checkbox"] { flex: none; width: auto; min-height: 0; accent-color: var(--action-primary); }
+.list-view .command-document { position: relative; }
+
+.document-section + .document-section { margin-top: var(--space-4); }
+.document-criterion-text, .document-conflict { overflow-wrap: anywhere; }
+/* Requirements as three labelled groups: the section's name and count in
+   one line, then its criteria. A model's inference carries the machine mark
+   (a dashed line, no fill) beside its words, so it never reads as a stated
+   criterion; a conflict is flagged in the coral field. */
+.document-section-label { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); margin: 0 0 var(--space-1); }
+.document-section-count {
+  display: inline-flex; align-items: center; justify-content: center; min-width: var(--h-chip); min-height: var(--h-chip);
+  border-radius: var(--r-sm); background: var(--surface-sunken); color: var(--text);
+}
+.poll .document-basis { display: inline-block; margin-block: var(--space-1); }
+.poll .document-basis[data-basis="inferred"] {
+  padding: 0 var(--space-2); border: var(--line-1) dashed var(--mark-machine); border-radius: var(--r-sm);
+}
+.poll .document-conflict { padding: var(--space-1) var(--space-2); border-radius: var(--r-sm); background: var(--conflict-fill); color: var(--text); }
+
+/* A calendar in the list is a document grid. On the canvas it is a compact
+   summary at the wide note step (css/calendar.css): its grid lives in the
+   Calendar view, which has the room for one. */
+.calendar-tools { display: flex; flex-wrap: wrap; gap: var(--space-1); margin-block: var(--space-2); }
+.calendar-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
+.calendar-grid > span { text-align: center; padding-block: var(--space-1); }
+.calendar-content .btn { min-height: var(--h-control-lg); min-width: 0; }
+.calendar-day { padding-inline: 0; width: 100%; }
+.calendar-tools [aria-pressed="true"] { color: var(--text-on-deep); background: var(--text); }
+.calendar-year { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-2); }
+.calendar-entry, .task-changes { overflow-wrap: anywhere; }
+.calendar-outside { color: var(--text-3); }
+.calendar-complete { text-decoration: line-through; }
+@media (max-width: 1023px) {
+  .calendar-year { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* Documents are controls on the canvas, so selection must not rotate them. */
+.world .poll { rotate: none; cursor: grab; }
+.poll :is(input, textarea, select, button, summary, label) { cursor: auto; }
+.poll .text { font-size: var(--fs-canvas-note); }
+.poll .t-meta, .poll .t-caption { color: var(--text); }
+.poll .badge .dot { width: var(--glyph); height: var(--glyph); border: var(--line-1) solid currentColor; border-radius: var(--r-pill); }
+.list-view .poll { width: auto; }
+
+/* Content determines height. Pan the canvas to read long lists. */
+.world .poll { max-height: none; height: auto; overflow: visible; }
+.poll .command-details { margin-top: var(--space-3); }
+.poll .document-task > .t-meta { margin-block: var(--space-1); }
+.poll .document-task details { border: 0; padding-block: var(--space-1); }

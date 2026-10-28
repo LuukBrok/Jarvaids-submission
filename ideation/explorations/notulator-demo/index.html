@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Notulator demo</title>
+<style>
+  :root { color-scheme: light dark; }
+  body { font-family: system-ui, sans-serif; margin: 0; background: #f4f4f2; color: #1a1a1a; }
+  header { padding: 1rem 1.5rem; border-bottom: 1px solid #ccc; background: #fff; }
+  header h1 { margin: 0; font-size: 1.1rem; }
+  header p { margin: 0.25rem 0 0; color: #555; font-size: 0.85rem; }
+  main { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; padding: 1rem 1.5rem; }
+  .panel { background: #fff; border: 1px solid #ccc; border-radius: 6px; padding: 1rem; overflow: auto; max-height: 80vh; }
+  textarea { width: 100%; height: 140px; box-sizing: border-box; font-family: inherit; }
+  .controls { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; margin: 0.5rem 0; }
+  .controls label { font-size: 0.8rem; display: flex; flex-direction: column; gap: 0.2rem; }
+  .controls input { width: 5rem; }
+  button { padding: 0.4rem 0.9rem; cursor: pointer; }
+  .status { font-size: 0.85rem; color: #555; margin-top: 0.25rem; }
+  .broad { border: 1px solid #999; border-radius: 8px; padding: 0.7rem 0.9rem; margin-bottom: 1rem; background: #fafaf8; }
+  .broad > h2 { margin: 0 0 0.6rem; font-size: 1.05rem; text-transform: uppercase; letter-spacing: 0.03em; color: #333; }
+  .topic { border: 1px dashed #888; border-radius: 6px; padding: 0.6rem 0.8rem; margin-bottom: 0.6rem; background: #fff; }
+  .topic h3 { margin: 0 0 0.2rem; font-size: 0.95rem; }
+  .topic .desc { color: #666; font-size: 0.8rem; margin-bottom: 0.4rem; }
+  .entry { margin: 0.4rem 0; padding-left: 0.6rem; border-left: 2px solid #ddd; }
+  .entry .ts { font-size: 0.75rem; color: #888; }
+  .entry ul { margin: 0.2rem 0 0.2rem 1rem; padding: 0; font-size: 0.85rem; }
+  .log-entry { border-bottom: 1px solid #eee; padding: 0.5rem 0; font-size: 0.8rem; }
+  .log-entry .batch { color: #333; font-style: italic; }
+  .log-entry pre { background: #f0f0ee; padding: 0.4rem; border-radius: 4px; white-space: pre-wrap; font-size: 0.75rem; }
+  .error { color: #b00020; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Notulator demo</h1>
+  <p>Paste a transcript below. It is fed in word by word to simulate live speech, batched by word count and sentence boundary, and sent to a local Ollama model, which sorts it into a few broad themes, each holding more specific topics with their decisions, action items and open questions. Nothing here is saved.</p>
+</header>
+<main>
+  <section class="panel">
+    <textarea id="transcript" placeholder="Paste a fixture transcript here..."></textarea>
+    <div class="controls">
+      <label>Words/sec<input id="wps" type="number" value="8" step="1" min="1"></label>
+      <label>Min batch words<input id="minWords" type="number" value="25" step="1" min="1"></label>
+      <label>Fallback extra words<input id="maxExtra" type="number" value="15" step="1" min="0"></label>
+      <button id="startBtn">Start</button>
+      <button id="stopBtn">Stop</button>
+    </div>
+    <div class="status" id="status">idle</div>
+    <h2>Topics</h2>
+    <div id="topics"></div>
+  </section>
+  <section class="panel">
+    <h2>Activity log</h2>
+    <div id="log"></div>
+  </section>
+</main>
+<script>
+async function start() {
+  await fetch('/start', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      transcript: document.getElementById('transcript').value,
+      words_per_second: document.getElementById('wps').value,
+      min_words: document.getElementById('minWords').value,
+      max_extra_words: document.getElementById('maxExtra').value,
+    }),
+  });
+}
+
+async function stop() {
+  await fetch('/stop', { method: 'POST' });
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function renderList(items, label) {
+  if (!items || items.length === 0) return '';
+  return `<li>${label}: ${items.map(escapeHtml).join('; ')}</li>`;
+}
+
+function renderActionItems(items) {
+  if (!items || items.length === 0) return '';
+  const text = items.map(a => `${escapeHtml(a.text)}${a.owner ? ' (' + escapeHtml(a.owner) + ')' : ''}`).join('; ');
+  return `<li>action items: ${text}</li>`;
+}
+
+function renderEntries(entries) {
+  return entries.map(e => `
+    <div class="entry">
+      <div class="ts">${escapeHtml(e.timestamp)}</div>
+      <div>${escapeHtml(e.summary)}</div>
+      <ul>
+        ${renderList(e.decisions, 'decided')}
+        ${renderActionItems(e.action_items)}
+        ${renderList(e.open_questions, 'open question')}
+      </ul>
+    </div>`).join('');
+}
+
+function renderTopics(topics) {
+  const el = document.getElementById('topics');
+  const broadNames = Object.keys(topics);
+  if (broadNames.length === 0) { el.innerHTML = '<p>No topics yet.</p>'; return; }
+  el.innerHTML = broadNames.map(broad => {
+    const subtopics = topics[broad].subtopics;
+    const subHtml = Object.keys(subtopics).map(name => {
+      const t = subtopics[name];
+      return `<div class="topic"><h3>${escapeHtml(name)}</h3><div class="desc">${escapeHtml(t.description)}</div>${renderEntries(t.entries)}</div>`;
+    }).join('');
+    return `<div class="broad"><h2>${escapeHtml(broad)}</h2>${subHtml}</div>`;
+  }).join('');
+}
+
+function renderLog(log) {
+  const el = document.getElementById('log');
+  el.innerHTML = log.slice().reverse().map(e => `
+    <div class="log-entry">
+      <div class="ts">${escapeHtml(e.timestamp)}</div>
+      <div class="batch">"${escapeHtml(e.batch)}"</div>
+      ${e.error ? `<div class="error">error: ${escapeHtml(e.error)}</div>` : `
+        <pre>classify: ${escapeHtml(JSON.stringify(e.classify))}</pre>
+        <pre>extracted: ${escapeHtml(JSON.stringify(e.extracted, null, 1))}</pre>`}
+    </div>`).join('');
+}
+
+async function poll() {
+  const res = await fetch('/state');
+  const state = await res.json();
+  document.getElementById('status').textContent =
+    `${state.status} — ${state.words_fed}/${state.words_total} words fed` +
+    (state.error ? ` — error: ${state.error}` : '');
+  renderTopics(state.topics);
+  renderLog(state.log);
+}
+
+document.getElementById('startBtn').addEventListener('click', start);
+document.getElementById('stopBtn').addEventListener('click', stop);
+setInterval(poll, 500);
+poll();
+</script>
+</body>
+</html>

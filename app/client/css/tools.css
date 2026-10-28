@@ -1,0 +1,64 @@
+/* ==========================================================================
+   Canvas tools: the dock (floating toolbar), drawing, erasing and
+   connecting.
+   Owner: the phase 3 canvas agent, with tools/dock.mjs, tools/draw.mjs and
+   tools/connect.mjs, and the <!-- region: dock --> block in index.html.
+
+   The dock's look is the .dock primitive (with .dock-button, .dock-sep and
+   .dock-readout); this file places it at the board's bottom left, above
+   the board at --z-dock. Freehand strokes use .ink-stroke, connectors
+   .connector, both primitives.
+   ========================================================================== */
+
+/* ---- the dock ---- */
+/* In the board's cell of the stage (canvas.css), at its bottom left. */
+#dock {
+  position: relative; z-index: var(--z-dock);
+  align-self: end; justify-self: start; margin: var(--space-4);
+  max-width: calc(100% - 2 * var(--space-4));
+}
+/* In the list there is no board to float on, so the dock sits in the flow
+   above the list, still holding the way back to the canvas. */
+.board-stage:has(> #board[hidden]) #dock { align-self: start; margin: 0 0 var(--space-4); }
+.dock-group { display: inline-flex; align-items: center; gap: var(--space-1); }
+.dock .segmented { margin-inline-start: var(--space-1); }
+/* On a narrow screen the dock wraps, and a hairline left at a row's end
+   divides nothing; the groups' own spacing separates them there. */
+@media (max-width: 1023px) { #dock .dock-sep { display: none; } .dock .segmented { margin-inline-start: 0; } }
+/* With the third view (Calendar) the zoom group and the toggle no longer
+   shared one row at 400px, and a third row of dock covered the bottom of a
+   56vh board. There the zoom level's readout gives way (the zoom buttons
+   stay) and the toggle's buttons step in, so the dock stays two rows. */
+@media (max-width: 1023px) { #dock .zoom-level { display: none; } .dock .segmented button { padding-inline: var(--space-2); } }
+
+/* ---- the cursor says which tool is in the hand ---- */
+.board[data-tool="draw"], .board[data-tool="draw"]:active { cursor: crosshair; }
+.board[data-tool="connect"], .board[data-tool="connect"] .note { cursor: crosshair; }
+.board[data-tool="erase"] { cursor: default; }
+
+/* ---- the draft layer: a stroke being drawn or saved, a connector being
+   made. Under the notes, as the saved marks are, so nothing moves when the
+   snapshot takes over. ---- */
+.drafts { position: absolute; left: 0; top: 0; overflow: visible; max-width: none; pointer-events: none; }
+/* The curve following the pointer before the second end is chosen: the
+   human mark, faint, never dashed (dashed is the machine's). */
+.drafts .connector-preview { opacity: var(--disabled-opacity); }
+
+/* ---- the eraser ----
+   Every saved stroke and connector carries a wide transparent hit path.
+   It takes the pointer only while the eraser is the tool; otherwise a press
+   on a mark reaches the board and pans. Hovering dims the mark it would
+   remove; a removed one disappears at once, before the snapshot agrees. */
+.links .stroke-hit { fill: none; stroke: transparent; stroke-width: var(--space-4); pointer-events: none; }
+.board[data-tool="erase"] .links .stroke-hit { pointer-events: stroke; cursor: pointer; }
+.board[data-tool="erase"] .links .erasable:hover > :not(.stroke-hit) { opacity: var(--disabled-opacity); }
+.links .erased { display: none; }
+
+/* ---- the connector's label field, at the curve's middle ---- */
+.connector-field { pointer-events: auto; }
+.connector-input {
+  font-family: var(--font-ui); font-size: var(--fs-small); line-height: var(--lh-small); font-weight: var(--fw-small);
+  width: 16ch; min-height: var(--h-control-sm); padding-inline: var(--space-2);
+  background: var(--surface); color: var(--text); border: var(--line-1) solid var(--text-3); border-radius: var(--r-sm);
+}
+.connector-input::placeholder { color: var(--text-3); }

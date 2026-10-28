@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Jarvaids exemplar, live canvas</title>
+<link rel="stylesheet" href="_base.css">
+<style>
+  /* Only what is specific to this screen. Everything else is in _base.css. */
+  .board-items { display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start; }
+  .item { width: 206px; }
+  .cluster { border: var(--line-provisional) dashed var(--color-status-provisional);
+    border-radius: var(--radius-sm); padding: 14px 12px 12px; position: relative;
+    display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-start; }
+  .cluster > .label { position: absolute; top: -9px; left: 10px; background: var(--color-canvas);
+    padding-inline: 5px; color: var(--color-status-provisional);
+    display: inline-flex; align-items: center; gap: 4px;
+    font-family: var(--font-signal); font-size: 12px; line-height: 16px;
+    font-weight: 500; }
+  .cluster .item { width: 180px; }
+</style>
+</head>
+<body>
+<div class="jv-page">
+<div class="wrap">
+
+<!-- F1.1, F6.1: the session bar never scrolls away and never collapses -->
+<header class="session-bar">
+  <span class="status st-capturing"><i class="glyph glyph-capturing" aria-hidden="true"></i><span class="word strong">Recording</span></span>
+  <span class="t-signal">00:47:31</span>
+  <!-- F4.4: the mode is visible to the whole room at all times -->
+  <div class="segmented" role="group" aria-label="Assistant mode">
+    <button type="button" aria-pressed="true">Quiet</button>
+    <button type="button" aria-pressed="false">Active</button>
+  </div>
+  <span class="t-meta">6 present</span>
+  <span class="jv-spacer"></span>
+  <button class="btn btn-quiet" type="button">Undo</button>
+  <button class="btn btn-quiet" type="button">Consent record</button>
+  <button class="btn btn-danger" type="button">Stop capture</button>
+</header>
+
+<nav class="tabs" aria-label="Screens">
+  <a href="live-canvas.html" aria-current="page">Canvas</a>
+  <a href="session-transcript.html">Session</a>
+  <a href="review-queue.html">Review <span class="t-signal">12</span></a>
+  <a href="export-view.html">Export</a>
+</nav>
+
+<div class="page-head">
+  <h1 class="t-display">Concept critique, week 3</h1>
+  <p class="t-meta" style="margin:8px 0 0">Started 13:40 &middot; 48 items &middot; 12 still proposed</p>
+</div>
+
+<!-- F6.4: degradation is a designed state. It says what still works. -->
+<div class="banner">
+  <span class="status st-waiting"><i class="glyph glyph-waiting" aria-hidden="true"></i><span class="word strong">Catching up</span></span>
+  <span class="t-body">The model is about 40 seconds behind. Capture is still running.</span>
+</div>
+
+<div class="jv-workspace" style="margin-top:24px">
+
+  <main>
+    <div class="jv-row-centre" style="margin-bottom:12px">
+      <!-- the parallel list view is required, not an accessibility afterthought -->
+      <div class="segmented" role="group" aria-label="Canvas view">
+        <button type="button" aria-pressed="true">Canvas</button>
+        <button type="button" aria-pressed="false">List</button>
+      </div>
+      <span class="jv-spacer"></span>
+      <button class="btn btn-secondary" type="button">Photograph the wall</button>
+      <button class="btn btn-secondary" type="button">Add note</button>
+    </div>
+
+    <div class="jv-board">
+      <div class="board-items">
+
+        <!-- accepted: a TONAL FILL and no line -->
+        <article class="item item-accepted">
+          <span class="kind">Note &middot; team</span>
+          <span class="text">Drop the paywall from the pilot</span>
+          <span class="meta">Typed by Sanne &middot; 14:21</span>
+        </article>
+
+        <!-- F3.5: model-made: no fill, a DASHED accent line, the word Proposed, text NOT greyed -->
+        <article class="item item-provisional">
+          <span class="badge" style="color:var(--color-status-provisional)"><i class="glyph glyph-provisional" aria-hidden="true"></i>Proposed</span>
+          <span class="kind">Decision &middot; from speech</span>
+          <span class="text">Pilot ships without payments</span>
+          <span class="meta"><a href="session-transcript.html" style="color:var(--color-accent)">From 14:22:06</a>, Sanne &middot; 94% confident</span>
+          <div class="actions">
+            <button class="btn btn-primary btn-sm" type="button">Accept</button>
+            <button class="btn btn-quiet btn-sm" type="button">Edit</button>
+            <button class="btn btn-quiet btn-sm" type="button">Reject</button>
+          </div>
+        </article>
+
+        <!-- F6.4: a placeholder in position, so the canvas does not reorganise later -->
+        <article class="item item-waiting">
+          <span class="badge" style="color:var(--color-status-waiting)"><i class="glyph glyph-waiting" aria-hidden="true"></i>Queued</span>
+          <span class="kind">Note &middot; from photograph</span>
+          <div class="skel" style="width:90%"></div>
+          <div class="skel" style="width:64%;margin-top:6px"></div>
+          <span class="meta">Wall photo 4 &middot; waiting on the model</span>
+        </article>
+
+        <!-- F1.6: a request for help, not an error message -->
+        <article class="item item-failed">
+          <span class="badge" style="color:var(--color-status-failed)"><i class="glyph glyph-failed" aria-hidden="true"></i>Unreadable</span>
+          <span class="kind">Note &middot; from photograph</span>
+          <span class="text muted">Could not read this one.</span>
+          <span class="meta">Wall photo 3, blue, centre</span>
+          <div class="actions">
+            <button class="btn btn-secondary btn-sm" type="button">Type it in</button>
+            <button class="btn btn-quiet btn-sm" type="button">Open photo</button>
+          </div>
+        </article>
+
+        <!-- F3.2: the FORM is a claim, and it is provisional too -->
+        <section class="cluster" style="width:100%">
+          <span class="label"><i class="glyph glyph-provisional" aria-hidden="true"></i>Proposed cluster &middot; Onboarding</span>
+          <article class="item item-accepted">
+            <span class="kind">Note &middot; team</span>
+            <span class="text">Nobody finishes step 3</span>
+            <span class="meta">Typed by Bram &middot; 13:58</span>
+          </article>
+          <article class="item item-provisional">
+            <span class="badge" style="color:var(--color-status-provisional)"><i class="glyph glyph-provisional" aria-hidden="true"></i>Proposed</span>
+            <span class="kind">Note &middot; from photograph</span>
+            <span class="text">Onboarding is the real bottleneck</span>
+            <span class="meta">Wall photo 3, yellow, top-left &middot; 91%</span>
+          </article>
+          <article class="item item-provisional">
+            <span class="badge" style="color:var(--color-status-provisional)"><i class="glyph glyph-provisional" aria-hidden="true"></i>Proposed</span>
+            <span class="kind">Note &middot; from photograph</span>
+            <span class="text">Too many fields before value</span>
+            <span class="meta">Wall photo 3, yellow, top-left &middot; 88%</span>
+          </article>
+          <div style="width:100%;display:flex;gap:4px;padding-top:8px">
+            <button class="btn btn-primary btn-sm" type="button">Accept grouping</button>
+            <button class="btn btn-quiet btn-sm" type="button">Split</button>
+            <button class="btn btn-quiet btn-sm" type="button">Reject grouping</button>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- the rail is one thing at a time -->
+  <aside>
+    <div class="segmented" role="group" aria-label="Rail" style="margin-bottom:16px">
+      <button type="button" aria-pressed="true">Transcript</button>
+      <button type="button" aria-pressed="false">Review 12</button>
+    </div>
+    <div class="jv-rows jv-scroll" style="max-height:520px">
+      <div class="jv-row">
+        <a class="t-signal" href="#" style="color:var(--color-accent)">14:21:58</a>
+        <span class="t-body strong">Sanne</span>
+        <span class="t-body">Can we just agree the pilot has no payments in it?</span>
+      </div>
+      <div class="jv-row">
+        <a class="t-signal" href="#" style="color:var(--color-accent)">14:22:06</a>
+        <span class="t-body strong">Sanne</span>
+        <span class="t-body">Then the paywall is out of scope for now.</span>
+      </div>
+      <div class="jv-row">
+        <a class="t-signal" href="#" style="color:var(--color-accent)">14:22:41</a>
+        <span class="t-body strong muted">Unknown speaker</span>
+        <span class="status st-provisional"><i class="glyph glyph-provisional" aria-hidden="true"></i><span class="word">Speaker is a guess</span></span>
+        <span class="t-body">Out of scope for the pilot, not for the product.</span>
+      </div>
+      <div class="jv-row">
+        <span class="t-signal" style="color:var(--color-status-failed)">14:23:10</span>
+        <span class="status st-failed"><i class="glyph glyph-failed" aria-hidden="true"></i><span class="word">Gap</span></span>
+        <span class="t-meta">18 seconds could not be transcribed</span>
+      </div>
+      <div class="jv-row" style="background:var(--color-accent-wash);border-left:2px solid var(--color-accent);padding-inline:8px">
+        <a class="t-signal" href="#" style="color:var(--color-accent)">14:23:28</a>
+        <span class="t-body strong">Bram</span>
+        <span class="t-body">Fine. Revisit after the pilot then.</span>
+      </div>
+    </div>
+  </aside>
+
+</div>
+</div>
+</div>
+</body>
+</html>

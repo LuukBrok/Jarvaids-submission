@@ -1,0 +1,483 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Air · spacious UI exploration 01 · Jarvaids live canvas</title>
+<style>
+/* ==========================================================================
+   01 · AIR
+   Live canvas. The control condition.
+
+   Every value below comes from app/design-system/tokens.css unchanged. No new
+   colour, no new size, no new radius, no new line width, no alpha. What is
+   different is only how much room things are given and in what order they are
+   read.
+   ========================================================================== */
+
+@font-face {
+  font-family: "Archivo";
+  src: url("fonts/archivo-variable-latin.woff2") format("woff2");
+  font-weight: 400 700; font-stretch: 100%; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: "Nunito Sans";
+  src: url("fonts/nunito-sans-variable-latin.woff2") format("woff2");
+  font-weight: 400 700; font-stretch: 100%; font-style: normal; font-display: swap;
+}
+
+:root {
+  --font-signal: "Archivo", "Helvetica Neue", Arial, system-ui, sans-serif;
+  --font-reading: "Nunito Sans", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+
+  --color-canvas: #ffffff;
+  --color-ink: #141414;
+  --color-ink-secondary: #545454;
+  --color-ink-muted: #636363;
+  --color-ink-inverse: #ffffff;
+  --color-hairline: #e4e4e2;
+  --color-hairline-strong: #8a8a86;
+  --color-surface-sunken: #f7f7f5;
+  --color-accent: #a85a00;
+  --color-accent-pressed: #8c4b00;
+  --color-accent-wash: #f8f2eb;
+  --color-status-capturing: #141414;
+  --color-status-provisional: #5b46be;
+  --color-status-accepted: #1d7344;
+  --color-status-waiting: #19608c;
+  --color-status-failed: #a81f1a;
+  --color-status-off: #595959;
+
+  --spacing-1: 4px;  --spacing-2: 8px;  --spacing-3: 12px; --spacing-4: 16px;
+  --spacing-5: 24px; --spacing-6: 32px; --spacing-7: 48px; --spacing-8: 64px;
+
+  --radius-xs: 2px; --radius-sm: 4px; --radius-full: 999px;
+  --line-hairline: 1px; --line-boundary: 1px; --line-provisional: 1.5px; --line-focus: 2px;
+  --motion-fast: 120ms; --motion-ease: cubic-bezier(0.22, 1, 0.36, 1); --motion-pulse: 2s;
+  color-scheme: light;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; background: var(--color-canvas); color: var(--color-ink);
+  font-family: var(--font-reading); font-size: 15px; line-height: 22px;
+  -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+img, svg { max-width: 100%; }
+
+/* type roles, unchanged */
+.t-display   { font-family: var(--font-signal); font-size: 32px; line-height: 36px; letter-spacing: -0.02em; font-weight: 700; margin: 0; }
+.t-signal-lg { font-family: var(--font-signal); font-size: 22px; line-height: 26px; letter-spacing: -0.01em; font-weight: 600; margin: 0; font-variant-numeric: tabular-nums; }
+.t-signal    { font-family: var(--font-signal); font-size: 15px; line-height: 20px; font-weight: 500; font-variant-numeric: tabular-nums; }
+.t-structure { font-family: var(--font-signal); font-size: 12px; line-height: 16px; letter-spacing: 0.07em; font-weight: 600; text-transform: uppercase; color: var(--color-ink-muted); }
+.t-body      { font-size: 15px; line-height: 22px; }
+.t-meta      { font-size: 13px; line-height: 18px; color: var(--color-ink-secondary); }
+.t-caption   { font-size: 12px; line-height: 16px; color: var(--color-ink-muted); }
+.muted { color: var(--color-ink-muted); }
+.strong { font-weight: 600; }
+
+/* ── the exploration frame, deliberately plain so it cannot be mistaken
+      for the design being proposed ─────────────────────────────────────── */
+.frame { max-width: 68ch; margin: 0 auto; padding: var(--spacing-8) var(--spacing-4) var(--spacing-7); }
+.frame h1 { font-family: var(--font-signal); font-size: 22px; line-height: 26px; font-weight: 600; margin: 0 0 var(--spacing-2); }
+.frame p { margin: 0 0 var(--spacing-3); color: var(--color-ink-secondary); font-size: 15px; line-height: 22px; }
+.frame .eyebrow { display: block; margin-bottom: var(--spacing-3); }
+.rule { border: 0; border-top: var(--line-hairline) solid var(--color-hairline); margin: 0; }
+
+/* ── the screen ───────────────────────────────────────────────────────── */
+.screen { padding-inline: var(--spacing-4); }
+@media (min-width: 1024px) { .screen { padding-inline: var(--spacing-5); } }
+.wrap { max-width: 1280px; margin: 0 auto; padding-bottom: var(--spacing-8); }
+
+.dot { width: 8px; height: 8px; border-radius: var(--radius-full); flex: none; display: inline-block; }
+.status { display: inline-flex; align-items: center; gap: var(--spacing-1); }
+.status .word { font-size: 13px; line-height: 18px; }
+@keyframes jv-pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
+.pulse { animation: jv-pulse var(--motion-pulse) var(--motion-ease) infinite; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after {
+  animation-duration: 0.01ms !important; animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important; } }
+
+.btn { font-family: var(--font-reading); font-size: 15px; font-weight: 600; line-height: 1;
+  height: 36px; padding-inline: 14px; border-radius: var(--radius-sm); border: 1px solid transparent;
+  display: inline-flex; align-items: center; gap: 6px; cursor: pointer; background: transparent; color: var(--color-ink);
+  transition: background var(--motion-fast) var(--motion-ease), border-color var(--motion-fast) var(--motion-ease); }
+.btn-primary { background: var(--color-accent); color: var(--color-ink-inverse); }
+.btn-primary:hover { background: var(--color-accent-pressed); }
+.btn-secondary { border-color: var(--color-hairline-strong); }
+.btn-secondary:hover { border-color: var(--color-ink); }
+.btn-quiet { color: var(--color-ink-secondary); }
+.btn-quiet:hover { background: var(--color-accent-wash); color: var(--color-ink); }
+.btn-danger { color: var(--color-status-failed); border-color: var(--color-status-failed); }
+.btn-sm { height: 28px; padding-inline: 10px; font-size: 13px; }
+:where(a, button, input, [tabindex]):focus-visible {
+  outline: var(--line-focus) solid var(--color-accent); outline-offset: 2px; border-radius: var(--radius-xs); }
+
+/* THE ONE HAIRLINE THAT SURVIVES. The session bar is a boundary between the
+   product's chrome and the team's canvas, and that is a real distinction.
+   Everything else in this screen is grouped by distance. */
+.session-bar { display: flex; align-items: center; gap: var(--spacing-5); flex-wrap: wrap;
+  min-height: 72px; padding-block: var(--spacing-4);
+  border-bottom: var(--line-hairline) solid var(--color-hairline);
+  position: sticky; top: 0; background: var(--color-canvas); z-index: 30; }
+.session-bar .spacer { margin-left: auto; }
+
+.tabs { display: flex; gap: var(--spacing-5); padding-top: var(--spacing-5); }
+.tabs a { font-size: 15px; text-decoration: none; color: var(--color-ink-muted);
+  padding-block: var(--spacing-1); border-bottom: 2px solid transparent; }
+.tabs a[aria-current="page"] { color: var(--color-ink); font-weight: 600; border-bottom-color: var(--color-accent); }
+
+/* The head: one big drop in size, immediately. 32 to 13 with nothing in
+   between is the hierarchy. */
+.head { padding-block: var(--spacing-8) var(--spacing-2); }
+.head p { margin: var(--spacing-3) 0 0; max-width: 68ch; }
+
+.banner { display: flex; align-items: baseline; gap: var(--spacing-3); flex-wrap: wrap;
+  padding-block: var(--spacing-5); }
+
+.workspace { display: grid; grid-template-columns: minmax(0,1fr); gap: var(--spacing-8);
+  padding-top: var(--spacing-7); }
+@media (min-width: 1024px) {
+  .workspace { grid-template-columns: minmax(0,1fr) 360px; gap: var(--spacing-8); }
+}
+
+/* THE GESTALT CLAIM.
+   Zones are 56px apart. Items inside a zone are 12px apart. 12 against 56 is
+   a ratio of roughly 1:4.7, and past about 1:3 the eye stops seeing a list and
+   starts seeing groups. No rule is drawn anywhere between them. */
+.zones { display: flex; flex-direction: column; gap: 56px; }
+.zone > .t-structure { display: block; margin-bottom: var(--spacing-4); }
+.zone-items { display: flex; flex-wrap: wrap; gap: var(--spacing-3); align-items: flex-start; }
+
+.item { position: relative; width: 236px; min-width: 0; padding: var(--spacing-4);
+  border-radius: var(--radius-sm); background: var(--color-canvas); }
+.item .kind { display: block; font-family: var(--font-signal); font-size: 12px; line-height: 16px;
+  letter-spacing: 0.07em; font-weight: 600; text-transform: uppercase; color: var(--color-ink-muted); }
+.item .text { display: block; font-size: 15px; line-height: 22px; color: var(--color-ink);
+  margin-top: var(--spacing-3); }
+.item .meta { display: block; font-size: 12px; line-height: 16px; color: var(--color-ink-muted);
+  margin-top: var(--spacing-4); }
+.item .badge { position: absolute; top: -9px; left: 12px; background: var(--color-canvas);
+  padding-inline: 5px; display: inline-flex; align-items: center; gap: var(--spacing-1);
+  font-family: var(--font-signal); font-size: 12px; line-height: 16px; letter-spacing: 0.07em;
+  font-weight: 600; text-transform: uppercase; }
+.item .actions { display: flex; gap: var(--spacing-1); margin-top: var(--spacing-4); }
+.item-accepted    { border: var(--line-boundary) solid var(--color-ink); }
+.item-provisional { border: var(--line-provisional) dashed var(--color-status-provisional); }
+.item-waiting     { border: var(--line-provisional) dashed var(--color-status-waiting); }
+.item-failed      { border: var(--line-provisional) dashed var(--color-status-failed); }
+.skel { background: var(--color-surface-sunken); border-radius: var(--radius-xs); height: 12px; }
+
+/* The rail. Rows at 24px apart with no line between them: at this spacing the
+   timestamp column alone carries the continuity. */
+.rail-rows { display: flex; flex-direction: column; gap: var(--spacing-5); margin-top: var(--spacing-5); }
+.rail-row { display: grid; grid-template-columns: 76px minmax(0,1fr); gap: var(--spacing-3); align-items: baseline; }
+.rail-row a { color: var(--color-accent); text-decoration: none; }
+.rail-row a:hover { text-decoration: underline; }
+.rail-row p { margin: var(--spacing-1) 0 0; }
+.rail-row.playing { padding: var(--spacing-2) var(--spacing-3); margin-inline: calc(var(--spacing-3) * -1);
+  background: var(--color-accent-wash); border-radius: var(--radius-sm); }
+
+.segmented { display: inline-flex; gap: var(--spacing-1); }
+.segmented button { font-family: var(--font-reading); font-size: 15px; height: 32px; padding-inline: var(--spacing-3);
+  border: 0; background: transparent; color: var(--color-ink-muted); border-radius: var(--radius-sm); cursor: pointer; }
+.segmented button[aria-pressed="true"] { background: var(--color-ink); color: var(--color-ink-inverse); font-weight: 600; }
+
+/* ── notes and contrast table ─────────────────────────────────────────── */
+.notes { max-width: 68ch; margin: 0 auto; padding: var(--spacing-8) var(--spacing-4); }
+.notes h2 { font-family: var(--font-signal); font-size: 22px; line-height: 26px; font-weight: 600; margin: 0 0 var(--spacing-4); }
+.notes h3 { font-family: var(--font-signal); font-size: 12px; line-height: 16px; letter-spacing: 0.07em;
+  font-weight: 600; text-transform: uppercase; color: var(--color-ink-muted); margin: var(--spacing-7) 0 var(--spacing-3); }
+.notes p, .notes li { font-size: 15px; line-height: 22px; color: var(--color-ink-secondary); }
+.notes li { margin-bottom: var(--spacing-2); }
+table { border-collapse: collapse; width: 100%; font-size: 12px; line-height: 16px; }
+th { font-family: var(--font-signal); font-size: 12px; letter-spacing: 0.07em; font-weight: 600;
+  text-transform: uppercase; text-align: left; color: var(--color-ink-muted);
+  padding: var(--spacing-2) var(--spacing-2) var(--spacing-2) 0;
+  border-bottom: var(--line-hairline) solid var(--color-hairline-strong); }
+td { padding: var(--spacing-2) var(--spacing-2) var(--spacing-2) 0; vertical-align: top;
+  border-bottom: var(--line-hairline) solid var(--color-hairline); color: var(--color-ink-secondary); }
+td.n { font-family: var(--font-signal); font-variant-numeric: tabular-nums; text-align: right;
+  white-space: nowrap; color: var(--color-ink); }
+code { font-family: var(--font-signal); font-size: 12px; letter-spacing: 0; }
+.tablewrap { overflow-x: auto; }
+</style>
+</head>
+<body>
+
+<!-- ─────────────────────── thesis ─────────────────────── -->
+<header class="frame">
+  <span class="t-structure eyebrow">Spacious UI · exploration 01 of 05</span>
+  <h1>Air</h1>
+  <p><strong>Thesis.</strong> Before deciding that an opacity aesthetic is
+  needed, find out how much of it the shipped system already gives you for
+  free. This screen is the live canvas built from the existing tokens with
+  nothing added: no alpha on a colour, no material, no new size, no new
+  radius, no colour that is not already in <code>tokens.css</code>. The only thing that
+  changed is distance. The shipped exemplar of this screen draws thirty-nine
+  1px edges; this one draws five, and only one of the five is a separator, the
+  session bar. The grouping the others were doing is redrawn in white space: items inside a zone
+  sit 12px apart, zones sit 56px apart, and past about a 1:3 ratio the eye
+  stops reading a list and starts reading groups whether you draw the line or
+  not. The argument is that "spacious, strong hierarchy, gestalt" is mostly a
+  spacing brief, not a material brief, and that the honest baseline for the
+  other four explorations is this one rather than the cramped exemplar. What
+  it cannot do is the other half of the reference: at 15px, the canvas is not
+  readable from four metres, and no amount of air fixes that.</p>
+</header>
+<hr class="rule">
+
+<!-- ─────────────────────── the screen ─────────────────────── -->
+<main class="screen">
+<div class="wrap">
+
+  <header class="session-bar">
+    <span class="status">
+      <span class="dot pulse" style="background:var(--color-status-capturing)"></span>
+      <span class="word strong">Recording</span>
+    </span>
+    <span class="t-signal-lg">00:47:31</span>
+    <div class="segmented" role="group" aria-label="Assistant mode">
+      <button type="button" aria-pressed="true">Quiet</button>
+      <button type="button" aria-pressed="false">Active</button>
+    </div>
+    <span class="t-meta">6 present</span>
+    <span class="spacer"></span>
+    <button class="btn btn-quiet" type="button">Undo</button>
+    <button class="btn btn-quiet" type="button">Consent record</button>
+    <button class="btn btn-danger btn-sm" type="button">Stop capture</button>
+  </header>
+
+  <nav class="tabs" aria-label="Screens">
+    <a href="#" aria-current="page">Canvas</a>
+    <a href="03-column.html">Session</a>
+    <a href="02-vellum.html">Review <span class="t-signal">12</span></a>
+    <a href="#">Export</a>
+  </nav>
+
+  <div class="head">
+    <h2 class="t-display">Concept critique, week 3</h2>
+    <p class="t-meta">Started 13:40 · 48 items · 12 still provisional</p>
+  </div>
+
+  <div class="banner">
+    <span class="status" style="color:var(--color-status-waiting)">
+      <span class="dot" style="background:var(--color-status-waiting)"></span>
+      <span class="word strong">Catching up</span>
+    </span>
+    <span class="t-body">The model is about 40 seconds behind. Capture is still running.</span>
+  </div>
+
+  <div class="workspace">
+
+    <section aria-label="Canvas">
+      <div class="zones">
+
+        <div class="zone">
+          <span class="t-structure">Onboarding</span>
+          <div class="zone-items">
+            <article class="item item-accepted">
+              <span class="kind">Note · team</span>
+              <span class="text">Nobody finishes step 3</span>
+              <span class="meta">Typed by Bram · 13:58</span>
+            </article>
+            <article class="item item-provisional">
+              <span class="badge" style="color:var(--color-status-provisional)">
+                <span class="dot" style="background:var(--color-status-provisional)"></span>Provisional</span>
+              <span class="kind">Note · from photograph</span>
+              <span class="text">Onboarding is the real bottleneck</span>
+              <span class="meta">Wall photo 3, yellow, top-left · 91% confident</span>
+              <div class="actions">
+                <button class="btn btn-primary btn-sm" type="button">Accept</button>
+                <button class="btn btn-quiet btn-sm" type="button">Edit</button>
+                <button class="btn btn-quiet btn-sm" type="button">Reject</button>
+              </div>
+            </article>
+            <article class="item item-provisional">
+              <span class="badge" style="color:var(--color-status-provisional)">
+                <span class="dot" style="background:var(--color-status-provisional)"></span>Provisional</span>
+              <span class="kind">Note · from photograph</span>
+              <span class="text">Too many fields before value</span>
+              <span class="meta">Wall photo 3, yellow, top-left · 88% confident</span>
+              <div class="actions">
+                <button class="btn btn-primary btn-sm" type="button">Accept</button>
+                <button class="btn btn-quiet btn-sm" type="button">Edit</button>
+                <button class="btn btn-quiet btn-sm" type="button">Reject</button>
+              </div>
+            </article>
+          </div>
+        </div>
+
+        <div class="zone">
+          <span class="t-structure">Pilot scope</span>
+          <div class="zone-items">
+            <article class="item item-accepted">
+              <span class="kind">Note · team</span>
+              <span class="text">Drop the paywall from the pilot</span>
+              <span class="meta">Typed by Sanne · 14:21</span>
+            </article>
+            <article class="item item-provisional">
+              <span class="badge" style="color:var(--color-status-provisional)">
+                <span class="dot" style="background:var(--color-status-provisional)"></span>Provisional</span>
+              <span class="kind">Decision · from speech</span>
+              <span class="text">Pilot ships without payments</span>
+              <span class="meta"><a href="03-column.html" style="color:var(--color-accent)">From 14:22:06</a>, Sanne · 94% confident</span>
+              <div class="actions">
+                <button class="btn btn-primary btn-sm" type="button">Accept</button>
+                <button class="btn btn-quiet btn-sm" type="button">Edit</button>
+                <button class="btn btn-quiet btn-sm" type="button">Reject</button>
+              </div>
+            </article>
+          </div>
+        </div>
+
+        <div class="zone">
+          <span class="t-structure">Read from the wall, not yet placed</span>
+          <div class="zone-items">
+            <article class="item item-waiting">
+              <span class="badge" style="color:var(--color-status-waiting)">
+                <span class="dot" style="background:var(--color-status-waiting)"></span>Queued</span>
+              <span class="kind">Note · from photograph</span>
+              <div class="skel" style="width:90%;margin-top:12px"></div>
+              <div class="skel" style="width:64%;margin-top:6px"></div>
+              <span class="meta">Wall photo 4 · waiting on the model</span>
+            </article>
+            <article class="item item-failed">
+              <span class="badge" style="color:var(--color-status-failed)">
+                <span class="dot" style="background:var(--color-status-failed)"></span>Unreadable</span>
+              <span class="kind">Note · from photograph</span>
+              <span class="text muted">Could not read this one.</span>
+              <span class="meta">Wall photo 3, blue, centre</span>
+              <div class="actions">
+                <button class="btn btn-secondary btn-sm" type="button">Type it in</button>
+                <button class="btn btn-quiet btn-sm" type="button">Open photo</button>
+              </div>
+            </article>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <aside aria-label="Transcript">
+      <span class="t-structure">Transcript</span>
+      <div class="rail-rows">
+        <div class="rail-row">
+          <a class="t-signal" href="03-column.html">14:21:58</a>
+          <div>
+            <span class="t-body strong">Sanne</span>
+            <p class="t-body">Can we just agree the pilot has no payments in it?</p>
+          </div>
+        </div>
+        <div class="rail-row">
+          <a class="t-signal" href="03-column.html">14:22:06</a>
+          <div>
+            <span class="t-body strong">Sanne</span>
+            <p class="t-body">Then the paywall is out of scope for now.</p>
+          </div>
+        </div>
+        <div class="rail-row">
+          <a class="t-signal" href="03-column.html">14:22:41</a>
+          <div>
+            <span class="status" style="color:var(--color-status-provisional)">
+              <span class="t-body strong muted">Unknown speaker</span>
+              <span class="dot" style="background:var(--color-status-provisional)"></span>
+              <span class="word">Speaker is a guess</span>
+            </span>
+            <p class="t-body">Out of scope for the pilot, not for the product.</p>
+          </div>
+        </div>
+        <div class="rail-row">
+          <span class="t-signal" style="color:var(--color-status-failed)">14:23:10</span>
+          <div>
+            <span class="status" style="color:var(--color-status-failed)">
+              <span class="dot" style="background:var(--color-status-failed)"></span>
+              <span class="word strong">Gap</span>
+            </span>
+            <p class="t-meta">18 seconds could not be transcribed. Audio was still recorded.</p>
+          </div>
+        </div>
+        <div class="rail-row playing">
+          <a class="t-signal" href="03-column.html">14:23:28</a>
+          <div>
+            <span class="t-body strong">Bram</span>
+            <p class="t-body">Fine. Revisit after the pilot then.</p>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+  </div>
+</div>
+</main>
+
+<hr class="rule">
+
+<!-- ─────────────────────── notes ─────────────────────── -->
+<footer class="notes">
+  <h2>What this costs and what it buys</h2>
+
+  <h3>Design system rules broken</h3>
+  <p><strong>None.</strong> Every colour, size, radius and line width on this
+  page is a shipped token used for its stated job. That is the point of having
+  a control condition: if the team prefers one of the other four, they are
+  paying for the difference between that one and this one, not for the
+  difference between it and the exemplar.</p>
+
+  <h3>What the spacing is actually doing</h3>
+  <ul>
+    <li><strong>Common region without a region.</strong> Fifty-six pixels
+    between zones against twelve inside one. Nothing is drawn. Cover the
+    zone labels and the three groups still separate.</li>
+    <li><strong>Continuity in the rail.</strong> The transcript rows have no
+    rule between them at all. The 76px timestamp column aligns every row on
+    one left edge and that edge is the separator.</li>
+    <li><strong>One big type drop.</strong> 32px straight to 13px in the page
+    head, with nothing at 22 or 15 in between. A gradual ramp reads as a list
+    of headings; one cliff reads as a title.</li>
+    <li><strong>Thirty-nine drawn edges became five.</strong> Counted in
+    Chromium, on the same screen: the shipped exemplar paints 39 one-pixel
+    borders in <code>--color-hairline</code> or
+    <code>--color-hairline-strong</code>, this version paints 5. Four of those
+    five are the four sides of one secondary button, which 1.4.11 requires.
+    The fifth is the session bar, because that boundary is real: above it is
+    the product, below it is the team's work.</li>
+  </ul>
+
+  <h3>Honest limits</h3>
+  <p>This screen is a laptop screen. The product's brief says the desktop case
+  is the room screen, glanced at from across a table, and at 15px body and 12px
+  kind labels that does not work at four metres. Air cannot fix it without
+  leaving the seven-size scale, which is exactly the trade explorations 03 and
+  04 take on. Air also gains nothing from translucency, because there is
+  nothing behind anything: on a white canvas with no layering, alpha is
+  decoration. That finding is worth as much as the screen.</p>
+
+  <h3>Composited contrast</h3>
+  <p>No value on this page carries alpha, so every ratio is the shipped token
+  ratio. Computed by <code>contrast.py</code> in this folder, which borrows its
+  luminance maths from <code>spec/contrast-check.py</code>.</p>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th scope="col">Pair</th><th scope="col">Foreground</th><th scope="col">Ground</th><th scope="col" class="n">Ratio</th><th scope="col" class="n">Needs</th><th scope="col">Result</th></tr></thead>
+    <tbody>
+<!--CONTRAST:air-->
+<tr><td>item text, headings</td><td><code>#141414</code></td><td><code>#ffffff</code></td><td class="n">18.42:1</td><td class="n">4.5</td><td>pass</td></tr>
+<tr><td>supporting text</td><td><code>#545454</code></td><td><code>#ffffff</code></td><td class="n">7.57:1</td><td class="n">4.5</td><td>pass</td></tr>
+<tr><td>meta line under an item</td><td><code>#636363</code></td><td><code>#ffffff</code></td><td class="n">6.01:1</td><td class="n">4.5</td><td>pass</td></tr>
+<tr><td>citation timestamp, primary button label ground</td><td><code>#a85a00</code></td><td><code>#ffffff</code></td><td class="n">5.09:1</td><td class="n">4.5</td><td>pass</td></tr>
+<tr><td>label on the primary button</td><td><code>#ffffff</code></td><td><code>#a85a00</code></td><td class="n">5.09:1</td><td class="n">4.5</td><td>pass</td></tr>
+<tr><td>provisional word and dashed stroke</td><td><code>#5b46be</code></td><td><code>#ffffff</code></td><td class="n">6.85:1</td><td class="n">4.5</td><td>pass</td></tr>
+<tr><td>queued word</td><td><code>#19608c</code></td><td><code>#ffffff</code></td><td class="n">6.79:1</td><td class="n">4.5</td><td>pass</td></tr>
+<tr><td>unreadable word</td><td><code>#a81f1a</code></td><td><code>#ffffff</code></td><td class="n">7.30:1</td><td class="n">4.5</td><td>pass</td></tr>
+<tr><td>accepted word</td><td><code>#1d7344</code></td><td><code>#ffffff</code></td><td class="n">5.85:1</td><td class="n">4.5</td><td>pass</td></tr>
+<tr><td>secondary button border, 1.4.11 non-text</td><td><code>#8a8a86</code></td><td><code>#ffffff</code></td><td class="n">3.47:1</td><td class="n">3.0</td><td>pass</td></tr>
+<tr><td>accepted item stroke, 1.4.11 non-text</td><td><code>#141414</code></td><td><code>#ffffff</code></td><td class="n">18.42:1</td><td class="n">3.0</td><td>pass</td></tr>
+<!--/CONTRAST-->
+    </tbody>
+  </table>
+  </div>
+
+  <p style="margin-top:32px"><a href="index.html" style="color:var(--color-accent)">Back to the five explorations</a></p>
+</footer>
+
+</body>
+</html>

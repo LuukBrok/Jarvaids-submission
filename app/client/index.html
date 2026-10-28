@@ -1,0 +1,454 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Jarvaids</title>
+<!--
+  Tokens first: every value lives in tokens.css. client.css is the list of
+  parts (primitives, then one stylesheet per region) and the page-wide rules.
+-->
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="client.css">
+<!--
+  Inline, so the browser's automatic favicon request cannot 404.
+  A soft yellow square with a yellow edge: a proposed note.
+-->
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect x='2' y='2' width='12' height='12' rx='3' fill='%23fce9b9'/%3E%3Crect x='2' y='2' width='2' height='12' fill='%23ffc83d'/%3E%3C/svg%3E">
+</head>
+<body>
+<div class="jv-page">
+
+<!-- region: header -->
+<!-- The session bar never scrolls away: the session's state, this device's
+     listening, the people and their agreement, the two inputs, Undo and
+     Pause are always one press away (flows F05 to F12, F16, F23).
+     The state chip is one element (DESIGN.md 1.3): the session's state, or
+     "Listening" with the bars and the timer while this device's microphone
+     is on. header.mjs sets its words and look after app.mjs's render. -->
+<header class="session-bar" id="bar" hidden>
+  <div class="bar-row">
+    <div class="bar-id">
+      <h1 class="t-title bar-title" id="bar-title"></h1>
+      <span class="chip state-chip chip-idle" id="session-status">
+        <span class="bars" id="state-bars" aria-hidden="true" hidden><i></i><i></i><i></i></span>
+        <span class="word" id="state-word">Offline</span>
+        <span class="state-timer" id="listen-status" hidden><span class="t-signal" id="listen-timer">00:00</span></span>
+      </span>
+      <!-- While a command collects (a list or the calendar) or a poll is
+           open, one quiet chip says so; pressing it shows that card on the
+           canvas. header.mjs fills and shows it from the snapshot. -->
+      <button class="chip collecting-pill" id="collecting-pill" type="button" hidden><span class="collecting-words" id="collecting-words"></span></button>
+      <!-- Announces a change of state once, not the timer every second. -->
+      <span class="visually-hidden" id="state-announce" role="status" aria-live="polite"></span>
+    </div>
+    <button class="btn btn-quiet bar-members" id="bar-members" type="button" aria-controls="rail-people"></button>
+    <span class="jv-spacer"></span>
+    <div class="bar-actions" id="bar-actions">
+      <button class="btn btn-primary" id="open-photo" type="button">Photograph the wall</button>
+      <button class="btn btn-secondary" id="listen" type="button" disabled>Listen</button>
+      <button class="btn btn-quiet" id="undo" type="button" hidden>Undo</button>
+      <button class="btn btn-quiet" id="stop-capture" type="button">Pause</button>
+      <!-- The commands, startable without speaking: each executed item sends
+           the same addressed words a person would say, as a typed input
+           (source.text). The four recognised-only commands are listed and
+           unavailable, in plain words. header.mjs wires it. -->
+      <div class="menu-wrap" id="command-menu-wrap">
+        <button class="btn btn-quiet" id="command-menu-button" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="command-menu">Jarvaids</button>
+        <div class="menu command-menu" id="command-menu" role="menu" aria-labelledby="command-menu-button" hidden>
+          <button class="btn" type="button" role="menuitem" data-command="voting">Poll</button>
+          <button class="btn" type="button" role="menuitem" data-command="todo">To-do list</button>
+          <button class="btn" type="button" role="menuitem" data-command="requirements">Requirements and wishes</button>
+          <button class="btn" type="button" role="menuitem" data-command="planning">Calendar</button>
+          <button class="btn" type="button" role="menuitem" data-command="summary">Summary</button>
+          <div class="menu-rule" role="separator"></div>
+          <div class="menu-group" role="group" aria-labelledby="command-menu-recognised">
+            <span class="menu-note" id="command-menu-recognised">Recognised, not yet carried out</span>
+            <button class="btn" type="button" role="menuitem" aria-disabled="true" data-recognised="visualisation">Visualisation</button>
+            <button class="btn" type="button" role="menuitem" aria-disabled="true" data-recognised="comparison">Comparison</button>
+            <button class="btn" type="button" role="menuitem" aria-disabled="true" data-recognised="suggestions">Suggestions</button>
+          </div>
+          <div class="menu-rule" role="separator"></div>
+          <button class="btn" id="open-commands" type="button" role="menuitem" aria-haspopup="dialog">What you can say</button>
+        </div>
+      </div>
+      <div class="menu-wrap">
+        <button class="btn btn-quiet" id="session-menu-button" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="session-menu">Session</button>
+        <div class="menu" id="session-menu" role="menu" hidden>
+          <button class="btn" id="room-toggle" type="button" role="menuitemcheckbox" aria-checked="false">Projector</button>
+          <a class="btn" role="menuitem" href="/explorations/jarvaids-live-canvas/" target="_blank" rel="noopener">Summary-to-sticky prototype</a>
+          <button class="btn" id="open-export" type="button" role="menuitem">Export</button>
+          <button class="btn" id="end-session" type="button" role="menuitem">End session</button>
+          <button class="btn btn-danger" id="delete-session" type="button" role="menuitem">Delete session</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- The capture banner: one banner inside the header's bottom edge, in one
+       of three states. Each state keeps the id the scripts and tests bind to
+       (app.mjs shows and hides the parts; header.mjs shows the banner only
+       outside the agreement screen and runs the keep-alive countdown).
+       Capture stays on only while a facilitator's open screen renews it.
+       After this screen was hidden or offline, renewing is a choice, never
+       automatic. -->
+  <div class="capture-banner" id="capture-banner" hidden>
+    <div class="capture-part" id="paused-banner" hidden>
+      <span class="t-body capture-text" id="paused-reason">Nothing new is being recorded. The canvas and review still work.</span>
+      <button class="btn btn-sm capture-action" id="resume" type="button">Resume capture</button>
+    </div>
+    <div class="capture-part" id="keepalive-banner" hidden>
+      <span class="t-body capture-text" id="keepalive-text">Capture pauses itself within 5 minutes unless a facilitator keeps it running.</span>
+      <button class="btn btn-sm capture-action" id="keep-alive" type="button">Keep capture running</button>
+    </div>
+    <div class="capture-part" id="ended-banner" hidden>
+      <span class="t-body capture-text" id="ended-text">This session has ended. The canvas can still be read and exported.</span>
+    </div>
+  </div>
+</header>
+
+<!-- One banner for anything that needs attention. It says what happened and
+     what still works, and stays until it is dismissed or replaced. -->
+<div class="attention" id="attention" hidden role="status" aria-live="polite">
+  <i class="glyph" id="attention-glyph" aria-hidden="true"></i>
+  <span class="t-body" id="attention-text"></span>
+  <!-- Only after a control command whose outcome is unknown: the sync
+       library keeps it and refuses every later control until a person
+       chooses to send it again or to drop it (DESIGN.md 1.4). -->
+  <span class="attention-actions" id="attention-actions" hidden>
+    <button class="btn btn-secondary btn-sm" id="attention-retry" type="button">Try again</button>
+    <button class="btn btn-quiet btn-sm" id="attention-discard" type="button">Discard</button>
+  </span>
+  <button class="btn btn-quiet btn-sm" id="attention-dismiss" type="button">Dismiss</button>
+</div>
+<!-- /region: header -->
+
+<!-- 1. Join or start, then agree -->
+<main class="screen wrap" id="screen-setup">
+  <div class="page-head" id="page-head">
+    <h1 class="t-display">Jarvaids<span class="second">The meeting's minutes and wall, on one canvas</span></h1>
+    <p class="t-body jv-prose intro">
+      It listens to the room and reads photographs of the sticky-note wall, and
+      puts what it finds on a shared canvas. Everything it makes stays labelled
+      as the model's, and a person can correct or undo it.
+    </p>
+  </div>
+
+  <div class="entry" id="start-join">
+    <section class="entry-panel" aria-labelledby="join-title">
+      <h2 class="t-title" id="join-title">Join a session</h2>
+      <label class="field"><span>Your name</span><input id="join-name" autocomplete="name"></label>
+      <label class="field"><span>Invitation</span><input id="join-invitation" autocomplete="off" spellcheck="false">
+        <span class="hint">The code the facilitator gives you, for one person, once.</span></label>
+      <button class="btn btn-primary btn-lg" id="join" type="button">Join session</button>
+    </section>
+
+    <section class="entry-panel" aria-labelledby="start-title">
+      <h2 class="t-title" id="start-title">Start a new session</h2>
+      <label class="field"><span>Your name</span><input id="owner-name" autocomplete="name" value="Facilitator"></label>
+      <label class="field"><span>Meeting time zone</span><input id="session-timezone" value="UTC"></label>
+      <label class="field"><span>Session name</span><input id="session-title" value="Wall review"></label>
+      <label class="field"><span>Keep everything for</span>
+        <select id="retention">
+          <option value="3600">1 hour</option>
+          <option value="86400" selected>24 hours</option>
+          <option value="604800">7 days</option>
+        </select>
+        <span class="hint">Then everything in the session is deleted from the server.</span></label>
+      <button class="btn btn-secondary btn-lg" id="create" type="button">Start session</button>
+    </section>
+
+    <details class="advanced">
+      <summary class="t-meta">Server</summary>
+      <label class="field"><span>Server address</span><input id="base-url" value="http://127.0.0.1:3000" spellcheck="false"></label>
+    </details>
+  </div>
+
+  <!-- The agreement gate (F05, F08). Nothing is recorded until every person
+       here has agreed, and the facilitator's Start says who it waits for. -->
+  <section class="gate" id="consent" hidden aria-labelledby="consent-title">
+    <h2 class="screen-title" id="consent-title">Before anything is recorded<span class="second" id="consent-session"></span></h2>
+    <p class="t-body jv-prose" id="consent-text"></p>
+    <!-- The one choice on this screen, in its own panel: the box and Agree,
+         or once agreed, when. -->
+    <div class="gate-agree">
+      <label class="checkline" id="agree-line">
+        <input type="checkbox" id="agree-check">
+        <span class="t-body">I agree to this session being recorded</span>
+      </label>
+      <div class="row">
+        <button class="btn btn-primary btn-lg" id="acknowledge" type="button" disabled>Agree</button>
+        <span class="t-meta" id="agreed-note" hidden></span>
+      </div>
+    </div>
+    <h3 class="t-title gate-people-title">Who has agreed</h3>
+    <ul class="people-rows" id="consent-rows"></ul>
+    <div class="row gate-start" id="activate-row">
+      <button class="btn btn-primary btn-lg" id="activate" type="button" disabled>Start capture</button>
+      <span class="t-meta" id="activate-reason"></span>
+    </div>
+    <p class="t-meta jv-prose">Anyone can pause capture at any moment. Withdrawing your agreement stops it for the whole room.</p>
+  </section>
+</main>
+
+<!-- 2. The workspace: the canvas, and one side panel beside it -->
+<main class="screen" id="screen-workspace" hidden>
+  <!-- region: header -->
+  <!-- The three session banners became the parts of the one capture banner
+       inside the header (#capture-banner), with their ids kept. This block
+       holds the "What you can say" sheet, opened from the Jarvaids menu: the
+       photograph sheet's pattern, here and not inside the sticky header so
+       it layers over the whole page. header.mjs fills the groups from
+       docs/COMMAND-PHRASES.md's words. -->
+  <div class="sheet-layer" id="commands-sheet" hidden role="dialog" aria-modal="true" aria-labelledby="commands-title">
+    <section class="sheet commands-sheet">
+      <div class="sheet-head">
+        <h2 class="t-title sheet-title" id="commands-title">What you can say<span class="second">Start each one with “Hey Jarvaids”. Polite words such as “please” also work.</span></h2>
+        <button class="btn btn-quiet" id="close-commands" type="button">Close</button>
+      </div>
+      <div class="commands-body" id="commands-body"></div>
+    </section>
+  </div>
+  <!-- /region: header -->
+
+  <div class="ws">
+    <section class="ws-main" aria-label="Canvas">
+      <!-- region: canvas -->
+      <!-- What acts on the selection, and Place new notes. The view toggle and
+           the zoom live in the dock, on the canvas itself. -->
+      <div class="board-tools">
+        <button class="btn btn-secondary btn-sm" id="topic-layout" type="button" hidden aria-pressed="true">By topic</button>
+        <span class="t-meta" id="topic-layout-hint" hidden>Summary themes · click a heading to focus, or a note for details</span>
+        <button class="btn btn-quiet btn-sm" id="arrange" type="button" hidden>Place new notes</button>
+        <div class="selection" id="selection" hidden>
+          <span class="t-meta" id="selection-count"></span>
+          <input id="group-label" class="group-label" placeholder="Name the group" aria-label="Name for the new group">
+          <button class="btn btn-secondary btn-sm" id="propose-group" type="button">Propose group</button>
+          <span class="t-meta" id="group-reason" hidden></span>
+          <button class="btn btn-quiet btn-sm" id="ungroup" type="button">Remove from group</button>
+          <button class="btn btn-quiet btn-sm" id="clear-selection" type="button">Clear</button>
+        </div>
+      </div>
+      <!-- The stage is the positioned box the board fills: the empty state,
+           the parked margin and the dock are placed against it. -->
+      <div class="board-stage">
+      <div class="jv-board board" id="board" tabindex="0"
+           aria-label="Canvas. Drag empty space to pan. Plus and minus zoom, zero fits."></div>
+      <div class="board-empty" id="board-empty" hidden>
+        <div class="board-empty-card">
+          <h2 class="t-display">Nothing on the wall yet.</h2>
+          <p class="t-body" id="board-empty-copy">Photograph the sticky notes or type one in: each lands here as a proposal until someone accepts it.</p>
+          <div class="row">
+            <!-- Secondary, not a second yellow primary: the header's
+                 "Photograph the wall" is the only filled primary (phase 5). -->
+            <button class="btn btn-secondary btn-lg" id="empty-photo" type="button">Photograph the wall</button>
+            <button class="btn btn-secondary btn-lg" id="empty-note" type="button">Add a note</button>
+          </div>
+        </div>
+      </div>
+      <!-- region: parked -->
+      <aside id="parked" aria-label="Parked" hidden></aside>
+      <!-- /region: parked -->
+      <!-- region: dock -->
+      <!-- The floating canvas toolbar. tools/dock.mjs puts the four tools in
+           the first group; zoom and the view toggle keep their ids, because
+           app.mjs and the tests press them. -->
+      <div id="dock" class="dock" role="toolbar" aria-label="Canvas tools" hidden>
+        <div class="dock-group dock-tools" role="group" aria-label="Tool"></div>
+        <span class="dock-sep dock-tools-sep" aria-hidden="true"></span>
+        <div class="dock-group zoom" role="group" aria-label="Zoom">
+          <button class="dock-button" id="zoom-out" type="button" aria-label="Zoom out" title="Zoom out (minus)">
+            <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M4 10h12"/></svg>
+          </button>
+          <span class="dock-readout t-signal zoom-level" id="zoom-level">100%</span>
+          <button class="dock-button" id="zoom-in" type="button" aria-label="Zoom in" title="Zoom in (plus)">
+            <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M4 10h12M10 4v12"/></svg>
+          </button>
+          <button class="dock-button" id="zoom-fit" type="button" aria-label="Fit to screen" title="Fit to screen (0)" aria-keyshortcuts="0">
+            <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M3 7V3h4M13 3h4v4M17 13v4h-4M7 17H3v-4"/></svg>
+          </button>
+        </div>
+        <span class="dock-sep dock-view-sep" aria-hidden="true"></span>
+        <div class="segmented" role="group" aria-label="View">
+          <button type="button" data-view="canvas" aria-pressed="true">Canvas</button>
+          <button type="button" data-view="list" aria-pressed="false">List</button>
+          <button type="button" data-view="calendar" aria-pressed="false">Calendar</button>
+        </div>
+      </div>
+      <!-- /region: dock -->
+      </div>
+      <div class="list-view" id="list-view" hidden></div>
+      <!-- The Calendar view: the session's calendar as a calendar, in the
+           area the canvas uses (calendar-view.mjs fills it). -->
+      <section class="calendar-view" id="calendar-view" aria-label="Calendar" hidden></section>
+      <p class="t-meta board-hint" id="board-hint">
+        Drag empty space to pan; Ctrl and scroll, or pinch, to zoom. Click a note to select it, shift-click for more.
+        Moving a note is not agreeing with it.
+      </p>
+      <!-- region: strip -->
+      <!-- The session's moments along a time axis; dragging along it, or the
+           arrow keys, shows the wall as it was. tools/strip.mjs fills it. -->
+      <div id="session-strip" class="strip" role="group" aria-label="Session strip" hidden></div>
+      <!-- /region: strip -->
+      <p class="t-small" id="summary-status" role="status" aria-live="polite"></p>
+      <form class="composer" id="composer">
+        <label class="field composer-field"><span>Add a note</span><input id="note-text" autocomplete="off" placeholder="Type what someone said or wrote"></label>
+        <button class="btn btn-secondary" id="add-note" type="submit">Add note</button>
+        <button class="btn btn-secondary" id="add-accept" type="button" hidden>Add and accept</button>
+      </form>
+      <!-- /region: canvas -->
+    </section>
+
+    <!-- region: rail -->
+    <!-- The rail: 360px on --paper-2 beside the canvas. Review, Transcript and
+         People are one tab list; the review count is mono in a chip. Each
+         panel's rows are drawn by review.mjs, transcript.mjs and people.mjs,
+         and their contracts are written at the top of each module. -->
+    <aside class="ws-rail" aria-label="Review, transcript and people">
+      <nav class="tabs rail-tabs" role="tablist" aria-label="Side panel">
+        <button type="button" role="tab" id="tab-review" data-rail="review" aria-selected="true" aria-controls="rail-review">Review <span class="count" id="queue-count">0</span></button>
+        <button type="button" role="tab" id="tab-overview" hidden data-rail="overview" aria-selected="false" aria-controls="rail-overview">Overview</button>
+        <button type="button" role="tab" id="tab-transcript" data-rail="transcript" aria-selected="false" aria-controls="rail-transcript">Transcript</button>
+        <button type="button" role="tab" id="tab-people" data-rail="people" aria-selected="false" aria-controls="rail-people">People</button>
+      </nav>
+
+      <div class="rail-panel" id="rail-review" role="tabpanel" aria-labelledby="tab-review">
+        <div id="jobs" class="jobs"></div>
+        <div class="undo-line" id="undo-line" hidden></div>
+        <div id="queue" class="queue"></div>
+        <p class="t-body empty queue-empty" id="queue-empty">Evidence first, then the text. Nothing is in the record until it is accepted here.</p>
+      </div>
+
+      <div class="rail-panel" id="rail-overview" role="tabpanel" aria-labelledby="tab-overview" hidden>
+        <p class="t-small" id="overview-status" role="status"></p>
+        <button class="btn btn-secondary" type="button" id="summary-flush">Update summary now</button>
+        <details class="rail-section"><summary class="t-small">Agenda and summary settings</summary>
+          <label class="field"><span>Agenda topics, one per line</span><textarea id="summary-agenda" rows="4"></textarea></label>
+          <label class="t-small"><input type="checkbox" id="summary-enabled" checked> Automatic summaries</label>
+          <button class="btn btn-secondary" type="button" id="summary-save">Save summary settings</button>
+        </details>
+        <div id="overview-topics"></div>
+      </div>
+      <div class="rail-panel" id="rail-transcript" role="tabpanel" aria-labelledby="tab-transcript" hidden>
+        <p class="t-small transcript-note" id="transcript-note">Press Listen in the bar to transcribe the room.</p>
+        <p class="t-small command-status" id="command-status" role="status" aria-live="polite" hidden></p>
+        <div id="transcript" class="transcript"></div>
+        <p class="t-small" id="wakeword-status" role="status">Wake-word recognition starts with Listen. The acoustic detector needs a local custom model; transcript commands work without it.</p>
+      </div>
+
+      <div class="rail-panel" id="rail-people" role="tabpanel" aria-labelledby="tab-people" hidden>
+        <ul class="people-rows" id="people-rows"></ul>
+
+        <section class="rail-section" id="invite-section" aria-labelledby="invite-title">
+          <h3 class="t-title" id="invite-title">Invite someone</h3>
+          <p class="t-small rail-hint">Each invitation is for one person, once, and works for ten minutes.</p>
+          <button class="btn btn-secondary" id="make-invite" type="button">Create an invitation</button>
+          <div class="invite" id="invite-created" hidden>
+            <code class="invite-code" id="invite-code"></code>
+            <button class="btn btn-quiet btn-sm" id="copy-invite" type="button">Copy</button>
+          </div>
+        </section>
+
+        <section class="rail-section" aria-labelledby="voices-title">
+          <h3 class="t-title" id="voices-title">Voices</h3>
+          <p class="t-small rail-hint">Each person records a six-second sample containing only that speaker, so the transcript can name them. Say: “Hello, my name is … and I am taking part in this design meeting.” Listening pauses while a sample is recorded.</p>
+          <label class="field"><span>Speaker name</span><input id="speaker-name" autocomplete="off"></label>
+          <div class="row">
+            <button class="btn btn-secondary" id="speaker-enrol" type="button" disabled>Record a six-second sample</button>
+            <button class="btn btn-quiet" id="speaker-cancel" type="button" hidden>Cancel recording</button>
+          </div>
+          <p class="t-small rail-hint" id="speaker-reason"></p>
+          <p class="t-small" id="speaker-status" role="status" aria-live="polite"></p>
+          <div id="speaker-list" class="speaker-list"></div>
+          <p class="t-small rail-hint">Uncertain matches appear as “Unknown speaker”. This tells enrolled voices apart; it does not separate people speaking at once.</p>
+        </section>
+      </div>
+    </aside>
+    <!-- /region: rail -->
+  </div>
+</main>
+
+<!-- 3. Photograph the wall: full width, over the workspace (F16) -->
+<!-- 3. Photograph the wall: a sheet over the canvas, not a page of its own,
+     so the room's wall stays in view and in use while someone photographs
+     it. The id stays: the header demotes its own button while this shows,
+     and the tests wait on it. -->
+<div class="sheet-layer" id="screen-photo" hidden role="dialog" aria-modal="true" aria-labelledby="photo-title">
+  <section class="sheet photo-sheet">
+    <div class="sheet-head">
+      <h2 class="t-title sheet-title" id="photo-title">Photograph the wall<span class="second" id="photo-step">Take a photo, or choose one, of the sticky notes.</span></h2>
+      <button class="btn btn-quiet" id="close-photo" type="button">Close</button>
+    </div>
+
+    <div class="flow-step" id="photo-choose">
+      <label class="btn btn-primary btn-lg file-button" for="photo">Choose or take a photo</label>
+      <input class="visually-hidden" type="file" id="photo" accept="image/*" capture="environment">
+      <p class="t-meta">Stand back far enough to fit the notes you want, and keep the wall square to the camera.
+        In automatic mode, the whole photo is read and its notes are added in the background.</p>
+    </div>
+
+    <div class="flow-step photo-stage" id="photo-stage" hidden>
+      <div class="stage"><img id="photo-preview" alt="The photograph of the wall"><div id="regions"></div></div>
+      <div class="stage-tools">
+        <p class="t-body">Drag around each sticky note. <span class="t-signal" id="region-count">0</span> marked.</p>
+        <div class="row">
+          <button class="btn btn-quiet" id="undo-region" type="button">Undo last mark</button>
+          <button class="btn btn-quiet" id="clear-regions" type="button">Clear marks</button>
+          <button class="btn btn-primary btn-lg" id="send-photo" type="button">Send for reading</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- The reading follows its job from the bottom right corner: waiting,
+     reading, found, or why not. The canvas stays in use meanwhile; the card
+     leaves when it is dismissed or when Review them is pressed. -->
+<aside class="reading-card" id="photo-reading" hidden role="status" aria-live="polite" aria-label="Reading the photograph">
+  <p class="status" id="reading-status"><i class="glyph glyph-waiting st-waiting" aria-hidden="true"></i><span class="word" id="reading-word"></span></p>
+  <p class="t-body" id="reading-text"></p>
+  <ul class="found" id="found-list"></ul>
+  <div class="row reading-card-actions">
+    <button class="btn btn-primary" id="found-review" type="button" hidden>Review them</button>
+    <button class="btn btn-secondary" id="reading-retry" type="button" hidden>Try again</button>
+    <button class="btn btn-quiet" id="photo-again" type="button">Photograph another</button>
+    <button class="btn btn-quiet" id="reading-dismiss" type="button">Dismiss</button>
+  </div>
+</aside>
+
+<!-- 4. Export: a page, not a modal (F30) -->
+<main class="screen flow wrap" id="screen-export" hidden aria-labelledby="export-title">
+  <div class="flow-head">
+    <h2 class="screen-title" id="export-title">Export<span class="second">Take the session's record away</span></h2>
+    <button class="btn btn-quiet" id="close-export" type="button">Back to the canvas</button>
+  </div>
+  <div class="panel export-choice">
+    <p class="t-body jv-prose" id="export-summary"></p>
+    <label class="checkline">
+      <input type="checkbox" id="include-unresolved">
+      <span class="t-body">Include what was never reviewed, marked as proposed</span>
+    </label>
+    <button class="btn btn-primary btn-lg" id="do-export" type="button">Create export</button>
+  </div>
+  <div id="export-out" class="row export-out"></div>
+  <p class="t-meta jv-prose" id="export-retention"></p>
+</main>
+
+<!-- The only modal: a confirmation for what cannot be undone (F11, F31). -->
+<dialog id="confirm-dialog" aria-labelledby="confirm-title" aria-describedby="confirm-text">
+  <h2 class="t-title" id="confirm-title"></h2>
+  <p class="t-body" id="confirm-text"></p>
+  <p class="t-meta" id="confirm-detail"></p>
+  <div class="row dialog-actions">
+    <button class="btn btn-quiet" id="confirm-cancel" type="button">Cancel</button>
+    <button class="btn btn-danger-fill" id="confirm-ok" type="button"></button>
+  </div>
+</dialog>
+
+</div>
+<script type="module" src="app.mjs"></script>
+<!-- region: threads -->
+<svg id="threads" aria-hidden="true" focusable="false" hidden></svg>
+<!-- /region: threads -->
+</body>
+</html>

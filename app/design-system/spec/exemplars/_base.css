@@ -1,0 +1,307 @@
+/* ==========================================================================
+   Exemplar and client base.
+   The exemplars in this folder and the browser client link this file, so a
+   screen in the product cannot drift from the screens the spec shows.
+
+   This file is a FLATTENED copy of ../../tokens.css: plain CSS custom
+   properties instead of a Tailwind v4 @theme block, because @theme does not
+   resolve in a browser on its own. tokens.css is the source of truth. If the
+   two disagree, this file is stale.
+   ========================================================================== */
+
+@font-face {
+  font-family: "Archivo";
+  src: url("../../fonts/archivo-variable-latin.woff2") format("woff2");
+  font-weight: 400 700; font-stretch: 100%; font-style: normal; font-display: swap;
+}
+
+:root {
+  --font-signal: "Archivo", "Helvetica Neue", Helvetica, Arial, system-ui, sans-serif;
+  --font-reading: "Archivo", "Helvetica Neue", Helvetica, Arial, system-ui, sans-serif;
+
+  --color-canvas: #f8f9fc;
+  --color-surface-float: #ffffff;
+  --color-surface-sunken: #ebeef2;
+  --color-ink: #17181b;
+  --color-ink-secondary: color-mix(in srgb, #17181b 76%, #f8f9fc);
+  --color-ink-muted: color-mix(in srgb, #17181b 68%, #f8f9fc);
+  --color-ink-edge: color-mix(in srgb, #17181b 50%, #f8f9fc);
+  --color-ink-fill: color-mix(in srgb, #17181b 10%, transparent);
+  --color-ink-wash: color-mix(in srgb, #17181b 6%, transparent);
+  --color-ink-inverse: #ffffff;
+  --color-hairline: #e1e5eb;
+  --color-hairline-strong: #85878c;
+
+  --color-accent: #114fa2;
+  --color-accent-pressed: #063d85;
+  --color-accent-wash: #e3eefe;
+
+  --color-status-capturing: #17181b;
+  --color-status-provisional: #114fa2;
+  --color-status-accepted: #1d7344;
+  --color-status-waiting: #8a5300;
+  --color-status-failed: #a81f1a;
+  --color-status-off: #595959;
+
+  --color-status-provisional-wash: #e3eefe;
+  --color-status-accepted-wash: #e8f1ec;
+  --color-status-waiting-wash: #f3eee6;
+  --color-status-failed-wash: #f6e9e8;
+  --color-status-off-wash: #eeeeee;
+  /* Diagram actors: documentation only, never the product canvas. */
+  --color-diagram-human: #8a3a6e;
+  --color-diagram-machine: #0f6b66;
+  --color-diagram-guardrail: #2e3a63;
+
+  --spacing-1: 4px;  --spacing-2: 8px;  --spacing-3: 12px; --spacing-4: 16px;
+  --spacing-5: 24px; --spacing-6: 32px; --spacing-7: 48px; --spacing-8: 64px;
+
+  --radius-xs: 2px; --radius-sm: 4px; --radius-md: 8px; --radius-lg: 16px; --radius-full: 999px;
+
+  --line-fine: 0.5px; --line-hairline: 1px; --line-boundary: 1px; --line-provisional: 1px;
+  --line-focal: 2px; --line-focus: 2px;
+
+  --elevation-sm: 0 1px 2px color-mix(in srgb, #17181b 6%, transparent), 0 4px 12px color-mix(in srgb, #17181b 8%, transparent);
+  --elevation-md: 0 2px 4px color-mix(in srgb, #17181b 6%, transparent), 0 8px 24px color-mix(in srgb, #17181b 12%, transparent);
+  --elevation-lg: 0 4px 8px color-mix(in srgb, #17181b 6%, transparent), 0 16px 48px color-mix(in srgb, #17181b 16%, transparent);
+
+  --layout-rail: 384px;
+  --layout-form: 400px;
+  --layout-pad: 32px;
+  --layout-pad-narrow: 16px;
+  --layout-reading-max: 68ch;
+
+  --motion-fast: 150ms; --motion-base: 200ms; --motion-slow: 250ms;
+  --motion-ease: cubic-bezier(0.23, 1, 0.32, 1);
+
+  /* Room mode multiplies every size by 1.5 and makes every target 44px.
+     Touch gets 44px targets at any size. */
+  --scale: 1;
+  --target: 32px;
+  --size-display: calc(44px * var(--scale)); --leading-display: calc(48px * var(--scale));
+  --size-heading: calc(28px * var(--scale)); --leading-heading: calc(32px * var(--scale));
+  --size-title: calc(18px * var(--scale));   --leading-title: calc(24px * var(--scale));
+  --size-body: calc(14px * var(--scale));    --leading-body: calc(20px * var(--scale));
+  --size-meta: calc(12px * var(--scale));    --leading-meta: calc(16px * var(--scale));
+
+  color-scheme: light;
+}
+:root[data-room] { --scale: 1.5; --target: 44px; }
+@media (pointer: coarse) { :root { --target: 44px; } }
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: var(--font-reading);
+  font-size: var(--size-body); line-height: var(--leading-body);
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: "kern";
+}
+
+img, svg { max-width: 100%; }
+
+/* ── type roles: six roles, three weights, sentence case ──────────────── */
+.t-display   { font-family: var(--font-signal); font-size: var(--size-display); line-height: var(--leading-display); letter-spacing: -0.01em; font-weight: 400; margin: 0; }
+.t-heading   { font-family: var(--font-signal); font-size: var(--size-heading); line-height: var(--leading-heading); font-weight: 500; margin: 0; }
+.t-heading .second, .t-display .second { display: block; color: var(--color-ink-muted); font-weight: 400; }
+.t-signal-lg, .t-title { font-family: var(--font-signal); font-size: var(--size-title); line-height: var(--leading-title); font-weight: 500; margin: 0; }
+.t-signal    { font-family: var(--font-signal); font-size: var(--size-body); line-height: var(--leading-body); font-weight: 500; font-variant-numeric: tabular-nums; }
+.t-structure { font-family: var(--font-signal); font-size: var(--size-meta); line-height: var(--leading-meta); font-weight: 500; color: var(--color-ink-muted); }
+.t-body      { font-size: var(--size-body); line-height: var(--leading-body); }
+.t-meta      { font-size: var(--size-meta); line-height: var(--leading-meta); color: var(--color-ink-secondary); }
+.t-caption   { font-size: var(--size-meta); line-height: var(--leading-meta); color: var(--color-ink-muted); font-style: italic; }
+.muted  { color: var(--color-ink-muted); }
+.strong { font-weight: 500; }
+
+/* ── layout primitives ────────────────────────────────────────────────── */
+.jv-page { padding-inline: var(--layout-pad-narrow); container-type: inline-size; container-name: page; }
+@media (min-width: 1024px) { .jv-page { padding-inline: var(--layout-pad); } }
+
+.jv-prose { max-width: var(--layout-reading-max); }
+
+.jv-stack       { display: flex; flex-direction: column; gap: var(--spacing-4); }
+.jv-stack-tight { display: flex; flex-direction: column; gap: var(--spacing-2); }
+.jv-stack-loose { display: flex; flex-direction: column; gap: var(--spacing-6); }
+
+.jv-row        { display: flex; align-items: baseline; gap: var(--spacing-2); min-width: 0; flex-wrap: wrap; }
+.jv-row-centre { display: flex; align-items: center;  gap: var(--spacing-2); min-width: 0; flex-wrap: wrap; }
+.jv-spacer     { margin-left: auto; }
+
+.jv-hairline-top    { border-top:    var(--line-hairline) solid var(--color-hairline); }
+.jv-hairline-bottom { border-bottom: var(--line-hairline) solid var(--color-hairline); }
+.jv-hairline-all    { border:        var(--line-hairline) solid var(--color-hairline); }
+
+.jv-rows > * { border-bottom: var(--line-hairline) solid var(--color-hairline); padding-block: var(--spacing-3); min-width: 0; }
+.jv-rows > *:last-child { border-bottom: 0; }
+
+.jv-mesh { display: grid; gap: var(--spacing-5); grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.jv-mesh > * { min-width: 0; }
+@media (min-width: 1024px) { .jv-mesh { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+
+.jv-workspace { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--spacing-4); min-height: 0; }
+@media (min-width: 1024px) {
+  .jv-workspace { grid-template-columns: minmax(0, 1fr) var(--layout-rail); gap: var(--spacing-5); }
+}
+
+.jv-split { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--spacing-6); }
+@media (min-width: 1024px) {
+  .jv-split { grid-template-columns: minmax(0, var(--layout-form)) minmax(0, 1fr); gap: var(--spacing-7); }
+}
+
+.jv-queue { max-width: 760px; }
+
+/* The canvas is the page's own ground: no frame around it, so it reads as
+   the place the work is, not a box inside a page. */
+.jv-board { position: relative; background: var(--color-canvas); border-radius: var(--radius-md);
+  min-height: 320px; padding: var(--spacing-5); }
+
+.jv-scroll { overflow-y: auto; overscroll-behavior: contain; min-height: 0; }
+.jv-overflow-x { overflow-x: auto; }
+.jv-truncate { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: var(--line-focus) solid var(--color-accent); outline-offset: 2px; border-radius: var(--radius-xs);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important; animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important; scroll-behavior: auto !important;
+  }
+}
+
+/* ── status: a shaped glyph and a word, always both ───────────────────── */
+/* Six shapes, so a status reads without colour: a filled disc (capturing),
+   a dashed ring (provisional), a ring with a tick (accepted), a half-filled
+   ring (waiting), a ring with a bar (failed), two bars (off). The colour is
+   the glyph's and the word's own, never a box behind them. */
+.glyph { position: relative; display: inline-block; flex: none; width: 16px; height: 16px;
+  border-radius: var(--radius-full); color: inherit; }
+.glyph-capturing   { background: currentColor; transform: scale(0.625); }
+.glyph-provisional { border: 1.5px dashed currentColor; }
+.glyph-accepted, .glyph-waiting, .glyph-failed { border: 1.5px solid currentColor; }
+.glyph-accepted::after { content: ""; position: absolute; left: 4.5px; top: 2px; width: 4px; height: 7px;
+  border: solid currentColor; border-width: 0 1.5px 1.5px 0; transform: rotate(45deg); }
+.glyph-waiting::after { content: ""; position: absolute; left: 2px; top: 2px; bottom: 2px; width: 4.5px;
+  background: currentColor; border-radius: 4.5px 0 0 4.5px; }
+.glyph-failed::after { content: ""; position: absolute; left: 3px; right: 3px; top: 6.25px; height: 1.5px; background: currentColor; }
+.glyph-off { border-radius: 0; }
+.glyph-off::before, .glyph-off::after { content: ""; position: absolute; top: 3px; bottom: 3px; width: 2px; background: currentColor; }
+.glyph-off::before { left: 4.5px; } .glyph-off::after { right: 4.5px; }
+
+.status { display: inline-flex; align-items: center; gap: 6px; }
+.status .word { font-size: var(--size-meta); line-height: var(--leading-meta); font-weight: 500; }
+.st-capturing   { color: var(--color-status-capturing); }
+.st-provisional { color: var(--color-status-provisional); }
+.st-accepted    { color: var(--color-status-accepted); }
+.st-waiting     { color: var(--color-status-waiting); }
+.st-failed      { color: var(--color-status-failed); }
+.st-off         { color: var(--color-status-off); }
+
+/* The older 8px disc, kept for exemplars written before the glyphs. */
+.dot { width: 8px; height: 8px; border-radius: var(--radius-full); flex: none; display: inline-block; }
+.pulse { }
+
+.chip { display: inline-flex; align-items: center; gap: var(--spacing-1); padding: 4px 8px; border-radius: var(--radius-full);
+  font-size: var(--size-meta); line-height: var(--leading-meta); font-weight: 500; background: var(--color-ink-wash); }
+
+/* ── buttons: one primary per view; never a fill and a border together ── */
+.btn { font-family: var(--font-reading); font-size: var(--size-body); font-weight: 500; line-height: 1;
+  min-height: var(--target); padding: 0 12px; border-radius: var(--radius-sm); border: 0;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer;
+  background: transparent; color: var(--color-ink); text-decoration: none; white-space: nowrap;
+  transition: background-color var(--motion-fast) var(--motion-ease), transform var(--motion-fast) var(--motion-ease); }
+.btn:active:not([disabled]) { transform: scale(0.97); }
+.btn-primary   { background: var(--color-accent); color: var(--color-ink-inverse); }
+.btn-primary:hover:not([disabled]) { background: var(--color-accent-pressed); }
+.btn-secondary { background: var(--color-ink-wash); }
+.btn-secondary:hover:not([disabled]) { background: var(--color-ink-fill); }
+.btn-quiet     { color: var(--color-ink-secondary); }
+.btn-quiet:hover:not([disabled]) { background: var(--color-ink-wash); color: var(--color-ink); }
+/* Destructive starts quiet with red words; a red fill only inside a confirmation. */
+.btn-danger    { color: var(--color-status-failed); }
+.btn-danger:hover:not([disabled]) { background: var(--color-status-failed-wash); }
+.btn-danger-fill { background: var(--color-status-failed); color: var(--color-ink-inverse); }
+.btn[disabled] { opacity: 0.45; cursor: not-allowed; }
+.btn-lg { min-height: 40px; padding-inline: 16px; }
+:root[data-room] .btn-lg { min-height: 48px; }
+.btn-sm { min-height: 28px; padding-inline: 8px; font-size: var(--size-meta); }
+@media (pointer: coarse) { .btn-sm { min-height: 44px; } }
+:root[data-room] .btn-sm { min-height: 44px; }
+
+/* ── fields: a line marks an edge you can type into ───────────────────── */
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field > span, .field > .label { font-size: var(--size-meta); line-height: var(--leading-meta); font-weight: 500; color: var(--color-ink-secondary); }
+.field input, .field select, .field textarea {
+  font-family: var(--font-reading); font-size: var(--size-body); line-height: var(--leading-body); color: var(--color-ink);
+  min-height: 40px; padding-inline: var(--spacing-3); background: transparent;
+  border: var(--line-boundary) solid var(--color-hairline-strong); border-radius: var(--radius-sm); width: 100%; }
+@media (pointer: coarse) { .field input, .field select, .field textarea { font-size: 16px; min-height: 44px; } }
+.field textarea { padding-block: 10px; resize: vertical; }
+.field input:hover, .field select:hover, .field textarea:hover { border-color: var(--color-ink); }
+.field .hint { font-size: var(--size-meta); line-height: var(--leading-meta); color: var(--color-ink-muted); }
+
+/* ── canvas item: the component the product is about ──────────────────── */
+/* Accepted: a tonal fill and no line. Provisional: no fill and a dashed
+   accent line. A person's unreviewed note: no fill and a solid line. */
+.item { position: relative; padding: var(--spacing-3); border-radius: var(--radius-md); min-width: 0; }
+.item .kind { display: block; font-size: var(--size-meta); line-height: var(--leading-meta); font-weight: 500;
+  color: var(--color-ink-muted); margin-bottom: 4px; }
+.item .text { display: block; font-size: var(--size-body); line-height: var(--leading-body); color: var(--color-ink); }
+.item .meta { display: block; font-size: var(--size-meta); line-height: var(--leading-meta); color: var(--color-ink-muted); margin-top: var(--spacing-2); }
+.item .badge { display: inline-flex; align-items: center; gap: 6px; margin-bottom: 6px;
+  font-size: var(--size-meta); line-height: var(--leading-meta); font-weight: 500; }
+.item .actions { display: flex; gap: 2px; margin-top: var(--spacing-2); }
+
+.item-accepted    { background: var(--color-surface-sunken); }
+.item-provisional { border: var(--line-provisional) dashed var(--color-status-provisional); }
+.item-pending     { border: var(--line-boundary) solid var(--color-hairline-strong); }
+.item-waiting     { border: var(--line-provisional) dashed var(--color-status-waiting); }
+.item-failed      { border: var(--line-provisional) dashed var(--color-status-failed); }
+.item-selected    { outline: var(--line-focal) solid var(--color-accent); outline-offset: 2px; }
+
+/* ── the session bar: floats above the page, so it may carry elevation ── */
+.session-bar { position: sticky; top: 0; z-index: 30; background: var(--color-surface-float);
+  box-shadow: var(--elevation-sm);
+  display: flex; align-items: center; gap: var(--spacing-3); min-height: 56px; flex-wrap: wrap;
+  margin-inline: calc(-1 * var(--layout-pad-narrow)); padding-inline: var(--layout-pad-narrow); }
+@media (min-width: 1024px) { .session-bar { margin-inline: calc(-1 * var(--layout-pad)); padding-inline: var(--layout-pad); } }
+
+/* ── segmented control: views of the same content; chosen is ink ──────── */
+.segmented { display: inline-flex; background: var(--color-ink-wash); border-radius: var(--radius-sm); padding: 2px; gap: 2px; }
+.segmented button { font-family: var(--font-reading); font-size: var(--size-body); min-height: calc(var(--target) - 4px); padding-inline: 12px;
+  border: 0; background: transparent; color: var(--color-ink-secondary); border-radius: var(--radius-xs); cursor: pointer; }
+.segmented button[aria-pressed="true"] { background: var(--color-ink); color: var(--color-ink-inverse); font-weight: 500; }
+@media (pointer: coarse) { .segmented button { min-height: var(--target); } }
+
+/* ── tabs: sections; a 2px ink line under the chosen one ──────────────── */
+.tabs { display: flex; gap: var(--spacing-4); border-bottom: var(--line-hairline) solid var(--color-hairline); }
+.tabs a, .tabs button { font: inherit; font-size: var(--size-body); text-decoration: none; color: var(--color-ink-secondary);
+  background: none; border: 0; cursor: pointer; min-height: var(--target);
+  padding: var(--spacing-2) 0; border-bottom: 2px solid transparent; margin-bottom: -1px;
+  display: inline-flex; align-items: center; gap: 6px; }
+.tabs a[aria-current="page"], .tabs button[aria-selected="true"] { color: var(--color-ink); font-weight: 500; border-bottom-color: var(--color-ink); }
+.tabs .count { font-variant-numeric: tabular-nums; color: var(--color-ink-muted); }
+
+/* ── banner: a hairline row that says what broke and what still works ── */
+.banner { border-bottom: var(--line-hairline) solid var(--color-hairline); padding: var(--spacing-3) 0;
+  display: flex; align-items: center; gap: var(--spacing-3); flex-wrap: wrap; }
+
+/* ── floating surfaces: menu, popover, dialog ─────────────────────────── */
+.menu { background: var(--color-surface-float); border-radius: var(--radius-md); box-shadow: var(--elevation-md);
+  padding: var(--spacing-1); min-width: 200px; display: flex; flex-direction: column; }
+.menu .btn { justify-content: flex-start; width: 100%; }
+dialog { background: var(--color-surface-float); color: var(--color-ink); border: 0; border-radius: var(--radius-lg);
+  box-shadow: var(--elevation-lg); padding: var(--spacing-5); max-width: min(480px, calc(100vw - 32px)); }
+dialog::backdrop { background: color-mix(in srgb, var(--color-ink) 40%, transparent); }
+
+.skel { background: var(--color-surface-sunken); border-radius: var(--radius-xs); height: 12px; }
+
+.track { height: 8px; border-radius: var(--radius-full); background: var(--color-ink-wash); overflow: hidden; min-width: 120px; flex: 1; }
+.track > i { display: block; height: 100%; background: var(--color-ink); }
+
+.page-head { padding-block: var(--spacing-7) var(--spacing-5); }
+.wrap { max-width: 1280px; margin: 0 auto; padding-bottom: var(--spacing-8); }

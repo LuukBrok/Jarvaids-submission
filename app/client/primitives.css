@@ -1,0 +1,285 @@
+/* ==========================================================================
+   Primitives: the parts every region is built from.
+
+   Tokens only (tokens.css). No colour, size or duration is written here as
+   a literal; a value that is not a var(--...) is 0, a percentage or a
+   unitless ratio. Every transition and animation sits behind
+   prefers-reduced-motion: no-preference, so with reduced motion everything
+   is instant.
+
+   Sections: type, layout, buttons, chips, legacy status marks, tabs, the
+   view toggle, fields, the note, canvas marks (SVG), the dock.
+
+   Phase 3 agents use these; they do not edit them. A region that needs a
+   new primitive asks for it in its own stylesheet first, and phase 4 moves
+   it here.
+   ========================================================================== */
+
+/* ---- type ----------------------------------------------------------------
+   Six roles. The legacy class names the scripts still write (t-meta,
+   t-signal, t-structure, t-caption, t-heading) map onto them, so nothing
+   breaks before phase 3 replaces them. */
+.t-display { font-family: var(--font-ui); font-size: var(--fs-display); line-height: var(--lh-display); font-weight: var(--fw-display); letter-spacing: var(--ls-display); margin: 0; }
+.t-title, .t-heading { font-family: var(--font-ui); font-size: var(--fs-title); line-height: var(--lh-title); font-weight: var(--fw-title); margin: 0; }
+.t-note { font-family: var(--font-ui); font-size: var(--fs-note); line-height: var(--lh-note); font-weight: var(--fw-note); }
+.t-body { font-size: var(--fs-body); line-height: var(--lh-body); font-weight: var(--fw-body); }
+.t-small, .t-meta, .t-caption { font-size: var(--fs-small); line-height: var(--lh-small); font-weight: var(--fw-small); }
+.t-meta, .t-caption { color: var(--text-2); }
+.t-structure { font-size: var(--fs-small); line-height: var(--lh-small); font-weight: var(--fw-small); color: var(--text-3); }
+.t-mono, .t-signal { font-family: var(--font-mono); font-size: var(--fs-mono); line-height: var(--lh-mono); font-weight: var(--fw-mono); font-variant-numeric: tabular-nums; }
+.t-display .second, .t-heading .second, .t-title .second { display: block; color: var(--text-2); font-size: var(--fs-body); line-height: var(--lh-body); font-weight: var(--fw-body); letter-spacing: 0; }
+.strong { font-weight: var(--fw-strong); }
+.muted { color: var(--text-2); }
+
+/* ---- layout -------------------------------------------------------------- */
+.jv-page { padding-inline: var(--page-pad); }
+@media (min-width: 1024px) { .jv-page { padding-inline: var(--page-pad-wide); } }
+.jv-prose { max-width: var(--reading-max); }
+.wrap { max-width: var(--content-max); margin: 0 auto; padding-bottom: var(--space-8); }
+.row { display: flex; gap: var(--space-3); flex-wrap: wrap; align-items: center; }
+.jv-row { display: flex; align-items: baseline; gap: var(--space-2); min-width: 0; flex-wrap: wrap; }
+.jv-spacer { margin-left: auto; }
+.jv-rows > * { border-bottom: var(--line-1) solid var(--edge); padding-block: var(--space-3); min-width: 0; }
+.jv-rows > *:last-child { border-bottom: 0; }
+.empty { color: var(--text-2); }
+
+/* ---- buttons --------------------------------------------------------------
+   One primary per view: yellow fill, ink words. Secondary is a sunken fill,
+   quiet is words alone. Danger is coral-deep words, and is filled only
+   inside a confirmation. Never a fill and a border together. */
+.btn {
+  font-family: var(--font-ui); font-size: var(--fs-body); font-weight: var(--fw-small); line-height: 1;
+  min-height: var(--h-control); padding: 0 var(--space-3); border: 0; border-radius: var(--r-sm);
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2);
+  background: transparent; color: var(--text); text-decoration: none; white-space: nowrap; cursor: pointer;
+}
+.btn-primary { background: var(--action-primary); color: var(--action-primary-text); }
+.btn-primary:hover:not([disabled]) { background: var(--action-primary-hover); }
+.btn-secondary { background: var(--action-secondary); color: var(--text); }
+.btn-secondary:hover:not([disabled]) { background: var(--action-secondary-hover); }
+.btn-quiet { color: var(--text-2); }
+.btn-quiet:hover:not([disabled]) { background: var(--action-quiet-hover); color: var(--text); }
+.btn-danger { color: var(--danger); }
+.btn-danger:hover:not([disabled]) { background: var(--danger-soft); }
+.btn-danger-fill { background: var(--danger); color: var(--text-on-danger); }
+.btn[disabled] { opacity: var(--disabled-opacity); cursor: not-allowed; }
+.btn-sm { min-height: var(--h-control-sm); padding-inline: var(--space-2); font-size: var(--fs-small); }
+.btn-lg { min-height: var(--h-control-lg); padding-inline: var(--space-4); }
+@media (prefers-reduced-motion: no-preference) {
+  .btn { transition: background-color var(--t-fast) var(--ease-out), color var(--t-fast) var(--ease-out), scale var(--t-fast) var(--ease-out); }
+  .btn:active:not([disabled]) { scale: var(--press); }
+}
+
+/* ---- chips ----------------------------------------------------------------
+   Small labelled states. The listening chip is the one thing on the screen
+   that moves on its own: three mint bars on ink, so it reads from across
+   the room. */
+.chip {
+  display: inline-flex; align-items: center; gap: var(--space-2);
+  min-height: var(--h-chip); padding: 0 var(--space-2); border-radius: var(--r-sm);
+  font-size: var(--fs-small); line-height: var(--lh-small); font-weight: var(--fw-small);
+  background: var(--surface-sunken); color: var(--text); white-space: nowrap;
+}
+.chip-listening { background: var(--text); color: var(--surface); }
+.chip-paused { background: var(--state-paused); color: var(--text); }
+.chip-ended { background: var(--surface-sunken); color: var(--text-2); }
+.chip-ended::before { content: ""; width: var(--glyph); height: var(--glyph); background: var(--state-ended); flex: none; }
+.chip-count { font-family: var(--font-mono); font-size: var(--fs-mono); font-weight: var(--fw-mono); font-variant-numeric: tabular-nums; min-width: var(--h-chip); justify-content: center; }
+.chip .t-signal, .chip .t-mono { font-size: var(--fs-mono); }
+
+.bars { display: inline-flex; align-items: flex-end; gap: var(--line-2); height: var(--bars-h); flex: none; }
+.bars i { display: block; width: var(--bar-w); height: 100%; background: var(--state-listening); transform-origin: 50% 100%; }
+/* At rest (and with reduced motion) the bars stand at three heights, so the
+   indicator still reads as one. */
+.bars i:nth-child(1) { scale: 1 0.4; }
+.bars i:nth-child(2) { scale: 1 1; }
+.bars i:nth-child(3) { scale: 1 0.7; }
+@media (prefers-reduced-motion: no-preference) {
+  .bars i { animation: jv-bars var(--t-bars) var(--ease-in-out) infinite; }
+  .bars i:nth-child(2) { animation-delay: calc(var(--t-bars) / -3); }
+  .bars i:nth-child(3) { animation-delay: calc(var(--t-bars) / -1.5); }
+}
+@keyframes jv-bars { 0%, 100% { scale: 1 0.4; } 50% { scale: 1 1; } }
+
+/* ---- legacy status marks --------------------------------------------------
+   The chips replace the shaped glyphs, but the scripts still write .status,
+   .glyph-* and .st-* (DESIGN.md 0.2), and the tests look for some of them.
+   Kept as small token-coloured marks so nothing breaks before phase 3. */
+.status { display: inline-flex; align-items: center; gap: var(--space-2); }
+.status .word { font-size: var(--fs-small); line-height: var(--lh-small); font-weight: var(--fw-small); }
+.glyph { display: inline-block; flex: none; width: var(--glyph); height: var(--glyph); border-radius: var(--r-pill); background: currentColor; }
+.glyph-provisional { background: transparent; border: var(--line-1) dashed currentColor; }
+.glyph-waiting { background: transparent; border: var(--line-2) solid currentColor; }
+.glyph-failed { border-radius: var(--r-none); rotate: 45deg; scale: 0.8; }
+.glyph-off { border-radius: var(--r-none); }
+.st-capturing { color: var(--text); }
+.st-provisional { color: var(--status-proposed); }
+.st-accepted { color: var(--status-accepted); }
+.st-waiting { color: var(--status-waiting); }
+.st-failed { color: var(--status-failed); }
+.st-off { color: var(--status-off); }
+/* The marker on a note: mono, lower key than the words it labels. */
+.badge, .note-marker, .note-stamp {
+  display: inline-flex; align-items: center; gap: var(--space-1);
+  font-family: var(--font-mono); font-size: var(--fs-mono); line-height: var(--lh-mono); font-weight: var(--fw-mono);
+  color: var(--text-2); font-variant-numeric: tabular-nums;
+}
+.badge .glyph { display: none; }
+
+/* ---- a person's circle ------------------------------------------------------
+   One class for the header's participant line, the People rows, the review
+   card's "Typed by" line and the transcript, so a person has one colour
+   everywhere. The script sets --person to var(--person-N) by join order
+   and, where an initial is drawn, --person-text to the ink that reads on it
+   (ink on a full accent, paper on a -deep one). Phase 4 made this one rule:
+   the header and the rail each had a .person-dot reading a different
+   variable, and whichever loaded last left the other's circles empty. */
+.person-dot {
+  display: inline-grid; place-items: center; flex: none;
+  inline-size: var(--avatar); block-size: var(--avatar); border-radius: var(--r-pill);
+  background: var(--person, var(--surface-sunken)); color: var(--person-text, var(--text));
+  font-size: var(--fs-mono); line-height: 1; font-weight: var(--fw-strong);
+}
+.person-dot-sm { inline-size: var(--glyph); block-size: var(--glyph); }
+.person-dot-none { background: transparent; border: var(--line-1) solid var(--text-3); }
+
+/* ---- tabs: sections, an ink line under the chosen one --------------------- */
+.tabs { display: flex; gap: var(--space-5); border-bottom: var(--line-1) solid var(--edge); }
+.tabs a, .tabs button {
+  font-family: var(--font-ui); font-size: var(--fs-body); font-weight: var(--fw-small); color: var(--text-2);
+  background: none; border: 0; border-bottom: var(--line-2) solid transparent; margin-bottom: calc(-1 * var(--line-1));
+  min-height: var(--target); padding: var(--space-2) 0; cursor: pointer; text-decoration: none;
+  display: inline-flex; align-items: center; gap: var(--space-2);
+}
+.tabs a[aria-current="page"], .tabs button[aria-selected="true"] { color: var(--text); border-bottom-color: var(--text); }
+.tabs .count { font-family: var(--font-mono); font-size: var(--fs-mono); font-variant-numeric: tabular-nums;
+  min-width: var(--h-chip); padding: 0 var(--space-1); border-radius: var(--r-sm); background: var(--surface-sunken); color: var(--text); text-align: center; }
+
+/* ---- the view toggle: the only pill ---------------------------------------- */
+.segmented { display: inline-flex; padding: var(--line-2); gap: var(--line-2); border-radius: var(--r-pill); background: var(--surface-sunken); }
+.segmented button {
+  font-family: var(--font-ui); font-size: var(--fs-small); font-weight: var(--fw-small);
+  min-height: calc(var(--h-control) - 2 * var(--line-2)); padding-inline: var(--space-3);
+  border: 0; border-radius: var(--r-pill); background: transparent; color: var(--text-2); cursor: pointer;
+}
+.segmented button[aria-pressed="true"] { background: var(--text); color: var(--surface); }
+
+/* ---- fields: label above, a hairline edge, the ink focus ring --------------- */
+.field { display: flex; flex-direction: column; gap: var(--space-1); }
+.field > span:first-child, .field > .label { font-size: var(--fs-small); line-height: var(--lh-small); font-weight: var(--fw-small); color: var(--text-2); }
+.field input, .field select, .field textarea, .input {
+  font-family: var(--font-ui); font-size: var(--fs-body); line-height: var(--lh-body); color: var(--text);
+  min-height: var(--h-field); padding-inline: var(--space-3); width: 100%;
+  background: var(--surface); border: var(--line-1) solid var(--edge); border-radius: var(--r-sm);
+}
+.field textarea, textarea.input { padding-block: var(--space-2); min-height: calc(2 * var(--h-field)); resize: vertical; }
+.field input:hover, .field select:hover, .field textarea:hover, .input:hover { border-color: var(--text-3); }
+.field input::placeholder, .field textarea::placeholder, .input::placeholder { color: var(--text-3); }
+.field input[disabled], .field textarea[disabled], .field select[disabled] { background: var(--surface-sunken); }
+.field .hint { font-size: var(--fs-small); line-height: var(--lh-small); color: var(--text-3); }
+@media (pointer: coarse) { .field input, .field select, .field textarea, .input { font-size: var(--fs-field-touch); } }
+.checkline { display: flex; align-items: center; gap: var(--space-3); margin-block: var(--space-3); cursor: pointer; }
+.checkline input { width: var(--check); height: var(--check); margin: 0; flex: none; accent-color: var(--text); }
+
+/* ---- the note ---------------------------------------------------------------
+   The component the product is about. States:
+     proposed   soft yellow, a yellow left edge, askew by --rot (set by
+                script, deterministic from the id, clamped here to 1.5deg)
+     accepted   the category accent at full strength, straight
+     corrected  accepted plus a 6px ink mark at the top right
+     selected   the ink outline
+     dragging   the one shadow
+     parked     the accent muted to -soft, straight
+   The scripts' class names (item-provisional, item-pending, item-accepted,
+   item-selected, dragging) are bound to the same looks. A typed note waiting
+   for review is a proposal, so it looks proposed; its marker says who typed
+   it. The fill is always set through --note-fill. */
+.note {
+  --note-fill: var(--note-accent, var(--note-accepted-fill));
+  /* --ink-2 is under 4.5:1 on three full accents, so on an accepted note the
+     secondary lines stay ink; on the soft fills they step down. */
+  --note-text-2: var(--text);
+  position: relative; box-sizing: border-box; min-width: 0;
+  padding: var(--space-3) var(--space-4); border-radius: var(--r-lg);
+  background: var(--note-fill); color: var(--text);
+}
+.note-yellow     { --note-accent: var(--yellow);     --note-accent-soft: var(--yellow-soft); }
+.note-lilac      { --note-accent: var(--lilac);      --note-accent-soft: var(--lilac-soft); }
+.note-mint       { --note-accent: var(--mint);       --note-accent-soft: var(--mint-soft); }
+.note-periwinkle { --note-accent: var(--periwinkle); --note-accent-soft: var(--periwinkle-soft); }
+.note-coral      { --note-accent: var(--coral);      --note-accent-soft: var(--coral-soft); }
+
+.note-proposed, .note.item-provisional, .note.item-pending {
+  --note-fill: var(--note-proposed-fill);
+  --note-text-2: var(--text-2);
+  border-left: var(--line-2) solid var(--note-proposed-edge);
+  rotate: clamp(calc(-1 * var(--note-max-rotation)), var(--rot, 0deg), var(--note-max-rotation));
+}
+.note-accepted, .note.item-accepted { rotate: 0deg; }
+.note-corrected::after {
+  content: ""; position: absolute; top: var(--space-2); right: var(--space-2);
+  width: var(--corner-mark); height: var(--corner-mark); background: var(--note-corrected-mark);
+}
+.note-selected, .note.item-selected { outline: var(--focus-width) solid var(--selected); outline-offset: var(--focus-offset); }
+.note-dragging, .note.dragging { box-shadow: var(--shadow); z-index: var(--z-drag); }
+.note-parked { --note-fill: var(--note-accent-soft, var(--yellow-soft)); --note-text-2: var(--text-2); rotate: 0deg; border-left: 0; }
+
+.note .kind { display: block; font-size: var(--fs-small); line-height: var(--lh-small); font-weight: var(--fw-small); color: var(--note-text-2); }
+.note .badge, .note .note-marker, .note .note-stamp, .note .btn-quiet { color: var(--note-text-2); }
+.note .text { display: block; font-size: var(--fs-note); line-height: var(--lh-note); font-weight: var(--fw-note); overflow-wrap: anywhere; }
+.note .meta { display: block; margin-top: var(--space-2); font-family: var(--font-mono); font-size: var(--fs-mono); line-height: var(--lh-mono); color: var(--note-text-2); }
+.note .details { margin-top: var(--space-3); padding-top: var(--space-3); border-top: var(--line-1) solid var(--text-3); }
+
+@media (prefers-reduced-motion: no-preference) {
+  .note { transition: background-color var(--t-base) var(--ease-out), rotate var(--t-base) var(--ease-out); }
+  /* After a photograph: each note lands, 40ms after the one before (--i). */
+  .note-landing { animation: jv-land var(--t-slow) var(--ease-out) both; animation-delay: calc(var(--i, 0) * var(--stagger)); }
+  /* Accepting: settles straight, fills, swells by 3% and back. */
+  .note-accepting { animation: jv-accept var(--t-base) var(--ease-out); }
+  /* Rejecting: fades and shrinks, then the script removes it. */
+  .note-rejecting { animation: jv-reject var(--t-fast) var(--ease-in-out) forwards; }
+}
+@keyframes jv-land { from { opacity: 0; scale: var(--land-from); } to { opacity: 1; scale: 1; } }
+@keyframes jv-accept {
+  0% { rotate: var(--rot, 0deg); background-color: var(--note-accent-soft, var(--note-proposed-fill)); scale: 1; }
+  50% { scale: var(--accept-peak); }
+  100% { rotate: 0deg; background-color: var(--note-fill); scale: 1; }
+}
+@keyframes jv-reject { to { opacity: 0; scale: var(--reject-to); } }
+
+/* ---- canvas marks (SVG) -------------------------------------------------------
+   A person's marks are ink at 85%; a machine's proposed marks are --ink-3
+   and dashed. .machine-mark comes last so it wins on any mark it is added
+   to. A connector's arrowhead is its own path, .connector-head, drawn only
+   when the connector is directed. */
+.connector { fill: none; stroke: var(--mark-human); stroke-width: var(--line-2); stroke-linecap: round; stroke-linejoin: round; }
+.connector-head { fill: none; stroke: var(--mark-human); stroke-width: var(--line-2); stroke-linecap: round; stroke-linejoin: round; display: none; }
+.connector-directed .connector-head, .connector-head.connector-directed { display: inline; }
+.connector-label {
+  display: inline-block; padding: 0 var(--space-1); border-radius: var(--r-sm);
+  background: var(--surface); color: var(--text-2);
+  font-size: var(--fs-small); line-height: var(--lh-small); font-weight: var(--fw-small); white-space: nowrap;
+}
+.ink-stroke { fill: none; stroke: var(--mark-human); stroke-width: var(--ink-weight); stroke-linecap: round; stroke-linejoin: round; }
+.machine-mark { stroke: var(--mark-machine); stroke-dasharray: var(--dash-machine); }
+
+/* ---- the dock: the floating canvas toolbar ------------------------------------ */
+.dock {
+  display: inline-flex; flex-wrap: wrap; max-width: 100%; align-items: center; gap: var(--space-1); padding: var(--space-1);
+  background: var(--surface); border-radius: var(--r-lg); box-shadow: var(--shadow);
+}
+.dock-button {
+  display: inline-flex; align-items: center; justify-content: center; flex: none;
+  min-width: var(--dock-button); height: var(--dock-button); padding: 0 var(--space-2);
+  border: 0; border-radius: var(--r-sm); background: transparent; color: var(--text);
+  font-family: var(--font-ui); font-size: var(--fs-small); font-weight: var(--fw-small); cursor: pointer;
+}
+.dock-button svg { width: var(--icon); height: var(--icon); fill: none; stroke: currentColor; stroke-width: var(--line-2); stroke-linecap: round; stroke-linejoin: round; }
+.dock-button:hover:not([disabled]) { background: var(--surface-sunken); }
+.dock-button[aria-pressed="true"] { background: var(--text); color: var(--surface); }
+.dock-button[disabled] { opacity: var(--disabled-opacity); cursor: not-allowed; }
+.dock-sep { width: var(--line-1); align-self: stretch; margin-block: var(--space-1); background: var(--edge); }
+.dock-readout { font-family: var(--font-mono); font-size: var(--fs-mono); font-variant-numeric: tabular-nums; min-width: 5ch; text-align: center; color: var(--text-2); }
+@media (prefers-reduced-motion: no-preference) {
+  .dock-button { transition: background-color var(--t-fast) var(--ease-out), color var(--t-fast) var(--ease-out); }
+}

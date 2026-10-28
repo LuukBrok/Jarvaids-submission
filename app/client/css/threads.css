@@ -1,0 +1,24 @@
+/* ==========================================================================
+   Provenance threads: lines from a selected note to its origins
+   (DESIGN.md 1.2).
+   Owner: the phase 3 provenance threads agent, with tools/threads.mjs and
+   the <!-- region: threads --> block in index.html.
+
+   One page-space layer, fixed over the whole viewport, so a thread can run
+   from a note on the canvas to a crop in the rail. It sits on --z-threads,
+   above every other layer (a modal dialog is in the top layer and still
+   covers it), and never takes a press: everything under it keeps working.
+   tools/threads.mjs shows it only while it holds a thread.
+
+   A thread is --thread (--ink-3) at --line-1 with no head, ending in a
+   --thread-dot dot at the origin. Nothing here transitions or animates: the
+   threads are redrawn where things are, they do not travel there.
+   ========================================================================== */
+#threads {
+  position: fixed; inset: 0; width: 100%; height: 100%; overflow: visible;
+  pointer-events: none; z-index: var(--z-threads);
+  /* The origin's dot is 4px across: the smallest step of the space scale. */
+  --thread-dot: var(--space-1);
+}
+#threads .thread { fill: none; stroke: var(--thread); stroke-width: var(--line-1); stroke-linecap: round; }
+#threads .thread-dot { fill: var(--thread); stroke: none; r: calc(var(--thread-dot) / 2); }

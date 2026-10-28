@@ -1,0 +1,52 @@
+/* ==========================================================================
+   The client's stylesheet: a list of parts, then the few rules that hold
+   for the whole page. index.html links tokens.css first, then this file.
+
+   Each region file belongs to one agent (DESIGN.md 1.5), so parallel work
+   never edits the same stylesheet. css/screens.css holds the entry,
+   agreement, photograph, export and confirmation screens and the workspace
+   grid, which no phase 3 agent owns; phase 4 owns it.
+
+   No literal colour, size or duration anywhere but tokens.css.
+   ========================================================================== */
+@import url("primitives.css");
+@import url("css/screens.css");
+@import url("css/header.css");
+@import url("css/canvas.css");
+@import url("css/rail.css");
+@import url("css/strip.css");
+@import url("css/quote.css");
+@import url("css/parked.css");
+@import url("css/threads.css");
+@import url("css/tools.css");
+@import url("css/commands.css");
+@import url("css/calendar.css");
+
+/* Components set display: flex, which beats the browser's own [hidden]
+   rule. The attribute has to win: every show and hide goes through the
+   hidden property, and the tests wait on [hidden]. */
+[hidden] { display: none !important; }
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--surface);
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: var(--fs-body); line-height: var(--lh-body); font-weight: var(--fw-body);
+  -webkit-font-smoothing: antialiased;
+}
+img { max-width: 100%; }
+button, input, select, textarea { font-family: inherit; }
+
+/* One focus ring for everything: 2px ink at 2px offset. */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: var(--focus-width) solid var(--focus-ring);
+  outline-offset: var(--focus-offset);
+}
+
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip-path: inset(50%); white-space: nowrap;
+}

@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jarvaids: live transcript demo</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect x='2.5' y='2.5' width='11' height='11' rx='2' fill='none' stroke='%23141414' stroke-width='1.5' stroke-dasharray='3 2'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="../design-system/spec/exemplars/_base.css">
+<style>
+  /* Tokens and faces come from the linked stylesheet: one copy, per AGENTS.md. */
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 0 16px 48px; background: var(--color-canvas); color: var(--color-ink);
+    font-family: var(--font-reading); font-size: 15px; line-height: 1.5;
+  }
+  .jv-page { max-width: 720px; margin: 0 auto; }
+  h1 {
+    font-family: var(--font-signal); font-weight: 700; font-size: 28px;
+    margin: 32px 0 4px;
+  }
+  .subtitle { color: var(--color-ink-muted); font-size: 13px; margin: 0 0 16px; }
+  hr { border: none; border-top: 1px solid var(--color-hairline); margin: 0 0 24px; }
+  .panel {
+    border: 1px solid var(--color-hairline-strong); border-radius: var(--radius-sm); padding: 16px;
+    margin-bottom: 16px; background: var(--color-canvas);
+  }
+  .panel h2 {
+    font-family: var(--font-signal); font-weight: 600; font-size: 15px;
+    text-transform: uppercase; letter-spacing: 0.03em; margin: 0 0 12px;
+  }
+  label { display: block; font-size: 13px; color: var(--color-ink-secondary); margin: 8px 0 4px; }
+  input[type=text], input[type=url] {
+    width: 100%; padding: 8px 10px; border: 1px solid var(--color-hairline-strong);
+    border-radius: var(--radius-sm); font-size: 15px; font-family: inherit; background: var(--color-canvas);
+    color: var(--color-ink);
+  }
+  button {
+    font-family: var(--font-signal); font-weight: 600; font-size: 14px;
+    border-radius: var(--radius-sm); padding: 9px 16px; cursor: pointer; border: 1px solid var(--color-accent);
+    background: var(--color-accent); color: var(--color-ink-inverse); margin-top: 12px; margin-right: 8px;
+  }
+  button.secondary { background: var(--color-canvas); color: var(--color-ink); border-color: var(--color-hairline-strong); }
+  button:disabled { opacity: 0.45; cursor: not-allowed; }
+  .status-row { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--color-ink-secondary); margin-top: 12px; }
+  .dot { width: 8px; height: 8px; border-radius: var(--radius-full); display: inline-block; flex: none; }
+  .dot.capturing { background: var(--color-status-capturing); animation: pulse 1.4s ease-in-out infinite; }
+  .dot.off { background: var(--color-status-off); }
+  .dot.failed { background: var(--color-status-failed); }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+  #log { font-size: 12px; color: var(--color-ink-muted); white-space: pre-wrap; max-height: 120px; overflow-y: auto; margin-top: 8px; }
+  .segment {
+    display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--color-hairline);
+  }
+  .segment:last-child { border-bottom: none; }
+  .segment .time {
+    font-family: var(--font-signal); font-variant-numeric: tabular-nums;
+    font-size: 13px; color: var(--color-ink-muted); flex: none; width: 64px;
+  }
+  .segment .body { flex: 1; min-width: 0; }
+  .segment .speaker {
+    font-family: var(--font-signal); font-weight: 600; font-size: 13px;
+    color: var(--color-ink-secondary); margin-right: 8px;
+  }
+  .segment .text { color: var(--color-ink); }
+  .badge {
+    display: inline-flex; align-items: center; gap: 4px; font-family: var(--font-signal);
+    font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.03em;
+    padding: 1px 6px; border-radius: var(--radius-full); margin-left: 6px; vertical-align: middle;
+  }
+  .badge.provisional {
+    border: 1.5px dashed var(--color-status-provisional); color: var(--color-status-provisional); background: transparent;
+  }
+  .badge.gap {
+    border: 1px solid var(--color-status-failed); color: var(--color-status-failed); background: var(--color-canvas);
+  }
+  #empty { color: var(--color-ink-muted); font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="jv-page">
+  <h1>Jarvaids: live transcript demo</h1>
+  <p class="subtitle">
+    A minimal harness for F1.1-F1.3 (live audio capture, speech to text, speaker separation).
+    Not the product UI: see <code>app/design-system/spec/exemplars/</code> for that. This page exists
+    to exercise <code>client.mjs</code> + <code>capture-audio.mjs</code> against a running
+    <code>genai_server</code> from an actual browser and microphone.
+  </p>
+  <hr>
+
+  <div class="panel">
+    <h2>1. Connect</h2>
+    <label for="serverUrl">Server URL</label>
+    <input id="serverUrl" type="url" value="http://127.0.0.1:3000">
+    <label for="ownerName">Your name</label>
+    <input id="ownerName" type="text" value="Facilitator">
+    <button id="connectBtn">Create session and start</button>
+    <div id="connectStatus" class="status-row"></div>
+    <div id="log"></div>
+  </div>
+
+  <div class="panel" id="capturePanel" style="display:none">
+    <h2>2. Capture</h2>
+    <p class="subtitle">
+      This is one participant's microphone, attributed to this browser tab's own credential
+      (the documented per-connection speaker-separation fallback: see
+      <code>decisions/decision-log.md</code>. Open this same URL in a second tab and connect as
+      a different name to see a second speaker attributed separately.
+    </p>
+    <button id="startBtn">Start microphone capture</button>
+    <button id="stopBtn" class="secondary" disabled>Stop</button>
+    <div class="status-row">
+      <span id="captureDot" class="dot off"></span>
+      <span id="captureLabel">Not capturing</span>
+    </div>
+  </div>
+
+  <div class="panel" id="transcriptPanel" style="display:none">
+    <h2>3. Live transcript</h2>
+    <div id="segments"><p id="empty">Nothing said yet.</p></div>
+  </div>
+</div>
+
+<script type="module">
+import { GenAIClient, newId, newToken } from "./client.mjs";
+import { startCapture } from "./capture-audio.mjs";
+
+const $ = (id) => document.getElementById(id);
+const log = (line) => { $("log").textContent += line + "\n"; $("log").scrollTop = $("log").scrollHeight; };
+
+let client, capture, pollTimer;
+const seenIds = new Set();
+
+function setCaptureState(state) {
+  const dot = $("captureDot"), label = $("captureLabel");
+  dot.className = "dot " + (state === "capturing" ? "capturing" : state === "failed" ? "failed" : "off");
+  label.textContent = { capturing: "Recording", off: "Not capturing", failed: "Capture error, see log" }[state];
+}
+
+function renderSegments(records) {
+  const segments = records
+    .filter((r) => r.kind === "transcript_segment")
+    .sort((a, b) => a.data.created_at - b.data.created_at);
+  const container = $("segments");
+  const newOnes = segments.filter((r) => !seenIds.has(r.id));
+  if (!segments.length) { container.innerHTML = '<p id="empty">Nothing said yet.</p>'; return; }
+  if (container.querySelector("#empty")) container.innerHTML = "";
+  for (const r of newOnes) {
+    seenIds.add(r.id);
+    const d = r.data;
+    const row = document.createElement("div");
+    row.className = "segment";
+    const time = new Date(d.created_at * 1000).toLocaleTimeString([], { hour12: false });
+    const badge = d.status === "gap"
+      ? '<span class="badge gap">Gap</span>'
+      : '<span class="badge provisional">● Provisional</span>';
+    const text = d.status === "gap"
+      ? "(transcription failed for this chunk, audio not lost, see server log)"
+      : (d.text || "(silence)");
+    row.innerHTML = `<span class="time">${time}</span><div class="body">` +
+      `<span class="speaker">${d.speaker_actor_id === client?.actorId ? "You" : d.speaker_actor_id.slice(0, 8)}</span>` +
+      `${badge}<div class="text"></div></div>`;
+    row.querySelector(".text").textContent = text;
+    container.appendChild(row);
+  }
+  container.scrollTop = container.scrollHeight;
+}
+
+async function poll() {
+  try {
+    const snapshot = await client.snapshot();
+    renderSegments(snapshot.records || []);
+  } catch (err) {
+    log("poll error: " + err.message);
+  }
+}
+
+$("connectBtn").addEventListener("click", async () => {
+  $("connectBtn").disabled = true;
+  const baseUrl = $("serverUrl").value.trim();
+  const ownerName = $("ownerName").value.trim() || "Facilitator";
+  try {
+    const sessionId = newId();
+    const token = newToken();
+    client = new GenAIClient({ baseUrl, sessionId, token, allowLan: !/^https?:\/\/(localhost|127\.0\.0\.1)/.test(baseUrl) });
+    client.actorId = undefined;
+
+    log("Creating session " + sessionId.slice(0, 8) + "...");
+    const created = await client.create({ ownerName, title: "Live transcript demo" });
+    client.actorId = created.actor_id;
+
+    log("Acknowledging consent...");
+    await client.submit(client.intent("consent.acknowledge", { policy_version: 1 }));
+
+    log("Activating session...");
+    const snap = await client.snapshot();
+    await client.submit(client.intent("session.activate", {
+      policy_version: 1,
+      expected_session_revision: snap.session.revision,
+    }));
+
+    $("connectStatus").innerHTML = '<span class="dot capturing"></span> Session active.';
+    $("capturePanel").style.display = "block";
+    $("transcriptPanel").style.display = "block";
+    pollTimer = setInterval(poll, 1000);
+    poll();
+  } catch (err) {
+    log("connect failed: " + err.message);
+    $("connectStatus").innerHTML = '<span class="dot failed"></span> ' + err.message;
+    $("connectBtn").disabled = false;
+  }
+});
+
+$("startBtn").addEventListener("click", async () => {
+  $("startBtn").disabled = true;
+  try {
+    capture = await startCapture(client, {
+      onError: (err) => { log("capture submit failed: " + err.message); setCaptureState("failed"); },
+    });
+    setCaptureState("capturing");
+    $("stopBtn").disabled = false;
+  } catch (err) {
+    log("could not start microphone: " + err.message);
+    setCaptureState("failed");
+    $("startBtn").disabled = false;
+  }
+});
+
+$("stopBtn").addEventListener("click", () => {
+  capture?.stop();
+  capture = undefined;
+  setCaptureState("off");
+  $("stopBtn").disabled = true;
+  $("startBtn").disabled = false;
+});
+</script>
+</body>
+</html>

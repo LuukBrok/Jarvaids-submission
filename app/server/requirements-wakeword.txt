@@ -1,0 +1,4 @@
+# Optional acoustic detector. Use tools/local_test.py setup, which installs
+# this with --no-deps into the full runtime. Its ONNX/numpy dependencies are
+# already supplied by the speech and speaker installation.
+openwakeword==0.6.0

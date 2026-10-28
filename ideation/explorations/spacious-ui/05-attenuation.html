@@ -1,0 +1,501 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Attenuation · spacious UI exploration 05 · Jarvaids live canvas, reviewing</title>
+<style>
+/* ==========================================================================
+   05 · ATTENUATION
+   The live canvas while one item is being reviewed.
+
+   Opacity used as attention rather than as material. Nothing is covered,
+   nothing is drawn, nothing moves. The page simply re-weights itself: ink
+   drops to the legal text floor, non-text edges drop to the legal non-text
+   floor, and the one item under review stays at full strength.
+
+   THE MECHANISM MATTERS. Attenuation is a TOKEN SWAP, not `opacity` on a
+   container. A container opacity would dim the provisional stroke and the
+   status colours with everything else, which would break forbidden.md #17 and
+   would fail contrast. Swapping the alpha variables attenuates only ink, and
+   leaves every colour that carries meaning at full strength by construction.
+   ========================================================================== */
+
+@font-face {
+  font-family: "Archivo";
+  src: url("fonts/archivo-variable-latin.woff2") format("woff2");
+  font-weight: 400 700; font-stretch: 100%; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: "Nunito Sans";
+  src: url("fonts/nunito-sans-variable-latin.woff2") format("woff2");
+  font-weight: 400 700; font-stretch: 100%; font-style: normal; font-display: swap;
+}
+
+:root {
+  --font-signal: "Archivo", "Helvetica Neue", Arial, system-ui, sans-serif;
+  --font-reading: "Nunito Sans", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+
+  --color-canvas: #ffffff;
+  --color-ink: #141414;
+  --color-ink-inverse: #ffffff;
+  --color-accent: #a85a00;
+  --color-accent-pressed: #8c4b00;
+  --color-accent-wash: #f8f2eb;
+  --color-status-provisional: #5b46be;
+  --color-status-accepted: #1d7344;
+  --color-status-waiting: #19608c;
+  --color-status-failed: #a81f1a;
+
+  /* PROPOSAL: ink alpha ladder: not yet in the design system. */
+  --ink-1: 1; --ink-2: 0.78; --ink-3: 0.64; --ink-4: 0.48; --ink-5: 0.12;
+
+  --spacing-1: 4px;  --spacing-2: 8px;  --spacing-3: 12px; --spacing-4: 16px;
+  --spacing-5: 24px; --spacing-6: 32px; --spacing-7: 48px; --spacing-8: 64px;
+  --radius-sm: 4px; --radius-full: 999px;
+  --line-provisional: 1.5px; --line-focus: 2px;
+  --motion-base: 180ms; --motion-ease: cubic-bezier(0.22, 1, 0.36, 1); --motion-pulse: 2s;
+  color-scheme: light;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; background: var(--color-canvas); color: rgb(20 20 20 / var(--ink-1));
+  font-family: var(--font-reading); font-size: 15px; line-height: 22px;
+  -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+
+.structure { font-family: var(--font-signal); font-size: 12px; line-height: 16px;
+  letter-spacing: 0.07em; font-weight: 600; text-transform: uppercase;
+  color: rgb(20 20 20 / var(--ink-3)); }
+.signal { font-family: var(--font-signal); font-size: 15px; line-height: 20px; font-weight: 500;
+  font-variant-numeric: tabular-nums; }
+.signal-lg { font-family: var(--font-signal); font-size: 22px; line-height: 26px; font-weight: 600;
+  letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
+.meta { font-size: 13px; line-height: 18px; color: rgb(20 20 20 / var(--ink-3)); }
+.caption { font-size: 12px; line-height: 16px; color: rgb(20 20 20 / var(--ink-3)); }
+.strong { font-weight: 600; }
+.dot { width: 8px; height: 8px; border-radius: var(--radius-full); flex: none; display: inline-block; }
+.status { display: inline-flex; align-items: center; gap: var(--spacing-1); }
+.status .word { font-size: 13px; line-height: 18px; }
+@keyframes at-pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
+.pulse { animation: at-pulse var(--motion-pulse) var(--motion-ease) infinite; }
+
+/* ── exploration frame ────────────────────────────────────────────────── */
+.frame { max-width: 68ch; margin: 0 auto; padding: var(--spacing-8) var(--spacing-4) var(--spacing-7); }
+.frame h1 { font-family: var(--font-signal); font-size: 22px; line-height: 26px; font-weight: 600; margin: 0 0 var(--spacing-2); }
+.frame p { margin: 0 0 var(--spacing-3); color: rgb(20 20 20 / var(--ink-2)); }
+.frame .eyebrow { display: block; margin-bottom: var(--spacing-3); }
+.rule { border: 0; border-top: 1px solid rgb(20 20 20 / var(--ink-5)); margin: 0; }
+
+/* ── the toggle, so the effect can be compared rather than described ──── */
+.toggle-bar { max-width: 68ch; margin: 0 auto; padding: 0 var(--spacing-4) var(--spacing-7);
+  display: flex; gap: var(--spacing-3); align-items: center; flex-wrap: wrap; }
+#atten { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.toggle-bar label { display: inline-flex; align-items: center; gap: var(--spacing-3);
+  cursor: pointer; font-weight: 600; }
+.switch { width: 46px; height: 28px; border-radius: var(--radius-full);
+  background: rgb(20 20 20 / 0.14); position: relative; flex: none;
+  transition: background var(--motion-base) var(--motion-ease); }
+.switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px;
+  border-radius: var(--radius-full); background: var(--color-canvas);
+  transition: transform var(--motion-base) var(--motion-ease); }
+#atten:checked ~ .toggle-bar .switch { background: var(--color-accent); }
+#atten:checked ~ .toggle-bar .switch::after { transform: translateX(18px); }
+#atten:focus-visible ~ .toggle-bar .switch { outline: var(--line-focus) solid var(--color-accent); outline-offset: 3px; }
+
+/* ── THE MOVE ─────────────────────────────────────────────────────────────
+   One rule. Everything marked attenuable has its ink alpha rewritten, and
+   every ink colour on the page is expressed through those variables, so the
+   whole page recedes in one step. Status colours are written as their own
+   tokens and are therefore untouched, by construction rather than by
+   discipline. */
+#atten:checked ~ .screen .attenuable {
+  --ink-1: 0.64;   /* 18.42:1 becomes 5.52:1. Still legal, plainly quieter. */
+  --ink-2: 0.64;
+  --ink-3: 0.64;   /* the floor. Attenuation cannot push meta below legal.  */
+  --ink-4: 0.48;   /* non-text edges, still 3.27:1                          */
+  --ink-5: 0.08;
+}
+.attenuable { transition: none; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after {
+  animation-duration: 0.01ms !important; animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important; } }
+
+/* ── the screen ───────────────────────────────────────────────────────── */
+.screen { padding-inline: var(--spacing-4); padding-bottom: var(--spacing-8); }
+@media (min-width: 1024px) { .screen { padding-inline: var(--spacing-7); } }
+.wrap { max-width: 1240px; margin: 0 auto; }
+
+.bar { display: flex; align-items: center; gap: var(--spacing-5); flex-wrap: wrap;
+  padding-block: var(--spacing-4); border-bottom: 1px solid rgb(20 20 20 / var(--ink-5)); }
+.bar .spacer { margin-left: auto; }
+.nav { display: flex; gap: var(--spacing-6); flex-wrap: wrap; padding-top: var(--spacing-5); }
+.nav a { text-decoration: none; font-size: 15px; color: rgb(20 20 20 / var(--ink-3)); }
+.nav a[aria-current="page"] { color: rgb(20 20 20 / var(--ink-1)); font-weight: 600; }
+
+.head { padding-block: var(--spacing-8) var(--spacing-3); }
+.head h1 { font-family: var(--font-signal); font-size: 32px; line-height: 36px;
+  letter-spacing: -0.02em; font-weight: 700; margin: 0; color: rgb(20 20 20 / var(--ink-1)); }
+.head p { margin: var(--spacing-3) 0 0; color: rgb(20 20 20 / var(--ink-3)); font-size: 13px; line-height: 18px; }
+
+.zones { display: flex; flex-direction: column; gap: 56px; padding-top: var(--spacing-7); }
+.zone > .structure { display: block; margin-bottom: var(--spacing-4); }
+.zone-items { display: flex; flex-wrap: wrap; gap: var(--spacing-3); align-items: flex-start; }
+
+.item { position: relative; width: 240px; min-width: 0; padding: var(--spacing-4);
+  border-radius: var(--radius-sm); background: var(--color-canvas); }
+.item .kind { display: block; font-family: var(--font-signal); font-size: 12px; line-height: 16px;
+  letter-spacing: 0.07em; font-weight: 600; text-transform: uppercase; color: rgb(20 20 20 / var(--ink-3)); }
+.item .text { display: block; font-size: 15px; line-height: 22px; margin-top: var(--spacing-3);
+  color: rgb(20 20 20 / var(--ink-1)); }
+.item .meta { display: block; margin-top: var(--spacing-4); }
+.item .badge { position: absolute; top: -9px; left: 12px; background: var(--color-canvas);
+  padding-inline: 5px; display: inline-flex; align-items: center; gap: var(--spacing-1);
+  font-family: var(--font-signal); font-size: 12px; line-height: 16px; letter-spacing: 0.07em;
+  font-weight: 600; text-transform: uppercase; }
+/* an accepted item's stroke is INK, so it attenuates with the rest */
+.item-accepted { border: 1px solid rgb(20 20 20 / var(--ink-1)); }
+/* a provisional stroke is a STATUS colour, so it never attenuates */
+.item-provisional { border: var(--line-provisional) dashed var(--color-status-provisional); }
+.item-waiting     { border: var(--line-provisional) dashed var(--color-status-waiting); }
+.item-failed      { border: var(--line-provisional) dashed var(--color-status-failed); }
+
+/* the item under review. Not bigger, not moved, not boxed: simply the only
+   thing on the page still at full ink, plus the accent ring that says the
+   keyboard is pointed at it. */
+.item-focus { outline: var(--line-focus) solid var(--color-accent); outline-offset: 6px; }
+.item-focus .text { font-size: 19px; line-height: 28px; font-weight: 600; }
+
+.actions { display: flex; gap: var(--spacing-2); margin-top: var(--spacing-4); flex-wrap: wrap; }
+.btn { font-family: var(--font-reading); font-size: 15px; font-weight: 600; line-height: 1;
+  height: 40px; padding-inline: 18px; border: 1px solid transparent; border-radius: var(--radius-full);
+  cursor: pointer; background: transparent; color: rgb(20 20 20 / var(--ink-1));
+  display: inline-flex; align-items: center; gap: 6px; }
+.btn-primary { background: var(--color-accent); color: var(--color-ink-inverse); }
+.btn-primary:hover { background: var(--color-accent-pressed); }
+.btn-secondary { border-color: rgb(20 20 20 / var(--ink-4)); }
+.btn-quiet { color: rgb(20 20 20 / var(--ink-2)); }
+.btn-sm { height: 32px; padding-inline: 12px; font-size: 13px; }
+:where(a, button, input, [tabindex]):focus-visible {
+  outline: var(--line-focus) solid var(--color-accent); outline-offset: 3px; }
+
+.evidence { margin-top: var(--spacing-4); padding-left: var(--spacing-4);
+  border-left: 2px solid rgb(20 20 20 / var(--ink-4)); }
+.evidence blockquote { margin: 0; font-size: 15px; line-height: 22px; }
+.evidence a { color: var(--color-accent); }
+
+.layout { display: grid; grid-template-columns: minmax(0,1fr); gap: var(--spacing-8); }
+@media (min-width: 1024px) { .layout { grid-template-columns: minmax(0,1fr) 320px; gap: var(--spacing-8); } }
+.rail-rows { display: flex; flex-direction: column; gap: var(--spacing-5); margin-top: var(--spacing-5); }
+.rail-row { display: grid; grid-template-columns: 76px minmax(0,1fr); gap: var(--spacing-3); align-items: baseline; }
+.rail-row a { color: var(--color-accent); text-decoration: none; }
+.rail-row p { margin: var(--spacing-1) 0 0; color: rgb(20 20 20 / var(--ink-1)); }
+.cited { background: var(--color-accent-wash); border-radius: var(--radius-sm);
+  padding: var(--spacing-2) var(--spacing-3); margin-inline: calc(var(--spacing-3) * -1); }
+
+.reviewbar { display: flex; gap: var(--spacing-4); align-items: baseline; flex-wrap: wrap;
+  padding-top: var(--spacing-7); }
+.reviewbar .spacer { margin-left: auto; }
+
+/* ── notes ────────────────────────────────────────────────────────────── */
+.notes { max-width: 68ch; margin: 0 auto; padding: var(--spacing-8) var(--spacing-4); }
+.notes h2 { font-family: var(--font-signal); font-size: 22px; line-height: 26px; font-weight: 600; margin: 0 0 var(--spacing-4); }
+.notes h3 { font-family: var(--font-signal); font-size: 12px; line-height: 16px; letter-spacing: 0.07em;
+  font-weight: 600; text-transform: uppercase; color: rgb(20 20 20 / var(--ink-3)); margin: var(--spacing-7) 0 var(--spacing-3); }
+.notes p, .notes li { font-size: 15px; line-height: 22px; color: rgb(20 20 20 / var(--ink-2)); }
+.notes li { margin-bottom: var(--spacing-2); }
+table { border-collapse: collapse; width: 100%; font-size: 12px; line-height: 16px; }
+th { font-family: var(--font-signal); font-size: 12px; letter-spacing: 0.07em; font-weight: 600;
+  text-transform: uppercase; text-align: left; color: rgb(20 20 20 / var(--ink-3));
+  padding: var(--spacing-2) var(--spacing-2) var(--spacing-2) 0;
+  border-bottom: 1px solid rgb(20 20 20 / var(--ink-4)); }
+td { padding: var(--spacing-2) var(--spacing-2) var(--spacing-2) 0; vertical-align: top;
+  border-bottom: 1px solid rgb(20 20 20 / var(--ink-5)); color: rgb(20 20 20 / var(--ink-2)); }
+td.n { font-family: var(--font-signal); font-variant-numeric: tabular-nums; text-align: right;
+  white-space: nowrap; color: rgb(20 20 20 / var(--ink-1)); }
+tr.rej td { color: rgb(20 20 20 / var(--ink-3)); }
+code { font-family: var(--font-signal); font-size: 12px; }
+.tablewrap { overflow-x: auto; }
+</style>
+</head>
+<body>
+
+<header class="frame">
+  <span class="structure eyebrow">Spacious UI · exploration 05 of 05</span>
+  <h1>Attenuation</h1>
+  <p><strong>Thesis.</strong> Every other exploration here uses opacity to
+  build something. This one uses it to take something away. When a person opens
+  an item for review on the live canvas, nothing is covered, nothing is moved
+  and nothing new is drawn: the page re-weights itself, ink drops to the lowest
+  alpha that is still legal, and the one item being reviewed is the only thing
+  left at full strength. The result is focus without a modal, which matters in a
+  product whose rules already forbid modals and toasts and whose canvas is being
+  watched by six people who did not ask for it to be covered up. The mechanism
+  is the argument: attenuation is a rewrite of four alpha variables, not
+  <code>opacity</code> on a container, because a container opacity would dim
+  the provisional dashed stroke along with everything else and the one rule this
+  product cannot break is that unreviewed work never looks unimportant. Swap the
+  variables instead and the status colours are exempt by construction. Turn the
+  switch below off to see the same page with the attenuation removed.</p>
+</header>
+<hr class="rule">
+
+<input type="checkbox" id="atten" checked>
+
+<div class="toggle-bar">
+  <label for="atten"><span class="switch" aria-hidden="true"></span>Attenuate everything except the item under review</label>
+</div>
+
+<main class="screen">
+<div class="wrap">
+
+  <header class="bar attenuable">
+    <span class="status">
+      <span class="dot pulse" style="background:var(--color-ink)"></span>
+      <span class="word strong">Recording</span>
+    </span>
+    <span class="signal-lg">00:47:31</span>
+    <span class="meta">Quiet mode · 6 present</span>
+    <span class="spacer"></span>
+    <button class="btn btn-quiet btn-sm" type="button">Undo</button>
+    <button class="btn btn-secondary btn-sm" type="button" style="border-color:var(--color-status-failed);color:var(--color-status-failed)">Stop capture</button>
+  </header>
+
+  <nav class="nav attenuable" aria-label="Screens">
+    <a href="#" aria-current="page">Canvas</a>
+    <a href="03-column.html">Session</a>
+    <a href="02-vellum.html">Review <span class="signal">12</span></a>
+    <a href="04-glance.html">Set up</a>
+  </nav>
+
+  <div class="head attenuable">
+    <h1>Concept critique, week 3</h1>
+    <p>Started 13:40 · 48 items · 12 still provisional</p>
+  </div>
+
+  <div class="reviewbar">
+    <span class="structure" style="color:var(--color-accent)">Reviewing 1 of 12</span>
+    <span class="meta attenuable">Press A to accept, E to edit, R to reject, Escape to put the canvas back</span>
+    <span class="spacer"></span>
+    <button class="btn btn-quiet btn-sm attenuable" type="button">Skip</button>
+  </div>
+
+  <div class="layout">
+    <section aria-label="Canvas">
+      <div class="zones">
+
+        <div class="zone">
+          <span class="structure attenuable">Pilot scope</span>
+          <div class="zone-items">
+
+            <article class="item item-accepted attenuable">
+              <span class="kind">Note · team</span>
+              <span class="text">Drop the paywall from the pilot</span>
+              <span class="meta">Typed by Sanne · 14:21</span>
+            </article>
+
+            <!-- THE ITEM UNDER REVIEW. Not attenuable, so it keeps full ink. -->
+            <article class="item item-provisional item-focus" style="width:340px">
+              <span class="badge" style="color:var(--color-status-provisional)">
+                <span class="dot" style="background:var(--color-status-provisional)"></span>Provisional</span>
+              <span class="kind">Decision · from speech · 94% confident</span>
+              <span class="text">Pilot ships without payments</span>
+              <div class="evidence">
+                <blockquote>Then the paywall is out of scope for now.</blockquote>
+                <p class="caption" style="margin:8px 0 0">
+                  <a class="signal" href="03-column.html">14:22:06</a> · Sanne ·
+                  no owner was found, and Jarvaids did not invent one</p>
+              </div>
+              <div class="actions">
+                <button class="btn btn-primary" type="button">Accept</button>
+                <button class="btn btn-secondary" type="button">Edit first</button>
+                <button class="btn btn-quiet" type="button">Reject</button>
+              </div>
+            </article>
+
+            <article class="item item-accepted attenuable">
+              <span class="kind">Note · team</span>
+              <span class="text">Revisit payments after the pilot</span>
+              <span class="meta">Typed by Bram · 14:24</span>
+            </article>
+
+          </div>
+        </div>
+
+        <div class="zone">
+          <span class="structure attenuable">Onboarding</span>
+          <div class="zone-items">
+            <article class="item item-accepted attenuable">
+              <span class="kind">Note · team</span>
+              <span class="text">Nobody finishes step 3</span>
+              <span class="meta">Typed by Bram · 13:58</span>
+            </article>
+            <article class="item item-provisional attenuable">
+              <span class="badge" style="color:var(--color-status-provisional)">
+                <span class="dot" style="background:var(--color-status-provisional)"></span>Provisional</span>
+              <span class="kind">Note · from photograph</span>
+              <span class="text">Onboarding is the real bottleneck</span>
+              <span class="meta">Wall photo 3, yellow, top-left · 91%</span>
+            </article>
+            <article class="item item-provisional attenuable">
+              <span class="badge" style="color:var(--color-status-provisional)">
+                <span class="dot" style="background:var(--color-status-provisional)"></span>Provisional</span>
+              <span class="kind">Note · from photograph</span>
+              <span class="text">Too many fields before value</span>
+              <span class="meta">Wall photo 3, yellow, top-left · 88%</span>
+            </article>
+          </div>
+        </div>
+
+        <div class="zone">
+          <span class="structure attenuable">Read from the wall, not yet placed</span>
+          <div class="zone-items">
+            <article class="item item-waiting attenuable">
+              <span class="badge" style="color:var(--color-status-waiting)">
+                <span class="dot" style="background:var(--color-status-waiting)"></span>Queued</span>
+              <span class="kind">Note · from photograph</span>
+              <span class="text">Waiting on the model, about 40 seconds behind</span>
+              <span class="meta">Wall photo 4</span>
+            </article>
+            <article class="item item-failed attenuable">
+              <span class="badge" style="color:var(--color-status-failed)">
+                <span class="dot" style="background:var(--color-status-failed)"></span>Unreadable</span>
+              <span class="kind">Note · from photograph</span>
+              <span class="text">Could not read this one.</span>
+              <span class="meta">Wall photo 3, blue, centre</span>
+            </article>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <aside class="attenuable" aria-label="Transcript">
+      <span class="structure">Transcript</span>
+      <div class="rail-rows">
+        <div class="rail-row">
+          <a class="signal" href="03-column.html">14:21:58</a>
+          <div><span class="strong">Sanne</span>
+            <p>Can we just agree the pilot has no payments in it?</p></div>
+        </div>
+        <!-- the cited line is NOT attenuated: it is part of the item under
+             review, so it keeps full strength and keeps its accent wash -->
+        <div class="rail-row cited" style="--ink-1:1;--ink-3:0.64">
+          <a class="signal" href="03-column.html">14:22:06</a>
+          <div><span class="strong">Sanne</span>
+            <p>Then the paywall is out of scope for now.</p>
+            <p class="caption" style="margin-top:4px">The moment this decision came from</p></div>
+        </div>
+        <div class="rail-row">
+          <a class="signal" href="03-column.html">14:22:41</a>
+          <div>
+            <span class="status" style="color:var(--color-status-provisional)">
+              <span class="dot" style="background:var(--color-status-provisional)"></span>
+              <span class="word">Speaker is a guess</span></span>
+            <p>Out of scope for the pilot, not for the product.</p></div>
+        </div>
+        <div class="rail-row">
+          <span class="signal" style="color:var(--color-status-failed)">14:23:10</span>
+          <div>
+            <span class="status" style="color:var(--color-status-failed)">
+              <span class="dot" style="background:var(--color-status-failed)"></span>
+              <span class="word strong">Gap</span></span>
+            <p class="meta" style="margin-top:4px">18 seconds could not be transcribed.</p></div>
+        </div>
+        <div class="rail-row">
+          <a class="signal" href="03-column.html">14:23:28</a>
+          <div><span class="strong">Bram</span>
+            <p>Fine. Revisit after the pilot then.</p></div>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+</div>
+</main>
+
+<hr class="rule">
+
+<footer class="notes">
+  <h2>What this costs and what it buys</h2>
+
+  <h3>Design system rules broken</h3>
+  <ul>
+    <li><strong>forbidden #1, in spirit,</strong> for the ink alpha ladder. Note
+    that the rule itself says "opacity uses the slash syntax on a token", so
+    alpha on ink is already sanctioned; what is new is a named ladder with
+    stated floors rather than ad hoc values. Marked <code>PROPOSAL</code>.
+    <em>Buys:</em> a second axis of emphasis that costs nothing and draws
+    nothing.</li>
+    <li><strong>forbidden #17, never grey out a provisional item,</strong> is
+    the one to argue about. The letter of the rule is kept: no provisional
+    stroke, badge or status word takes alpha anywhere on this page, and the
+    provisional items in the attenuated zones are, if anything, <em>louder</em>
+    relative to their surroundings than before. What is attenuated is their
+    text. The spirit is a judgement call, and it should be made explicitly:
+    attenuation is transient and reversible, status is not, and the moment
+    review focus moves the item is back at full strength. If the team decides
+    that is still a grey-out, this exploration dies, which is a clean
+    outcome.</li>
+    <li><strong>typography, no arbitrary font sizes,</strong> in one place: the
+    item under review sets its claim at 19px rather than 15px. <em>Buys:</em>
+    focus that survives someone glancing at the projector from behind. Without
+    it the only cue is the accent ring.</li>
+    <li><strong>forbidden #3</strong> for the pill-shaped buttons, which is
+    cosmetic and could be reverted to 4px with no loss.</li>
+  </ul>
+
+  <h3>Rules it turned out not to need</h3>
+  <ul>
+    <li><strong>No modal, no toast, no spinner, no overlay, no scrim.</strong>
+    This is the only exploration that produces a focused review state without
+    introducing a surface, which means it is the only one that can be dropped
+    into the existing system without a new component.</li>
+    <li><strong>No shadow, no gradient, no wash beyond the existing
+    <code>--color-accent-wash</code></strong> on the cited transcript line.</li>
+    <li><strong>Nothing reflows.</strong> Turn the switch off and on: not one
+    element changes size or position, and not one element appears or
+    disappears. Only alpha changes. On a shared room screen that is the
+    difference between "the tool is helping" and "the tool moved my
+    canvas".</li>
+  </ul>
+
+  <h3>The honest weakness</h3>
+  <p>Attenuation at the legal floor is a much weaker effect than attenuation at
+  30%, and the table below is why: ink at 55% is already illegal as body text,
+  so the strongest dim that is available is 64%, which takes the page from
+  18.42:1 to 5.52:1. That is a real perceptual drop and it is not the dramatic
+  dimming the pattern usually implies. Second weakness: it has nothing to say
+  about the other four screens. It is one interaction state, not an aesthetic,
+  and it does not answer the "spacious" half of the brief at all.</p>
+
+  <h3>Composited contrast</h3>
+  <p>The last three rows are the ones that were tried and refused. They are kept
+  in the table because they are the evidence for the floor: every value below
+  64% ink, and every status colour carrying any alpha at all, fails. Computed by
+  <code>contrast.py</code> in this folder.</p>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th scope="col">Pair</th><th scope="col">Composited</th><th scope="col">Ground</th><th scope="col" class="n">Ratio</th><th scope="col" class="n">Needs</th><th scope="col">Result</th></tr></thead>
+    <tbody>
+<!--CONTRAST:attenuation-->
+<tr><td>ink 100% on white</td><td><code>#141414</code></td><td><code>#ffffff</code></td><td class="n">18.42:1</td><td class="n">4.5</td><td>pass</td></tr>
+<tr><td>ink 78% on white</td><td><code>#484848</code></td><td><code>#ffffff</code></td><td class="n">9.19:1</td><td class="n">4.5</td><td>pass</td></tr>
+<tr><td>ink 64% on white</td><td><code>#696969</code></td><td><code>#ffffff</code></td><td class="n">5.52:1</td><td class="n">4.5</td><td>pass</td></tr>
+<tr><td>ink 48% on white</td><td><code>#8e8e8e</code></td><td><code>#ffffff</code></td><td class="n">3.27:1</td><td class="n">3.0</td><td>pass</td></tr>
+<tr><td>ink 12% on white</td><td><code>#e3e3e3</code></td><td><code>#ffffff</code></td><td class="n">1.29:1</td><td class="n">1.0</td><td>pass</td></tr>
+<tr><td>provisional at 100% inside an attenuated region</td><td><code>#5b46be</code></td><td><code>#ffffff</code></td><td class="n">6.85:1</td><td class="n">4.5</td><td>pass</td></tr>
+<tr><td>unreadable at 100% inside an attenuated region</td><td><code>#a81f1a</code></td><td><code>#ffffff</code></td><td class="n">7.30:1</td><td class="n">4.5</td><td>pass</td></tr>
+<tr><td>accepted at 100% inside an attenuated region</td><td><code>#1d7344</code></td><td><code>#ffffff</code></td><td class="n">5.85:1</td><td class="n">4.5</td><td>pass</td></tr>
+<tr class="rej"><td>REJECTED: provisional dimmed to 55%</td><td><code>#a599db</code></td><td><code>#ffffff</code></td><td class="n">2.56:1</td><td class="n">4.5</td><td>fails, not used</td></tr>
+<tr class="rej"><td>REJECTED: provisional dimmed to 35%</td><td><code>#c6bee8</code></td><td><code>#ffffff</code></td><td class="n">1.76:1</td><td class="n">4.5</td><td>fails, not used</td></tr>
+<tr class="rej"><td>REJECTED: ink body text dimmed to 55%</td><td><code>#7e7e7e</code></td><td><code>#ffffff</code></td><td class="n">4.07:1</td><td class="n">4.5</td><td>fails, not used</td></tr>
+<!--/CONTRAST-->
+    </tbody>
+  </table>
+  </div>
+
+  <p style="margin-top:32px"><a href="index.html" style="color:var(--color-accent)">Back to the five explorations</a></p>
+</footer>
+
+</body>
+</html>

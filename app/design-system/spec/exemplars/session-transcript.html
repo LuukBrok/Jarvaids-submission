@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Jarvaids exemplar, session and transcript</title>
+<link rel="stylesheet" href="_base.css">
+<style>
+  .line { display: grid; grid-template-columns: 84px minmax(0,1fr); gap: 12px; align-items: baseline; }
+  @media (max-width: 559px) { .line { grid-template-columns: minmax(0,1fr); } }
+  .ask { display: flex; gap: 8px; align-items: stretch; }
+  .ask input { flex: 1; }
+  mark { background: var(--color-accent-wash); color: inherit; padding: 0 2px; border-radius: var(--radius-xs); }
+</style>
+</head>
+<body>
+<div class="jv-page">
+<div class="wrap">
+
+<header class="session-bar">
+  <span class="status st-capturing"><i class="glyph glyph-capturing" aria-hidden="true"></i><span class="word strong">Recording</span></span>
+  <span class="t-signal">00:47:31</span>
+  <span class="t-meta">Quiet mode &middot; 6 present</span>
+  <span class="jv-spacer"></span>
+  <button class="btn btn-danger" type="button">Stop capture</button>
+</header>
+
+<nav class="tabs" aria-label="Screens">
+  <a href="live-canvas.html">Canvas</a>
+  <a href="session-transcript.html" aria-current="page">Session</a>
+  <a href="review-queue.html">Review <span class="t-signal">12</span></a>
+  <a href="export-view.html">Export</a>
+</nav>
+
+<div class="page-head">
+  <h1 class="t-display">Session</h1>
+  <p class="t-meta jv-prose" style="margin:8px 0 0">The transcript is working
+  material, not a deliverable. Every line is a handle: click a time and the
+  canvas jumps to what was on it at that moment.</p>
+</div>
+
+<!-- F2.7: one input, always in the same place -->
+<form class="ask" style="margin-bottom:24px" onsubmit="return false">
+  <label class="field" style="flex:1">
+    <span class="t-structure">Ask the session</span>
+    <input type="text" value="What did Sanne say about the paywall?">
+  </label>
+  <button class="btn btn-primary btn-lg" type="submit" style="align-self:flex-end">Ask</button>
+</form>
+
+<div class="jv-workspace">
+
+  <main>
+    <div class="jv-row-centre" style="margin-bottom:12px">
+      <span class="t-structure">Transcript</span>
+      <span class="t-meta">412 lines &middot; 2 gaps</span>
+      <span class="jv-spacer"></span>
+      <div class="segmented" role="group" aria-label="Filter">
+        <button type="button" aria-pressed="true">All</button>
+        <button type="button" aria-pressed="false">Decisions</button>
+        <button type="button" aria-pressed="false">Questions</button>
+      </div>
+    </div>
+
+    <div class="jv-rows jv-scroll" style="max-height:600px">
+      <div class="line">
+        <a class="t-signal" href="#" style="color:var(--color-accent)"
+           aria-label="14:21:58, Sanne">14:21:58</a>
+        <div>
+          <span class="t-body strong">Sanne</span>
+          <p class="t-body jv-prose" style="margin:2px 0 0">Can we just agree the pilot has no payments in it? Every time we open this we lose twenty minutes.</p>
+        </div>
+      </div>
+
+      <div class="line">
+        <a class="t-signal" href="#" style="color:var(--color-accent)"
+           aria-label="14:22:06, Sanne">14:22:06</a>
+        <div>
+          <span class="t-body strong">Sanne</span>
+          <span class="chip" style="background:var(--color-status-accepted-wash);color:var(--color-status-accepted)"><i class="glyph glyph-accepted" aria-hidden="true"></i>Decision</span>
+          <p class="t-body jv-prose" style="margin:2px 0 0">Then the <mark>paywall</mark> is out of scope for now.</p>
+        </div>
+      </div>
+
+      <!-- F1.3: an uncertain attribution is shown as uncertain, never guessed -->
+      <div class="line">
+        <a class="t-signal" href="#" style="color:var(--color-accent)"
+           aria-label="14:22:41, unknown speaker">14:22:41</a>
+        <div>
+          <span class="jv-row-centre" style="gap:4px">
+            <span class="t-body strong muted">Unknown speaker</span>
+            <span class="status st-provisional"><i class="glyph glyph-provisional" aria-hidden="true"></i><span class="word">Speaker is a guess</span></span>
+          </span>
+          <p class="t-body jv-prose" style="margin:2px 0 0">Out of scope for the pilot, not for the product. Those are different things.</p>
+        </div>
+      </div>
+
+      <!-- F6.4: a gap is shown, never silently skipped -->
+      <div class="line">
+        <span class="t-signal" style="color:var(--color-status-failed)">14:23:10</span>
+        <div class="jv-row-centre">
+          <span class="status st-failed"><i class="glyph glyph-failed" aria-hidden="true"></i><span class="word strong">Gap</span></span>
+          <span class="t-meta">18 seconds could not be transcribed. Audio was still recorded.</span>
+        </div>
+      </div>
+
+      <div class="line" style="background:var(--color-accent-wash);border-left:2px solid var(--color-accent);padding-inline:8px">
+        <a class="t-signal" href="#" style="color:var(--color-accent)"
+           aria-label="14:23:28, Bram, currently playing">14:23:28</a>
+        <div>
+          <span class="t-body strong">Bram</span>
+          <p class="t-body jv-prose" style="margin:2px 0 0">Fine. Revisit after the pilot then.</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- F2.7, F6.3: an answer without citations does not render -->
+  <aside>
+    <h2 class="t-structure" style="margin:0 0 12px">Answer</h2>
+    <p class="t-body jv-prose" style="margin:0">Sanne said the paywall is out of
+    scope for the pilot. Someone, probably Bram, pushed back that it is out of
+    scope for the pilot and not for the product, and Sanne agreed to revisit it
+    after the pilot.</p>
+
+    <div class="jv-hairline-top" style="margin-top:16px;padding-top:12px">
+      <span class="t-structure">From</span>
+      <div class="jv-row-centre" style="margin-top:8px">
+        <a class="t-signal" href="#" style="color:var(--color-accent)">14:22:06</a>
+        <a class="t-signal" href="#" style="color:var(--color-accent)">14:22:41</a>
+        <a class="t-signal" href="#" style="color:var(--color-accent)">14:23:28</a>
+      </div>
+    </div>
+
+    <div class="jv-hairline-top" style="margin-top:16px;padding-top:12px">
+      <p class="t-caption" style="margin:0">Check the answer against the moments
+      it came from. Jarvaids will not answer without them.</p>
+    </div>
+
+    <div style="margin-top:24px">
+      <span class="t-structure">Session</span>
+      <div class="jv-rows" style="margin-top:4px">
+        <div class="jv-row"><span class="t-meta">Decisions</span><span class="jv-spacer t-signal">7</span></div>
+        <div class="jv-row"><span class="t-meta">Actions with an owner</span><span class="jv-spacer t-signal">4</span></div>
+        <div class="jv-row"><span class="t-meta">Open questions</span><span class="jv-spacer t-signal">9</span></div>
+        <div class="jv-row"><span class="t-meta">Gaps</span><span class="jv-spacer t-signal" style="color:var(--color-status-failed)">2</span></div>
+      </div>
+    </div>
+  </aside>
+
+</div>
+</div>
+</div>
+</body>
+</html>

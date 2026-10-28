@@ -1,0 +1,1890 @@
+{
+  "version": 1,
+  "status": "Proposed process network; no implemented runtime is implied",
+  "reviewed_commit": "14a3fa615c6d590e83804c0b07c0275d9eabaf09",
+  "nodes": [
+    {
+      "id": "S01",
+      "label": "Choose the session task",
+      "lane": "01 Frame the work",
+      "scope": "core",
+      "owner": "Research lead / facilitator",
+      "input": "Current workflow and pain hypothesis",
+      "output": "One task and baseline artifact",
+      "guard": "Name whose effort is saved and when",
+      "failure": "Return to observation if no costly task is observed",
+      "measure": "Baseline time and final error count",
+      "issue": "F01"
+    },
+    {
+      "id": "S02",
+      "label": "Prepare the evidence plan",
+      "lane": "01 Frame the work",
+      "scope": "core",
+      "owner": "Research lead / facilitator",
+      "input": "Task, participants, data constraints",
+      "output": "Dataset split and trial protocol",
+      "guard": "Freeze metrics before tuning; assign owner",
+      "failure": "Synthetic-only mechanics if field trial unavailable",
+      "measure": "Distinct walls/sessions per condition",
+      "issue": "F16"
+    },
+    {
+      "id": "S03",
+      "label": "Set session policy",
+      "lane": "01 Frame the work",
+      "scope": "core",
+      "owner": "Research lead / facilitator",
+      "input": "Participants, retention, allowed processors",
+      "output": "Versioned capture and export policy",
+      "guard": "No media processing before policy is active",
+      "failure": "Block disallowed modality, keep manual path",
+      "measure": "Pre-gate media/model calls must be zero",
+      "issue": "F02"
+    },
+    {
+      "id": "S04",
+      "label": "Join and establish roles",
+      "lane": "01 Frame the work",
+      "scope": "core",
+      "owner": "Research lead / facilitator",
+      "input": "Session invite and guest identity",
+      "output": "Session-scoped role credential",
+      "guard": "Viewing link is not write authority",
+      "failure": "Deny/rejoin; never infer identity from voice",
+      "measure": "Unauthorized requests rejected",
+      "issue": "F03"
+    },
+    {
+      "id": "S05",
+      "label": "Check devices and capacity",
+      "lane": "01 Frame the work",
+      "scope": "core",
+      "owner": "Research lead / facilitator",
+      "input": "Mic/camera/network capabilities",
+      "output": "Supported modes and visible limitations",
+      "guard": "Test target device before promising live latency",
+      "failure": "Photo or typed fallback",
+      "measure": "Startup failures and time to ready",
+      "issue": "F12"
+    },
+    {
+      "id": "S06",
+      "label": "Activate the session",
+      "lane": "01 Frame the work",
+      "scope": "core",
+      "owner": "Research lead / facilitator",
+      "input": "Current roster plus agreement state",
+      "output": "Active policy version and capture lease",
+      "guard": "All required participants covered; no pre-recorded agreement",
+      "failure": "Pause at roster/policy changes",
+      "measure": "Time to start and correctly blocked starts",
+      "issue": "F02"
+    },
+    {
+      "id": "I01",
+      "label": "Select photo or type a note",
+      "lane": "02 Photo and typed capture",
+      "scope": "core",
+      "owner": "Participant / intake worker",
+      "input": "User intent to add material",
+      "output": "Local draft with request ID",
+      "guard": "Explicit intake action",
+      "failure": "Retain draft locally only within policy",
+      "measure": "Abandoned intake tasks",
+      "issue": "F04"
+    },
+    {
+      "id": "I02",
+      "label": "Inspect and redact locally",
+      "lane": "02 Photo and typed capture",
+      "scope": "core",
+      "owner": "Participant / intake worker",
+      "input": "Original photo or typed draft",
+      "output": "Approved input with sensitive areas removed",
+      "guard": "Remove unwanted content before server/provider upload",
+      "failure": "Retake or type selected notes",
+      "measure": "Unwanted content leaving device",
+      "issue": "F02"
+    },
+    {
+      "id": "I03",
+      "label": "Prepare and bound input",
+      "lane": "02 Photo and typed capture",
+      "scope": "core",
+      "owner": "Participant / intake worker",
+      "input": "Approved pixels/text",
+      "output": "Normalized payload and transform metadata",
+      "guard": "Byte/pixel limits before decode; preserve readable resolution",
+      "failure": "Tile or crop instead of destructive downscale",
+      "measure": "Smallest readable note size",
+      "issue": "F04"
+    },
+    {
+      "id": "I04",
+      "label": "Admit request",
+      "lane": "02 Photo and typed capture",
+      "scope": "core",
+      "owner": "Participant / intake worker",
+      "input": "Payload, role, policy, request ID",
+      "output": "Accepted job or reasoned rejection",
+      "guard": "Current scope, limits, request-payload identity",
+      "failure": "Retry same request only after eligible failure",
+      "measure": "Queue saturation and duplicate outcomes",
+      "issue": "F12"
+    },
+    {
+      "id": "I05",
+      "label": "Persist source",
+      "lane": "02 Photo and typed capture",
+      "scope": "core",
+      "owner": "Participant / intake worker",
+      "input": "Admitted input",
+      "output": "Source ID, revision, transform, expiry",
+      "guard": "Content excluded from ordinary diagnostic logs",
+      "failure": "Fail intake visibly; never acknowledge absent source",
+      "measure": "Durable source lookup success",
+      "issue": "F13"
+    },
+    {
+      "id": "I06",
+      "label": "Assess capture quality",
+      "lane": "02 Photo and typed capture",
+      "scope": "core",
+      "owner": "Participant / intake worker",
+      "input": "Stored approved image",
+      "output": "Per-region quality warnings",
+      "guard": "Quality heuristics do not prove legibility",
+      "failure": "Ask retake or manual region selection",
+      "measure": "False quality rejects and unreadable regions",
+      "issue": "F04"
+    },
+    {
+      "id": "I07",
+      "label": "Segment notes",
+      "lane": "02 Photo and typed capture",
+      "scope": "core",
+      "owner": "Participant / intake worker",
+      "input": "Image and transforms",
+      "output": "Candidate regions plus unassigned areas",
+      "guard": "No text inference before note boundaries checked",
+      "failure": "Split/merge/add missing region",
+      "measure": "Segmentation precision and recall",
+      "issue": "F04"
+    },
+    {
+      "id": "I08",
+      "label": "Review coverage",
+      "lane": "02 Photo and typed capture",
+      "scope": "core",
+      "owner": "Participant / intake worker",
+      "input": "Regions over source photo",
+      "output": "Corrected region set with stable IDs",
+      "guard": "Show full image and unassigned areas, not only detected notes",
+      "failure": "User adds missed note or marks occluded",
+      "measure": "Missed notes surviving review",
+      "issue": "F04"
+    },
+    {
+      "id": "I09",
+      "label": "Read each region",
+      "lane": "02 Photo and typed capture",
+      "scope": "core",
+      "owner": "Participant / intake worker",
+      "input": "Region crops and IDs",
+      "output": "Text candidates indexed by region ID",
+      "guard": "Validate returned IDs; retain unreadable state",
+      "failure": "Manual transcription; bounded retry on failed crops only",
+      "measure": "Text fidelity and crop-to-text mismatches",
+      "issue": "F05"
+    },
+    {
+      "id": "I10",
+      "label": "Check words and spatial meaning",
+      "lane": "02 Photo and typed capture",
+      "scope": "core",
+      "owner": "Participant / intake worker",
+      "input": "Text, crop, color, original position",
+      "output": "Source-backed note proposals",
+      "guard": "Color/proximity are observations, not semantic agreement",
+      "failure": "Keep original arrangement and unknown text",
+      "measure": "Unsupported grouping and wrong text",
+      "issue": "F05"
+    },
+    {
+      "id": "I11",
+      "label": "Create manual source",
+      "lane": "02 Photo and typed capture",
+      "scope": "core",
+      "owner": "Participant / intake worker",
+      "input": "Typed note and actor",
+      "output": "Human-origin note source revision",
+      "guard": "Preserve authorship; validate size and content",
+      "failure": "Inline validation and saved draft",
+      "measure": "Model-off task completion",
+      "issue": "F01"
+    },
+    {
+      "id": "A01",
+      "label": "Open permitted audio stream",
+      "lane": "03 Audio capture",
+      "scope": "extension",
+      "owner": "Capture worker / participant",
+      "input": "Active policy and device",
+      "output": "Timed audio frames",
+      "guard": "Policy current and device visible",
+      "failure": "Stop and show gap",
+      "measure": "Capture outside consent interval",
+      "issue": "F02"
+    },
+    {
+      "id": "A02",
+      "label": "Detect speech and bound chunks",
+      "lane": "03 Audio capture",
+      "scope": "extension",
+      "owner": "Capture worker / participant",
+      "input": "Audio frames",
+      "output": "Chunks with overlap and clock metadata",
+      "guard": "Backlog bounded; overlap not double counted",
+      "failure": "Stop intake at capacity; explicit resume",
+      "measure": "Dropped duration and lag",
+      "issue": "F12"
+    },
+    {
+      "id": "A03",
+      "label": "Transcribe locally",
+      "lane": "03 Audio capture",
+      "scope": "extension",
+      "owner": "Capture worker / participant",
+      "input": "Permitted chunks",
+      "output": "Transcript hypothesis with model version",
+      "guard": "No third-party raw ASR; preserve uncertainty",
+      "failure": "Smaller configured model or typed fallback",
+      "measure": "Word and critical-term error rates",
+      "issue": "F06"
+    },
+    {
+      "id": "A04",
+      "label": "Reconcile timing and overlap",
+      "lane": "03 Audio capture",
+      "scope": "extension",
+      "owner": "Capture worker / participant",
+      "input": "Chunk hypotheses and clocks",
+      "output": "Stable transcript segments with revisions",
+      "guard": "Do not duplicate overlaps or assume shared clocks",
+      "failure": "Mark gap/uncertain span instead of inventing continuity",
+      "measure": "Duplicate words and timing error",
+      "issue": "F06"
+    },
+    {
+      "id": "A05",
+      "label": "Resolve speaker cautiously",
+      "lane": "03 Audio capture",
+      "scope": "extension",
+      "owner": "Capture worker / participant",
+      "input": "Segments and diarisation evidence",
+      "output": "Known or unknown speaker label",
+      "guard": "No loudest-device identity claim; confirmation not universal proof",
+      "failure": "Keep unknown attribution",
+      "measure": "Wrong named-speaker claims",
+      "issue": "F06"
+    },
+    {
+      "id": "A06",
+      "label": "Correct the transcript",
+      "lane": "03 Audio capture",
+      "scope": "extension",
+      "owner": "Capture worker / participant",
+      "input": "Visible segments and human corrections",
+      "output": "New source revision and dependency invalidation",
+      "guard": "Retain origin; do not edit old revision in place",
+      "failure": "Flag affected answers and minutes",
+      "measure": "Stale claims after correction",
+      "issue": "F07"
+    },
+    {
+      "id": "C01",
+      "label": "Address the tool",
+      "lane": "04 Interpret explicit requests",
+      "scope": "extension",
+      "owner": "Participant / command worker",
+      "input": "Typed or push-to-talk request",
+      "output": "Explicit request and selected item IDs",
+      "guard": "Background meeting content cannot authorize actions",
+      "failure": "Ask for explicit invocation",
+      "measure": "False invocations per session",
+      "issue": "F08"
+    },
+    {
+      "id": "C02",
+      "label": "Freeze request context",
+      "lane": "04 Interpret explicit requests",
+      "scope": "extension",
+      "owner": "Participant / command worker",
+      "input": "Request, selection, canvas revision",
+      "output": "Immutable request context",
+      "guard": "Selection belongs to actor and session",
+      "failure": "Ask for selection if context ambiguous",
+      "measure": "Wrong-target operations",
+      "issue": "F08"
+    },
+    {
+      "id": "C03",
+      "label": "Parse the operation",
+      "lane": "04 Interpret explicit requests",
+      "scope": "extension",
+      "owner": "Participant / command worker",
+      "input": "Context and allowed operations",
+      "output": "Structured proposal or question",
+      "guard": "Schema and operation allowlist",
+      "failure": "Clarify once, then expose direct controls",
+      "measure": "Clarifications per completed task",
+      "issue": "F08"
+    },
+    {
+      "id": "C04",
+      "label": "Resolve references",
+      "lane": "04 Interpret explicit requests",
+      "scope": "extension",
+      "owner": "Participant / command worker",
+      "input": "Pronouns, explicit IDs and evidence",
+      "output": "Targets with uncertainty reason",
+      "guard": "No silent guessing of those three",
+      "failure": "User selects targets directly",
+      "measure": "Target precision and completion time",
+      "issue": "F08"
+    },
+    {
+      "id": "C05",
+      "label": "Authorize and dispatch",
+      "lane": "04 Interpret explicit requests",
+      "scope": "extension",
+      "owner": "Participant / command worker",
+      "input": "Operation, current role, source revisions",
+      "output": "Accepted proposal job or refused request",
+      "guard": "Check current role again at eventual commit",
+      "failure": "Refuse changed authority; refresh stale preview",
+      "measure": "Unauthorized or stale commits",
+      "issue": "F03"
+    },
+    {
+      "id": "R01",
+      "label": "Validate proposal envelope",
+      "lane": "05 Review and shared state",
+      "scope": "core",
+      "owner": "Reviewer / state service",
+      "input": "Extracted notes or derived proposal",
+      "output": "Typed proposal with source references",
+      "guard": "Source IDs and revisions exist in current session",
+      "failure": "Reject malformed output; show recoverable failure",
+      "measure": "Invalid proposals admitted",
+      "issue": "F09"
+    },
+    {
+      "id": "R02",
+      "label": "Prioritize review work",
+      "lane": "05 Review and shared state",
+      "scope": "core",
+      "owner": "Reviewer / state service",
+      "input": "Validated proposal and age",
+      "output": "Review queue by consequence and age",
+      "guard": "Do not rank only by model confidence",
+      "failure": "Throttle new proposals when review overloaded",
+      "measure": "Oldest review age and work abandoned",
+      "issue": "F10"
+    },
+    {
+      "id": "R03",
+      "label": "Inspect source and differences",
+      "lane": "05 Review and shared state",
+      "scope": "core",
+      "owner": "Reviewer / state service",
+      "input": "Proposal, original source, current item",
+      "output": "Human review action",
+      "guard": "Text, grouping and placement are distinct decisions; planned F3.8 review exposes complete main points, supporting detail and evidence before Accept",
+      "failure": "Edit, reject, or leave unresolved",
+      "measure": "Incorrect acceptance and review effort",
+      "issue": "F09"
+    },
+    {
+      "id": "R04",
+      "label": "Validate acceptance",
+      "lane": "05 Review and shared state",
+      "scope": "core",
+      "owner": "Reviewer / state service",
+      "input": "Action, actor, source and item revisions",
+      "output": "Commit-ready mutation or stale state",
+      "guard": "No semantic auto-rebase after source/target change",
+      "failure": "Refresh preview and ask again",
+      "measure": "Acceptance conflict rate",
+      "issue": "F09"
+    },
+    {
+      "id": "R05",
+      "label": "Commit atomically",
+      "lane": "05 Review and shared state",
+      "scope": "core",
+      "owner": "Reviewer / state service",
+      "input": "Validated mutation and request key",
+      "output": "New item revision plus event plus result",
+      "guard": "All-or-nothing local transaction",
+      "failure": "Retry same key returns durable result",
+      "measure": "Duplicate/missing state after crash",
+      "issue": "F11"
+    },
+    {
+      "id": "R06",
+      "label": "Synchronize views",
+      "lane": "05 Review and shared state",
+      "scope": "core",
+      "owner": "Reviewer / state service",
+      "input": "Committed sequence and item revisions",
+      "output": "Client acknowledgement / refreshed snapshot",
+      "guard": "Detect sequence gaps; distinguish saved from pending; planned F3.8 disclosure and temporary offsets stay local to the viewing screen",
+      "failure": "Resync snapshot then apply newer events",
+      "measure": "Divergent client views and reconnect time",
+      "issue": "F11"
+    },
+    {
+      "id": "R07",
+      "label": "Edit or undo accepted work",
+      "lane": "05 Review and shared state",
+      "scope": "core",
+      "owner": "Reviewer / state service",
+      "input": "Current item plus requested change",
+      "output": "New revision or compensating proposal",
+      "guard": "Do not erase a later edit by someone else",
+      "failure": "Conflict preview with affected items",
+      "measure": "Lost human work must be zero",
+      "issue": "F09"
+    },
+    {
+      "id": "R08",
+      "label": "Invalidate derived material",
+      "lane": "05 Review and shared state",
+      "scope": "core",
+      "owner": "Reviewer / state service",
+      "input": "Source correction or deletion",
+      "output": "Stale dependent claims and indexes",
+      "guard": "Follow all source references transitively",
+      "failure": "Mark unavailable before recomputation",
+      "measure": "Stale outputs still represented as current",
+      "issue": "F07"
+    },
+    {
+      "id": "V01",
+      "label": "Organise incoming notes",
+      "lane": "06 Organize and reason",
+      "scope": "extension",
+      "owner": "Facilitator / structure worker",
+      "input": "Incoming main points or a team request, with current arrangements",
+      "output": "Provisional organisation of incoming notes, or a requested rearrangement",
+      "guard": "Planned F3.8: preserve accepted structure and team adjustments; conflicting regroupings require review, no idle whole-board reshuffling",
+      "failure": "Keep current board",
+      "measure": "Unwanted layout changes",
+      "issue": "F14"
+    },
+    {
+      "id": "V02",
+      "label": "Choose representation",
+      "lane": "06 Organize and reason",
+      "scope": "extension",
+      "owner": "Facilitator / structure worker",
+      "input": "Task, item types and source structure",
+      "output": "A fitting ordered set, spatial copy, cluster, timeline, matrix, flow or hierarchy",
+      "guard": "Dates/axes must be meaningful; retain unplaced items",
+      "failure": "Human form selector",
+      "measure": "Task accuracy against simple baseline",
+      "issue": "F14"
+    },
+    {
+      "id": "V03",
+      "label": "Propose relationships",
+      "lane": "06 Organize and reason",
+      "scope": "extension",
+      "owner": "Facilitator / structure worker",
+      "input": "Items and allowed relation types",
+      "output": "Source-linked main points, supporting detail, labelled topic/choice groups and identifiable relationship proposals",
+      "guard": "Planned F3.8: preserve qualifications; invent neither background nor causality from proximity or colour; original photo colour is evidence, not automatic topic colour",
+      "failure": "Keep uncertain relationships separate",
+      "measure": "Unsupported edges and minority omissions",
+      "issue": "F14"
+    },
+    {
+      "id": "V04",
+      "label": "Lay out deterministically",
+      "lane": "06 Organize and reason",
+      "scope": "extension",
+      "owner": "Facilitator / structure worker",
+      "input": "Validated structure, collapsed main points and saved anchors",
+      "output": "Saved overview geometry and stable group-to-colour mapping; local expansion uses temporary spacing",
+      "guard": "Expansion never writes positions or accepts meaning; preserve fixed-axis markers and team adjustments; topic fills have labels and a key, preserve team colour overrides and never encode review state",
+      "failure": "Place in new area or explain lack of space",
+      "measure": "Overlap and unintended movement",
+      "issue": "F14"
+    },
+    {
+      "id": "V05",
+      "label": "Review arrangement separately",
+      "lane": "06 Organize and reason",
+      "scope": "extension",
+      "owner": "Facilitator / structure worker",
+      "input": "Layout preview and membership changes",
+      "output": "Arrangement acceptance request",
+      "guard": "Layout acceptance does not accept child claims",
+      "failure": "Edit structure or return to original",
+      "measure": "Child-state changes on group acceptance",
+      "issue": "F09"
+    },
+    {
+      "id": "Q01",
+      "label": "Build fresh source indexes",
+      "lane": "07 Recall and minutes",
+      "scope": "extension",
+      "owner": "Answer / minutes workers",
+      "input": "Source revisions and permission scope",
+      "output": "Index plus coverage watermark",
+      "guard": "Deleted/stale sources excluded",
+      "failure": "Search raw approved text or show limited coverage",
+      "measure": "Freshness lag and stale retrieval",
+      "issue": "F07"
+    },
+    {
+      "id": "Q02",
+      "label": "Understand question",
+      "lane": "07 Recall and minutes",
+      "scope": "extension",
+      "owner": "Answer / minutes workers",
+      "input": "Explicit question and context",
+      "output": "Query plus requested coverage",
+      "guard": "Question scope limited to available session evidence",
+      "failure": "Clarify entity/time; do not invent referent",
+      "measure": "Query rewrites changing intent",
+      "issue": "F08"
+    },
+    {
+      "id": "Q03",
+      "label": "Retrieve support and disagreement",
+      "lane": "07 Recall and minutes",
+      "scope": "extension",
+      "owner": "Answer / minutes workers",
+      "input": "Query and revision-aware indexes",
+      "output": "Supporting and contrary source spans",
+      "guard": "Coverage watermark carried forward",
+      "failure": "Show nearest moments with limitation",
+      "measure": "Recall of relevant contradictory spans",
+      "issue": "F15"
+    },
+    {
+      "id": "Q04",
+      "label": "Draft answer claims",
+      "lane": "07 Recall and minutes",
+      "scope": "extension",
+      "owner": "Answer / minutes workers",
+      "input": "Retrieved evidence",
+      "output": "Claim-to-source bindings",
+      "guard": "No names beyond supported speaker identity",
+      "failure": "Extractive answer or abstention",
+      "measure": "Unsupported factual clauses",
+      "issue": "F15"
+    },
+    {
+      "id": "Q05",
+      "label": "Check support before release",
+      "lane": "07 Recall and minutes",
+      "scope": "extension",
+      "owner": "Answer / minutes workers",
+      "input": "Draft clauses, exact sources, freshness",
+      "output": "Checked clauses or unavailable answer",
+      "guard": "Valid citation IDs alone do not prove entailment",
+      "failure": "Omit unsupported clause; hold unchecked stream",
+      "measure": "Unsupported clauses shown to users",
+      "issue": "F15"
+    },
+    {
+      "id": "Q06",
+      "label": "Present answer with coverage",
+      "lane": "07 Recall and minutes",
+      "scope": "extension",
+      "owner": "Answer / minutes workers",
+      "input": "Checked clauses and source links",
+      "output": "Provisional answer with time/revision boundary",
+      "guard": "No unchecked tokens displayed as settled answer",
+      "failure": "Show evidence only or refusal",
+      "measure": "Wrong answer acceptance and retrieval time",
+      "issue": "F15"
+    },
+    {
+      "id": "M01",
+      "label": "Identify topic episode",
+      "lane": "07 Recall and minutes",
+      "scope": "extension",
+      "owner": "Answer / minutes workers",
+      "input": "Transcript events and manual agenda",
+      "output": "Episode with open/closed status",
+      "guard": "Silence is not agreement or irreversible closure",
+      "failure": "Manual agenda boundary; reopen episode",
+      "measure": "False topic closure",
+      "issue": "F17"
+    },
+    {
+      "id": "M02",
+      "label": "Extract candidates",
+      "lane": "07 Recall and minutes",
+      "scope": "extension",
+      "owner": "Answer / minutes workers",
+      "input": "Episode source spans",
+      "output": "Claims, objections, actions and questions",
+      "guard": "Owner/deadline absent unless supported",
+      "failure": "Leave blanks and explicit unresolved status",
+      "measure": "Invented owner or decision count",
+      "issue": "F17"
+    },
+    {
+      "id": "M03",
+      "label": "Classify decision status",
+      "lane": "07 Recall and minutes",
+      "scope": "extension",
+      "owner": "Answer / minutes workers",
+      "input": "Candidates plus support and dissent",
+      "output": "Proposed, contested, confirmed or superseded",
+      "guard": "Human confirmation required for confirmed decision",
+      "failure": "Present unresolved disagreement",
+      "measure": "Premature consensus claims",
+      "issue": "F17"
+    },
+    {
+      "id": "M04",
+      "label": "Link evolving decisions",
+      "lane": "07 Recall and minutes",
+      "scope": "extension",
+      "owner": "Answer / minutes workers",
+      "input": "Current claim and earlier versions",
+      "output": "Supersession/rationale links",
+      "guard": "Never overwrite a prior decision without trace",
+      "failure": "Keep conflicting versions for review",
+      "measure": "Lost reversals or minority rationale",
+      "issue": "F17"
+    },
+    {
+      "id": "E01",
+      "label": "Choose output and coverage",
+      "lane": "08 Publish useful artifacts",
+      "scope": "core",
+      "owner": "Facilitator / export worker",
+      "input": "Requested format and current state",
+      "output": "Output request plus required scope",
+      "guard": "No promise of unavailable minutes/board provider",
+      "failure": "Offer supported local artifact",
+      "measure": "Unsupported export requests",
+      "issue": "F18"
+    },
+    {
+      "id": "E02",
+      "label": "Resolve review and redaction",
+      "lane": "08 Publish useful artifacts",
+      "scope": "core",
+      "owner": "Facilitator / export worker",
+      "input": "Snapshot candidates and unresolved items",
+      "output": "Explicit inclusion and release plan",
+      "guard": "Names-only replacement cannot scrub free text/images",
+      "failure": "Exclude sensitive source and explain omissions",
+      "measure": "Unintended identifying content released",
+      "issue": "F18"
+    },
+    {
+      "id": "E03",
+      "label": "Freeze export manifest",
+      "lane": "08 Publish useful artifacts",
+      "scope": "core",
+      "owner": "Facilitator / export worker",
+      "input": "Reviewed inclusion plan and revisions",
+      "output": "Immutable snapshot with source/policy watermark",
+      "guard": "Late edits require a new snapshot; planned F3.8 exports explicitly distinguish overview from complete detail, independently of open notes",
+      "failure": "Notify export is older than current canvas",
+      "measure": "Mixed-revision artifacts",
+      "issue": "F18"
+    },
+    {
+      "id": "E04",
+      "label": "Render and verify artifact",
+      "lane": "08 Publish useful artifacts",
+      "scope": "core",
+      "owner": "Facilitator / export worker",
+      "input": "Snapshot and manifest",
+      "output": "PNG/PDF/text with durable labels",
+      "guard": "No provisional-to-confirmed promotion in rendering",
+      "failure": "Fail with artifact-specific error",
+      "measure": "Missing content and unreadable output",
+      "issue": "F18"
+    },
+    {
+      "id": "E05",
+      "label": "Deliver local export",
+      "lane": "08 Publish useful artifacts",
+      "scope": "core",
+      "owner": "Facilitator / export worker",
+      "input": "Verified artifact and current authority",
+      "output": "Delivered file plus receipt",
+      "guard": "Check role/policy at delivery; cancel after deletion",
+      "failure": "Retry retrieval of same artifact",
+      "measure": "Wrong recipient/scope and duplicate artifacts",
+      "issue": "F18"
+    },
+    {
+      "id": "E06",
+      "label": "Prepare external board operations",
+      "lane": "08 Publish useful artifacts",
+      "scope": "extension",
+      "owner": "Facilitator / export worker",
+      "input": "Snapshot and provider capability",
+      "output": "Per-item operation journal and target mapping",
+      "guard": "Provider access and update semantics verified first",
+      "failure": "Use local export",
+      "measure": "Operations lacking reconciliation support",
+      "issue": "F19"
+    },
+    {
+      "id": "E07",
+      "label": "Reconcile partial board push",
+      "lane": "08 Publish useful artifacts",
+      "scope": "extension",
+      "owner": "Facilitator / export worker",
+      "input": "Operation journal and provider outcomes",
+      "output": "Confirmed mappings or unknown outcome list",
+      "guard": "Do not blindly retry unknown successful creation",
+      "failure": "Read back by stable marker or ask user",
+      "measure": "Duplicate/missing board items",
+      "issue": "F19"
+    },
+    {
+      "id": "E08",
+      "label": "Complete release receipt",
+      "lane": "08 Publish useful artifacts",
+      "scope": "core",
+      "owner": "Facilitator / export worker",
+      "input": "Delivered artifact/board outcomes",
+      "output": "Version, destination and control boundary record",
+      "guard": "Never promise recall of downloaded copies",
+      "failure": "Mark partial delivery and remaining actions",
+      "measure": "Unacknowledged partial releases",
+      "issue": "F19"
+    },
+    {
+      "id": "L01",
+      "label": "Pause on stop or roster change",
+      "lane": "09 Stop, erase and recover",
+      "scope": "core",
+      "owner": "Participant / lifecycle worker",
+      "input": "Any stop request or changed agreement",
+      "output": "New policy version and immediate capture pause",
+      "guard": "No facilitator approval required to pause",
+      "failure": "Close local device even if server is unreachable",
+      "measure": "Stop-to-device latency",
+      "issue": "F02"
+    },
+    {
+      "id": "L02",
+      "label": "Cancel and reject late work",
+      "lane": "09 Stop, erase and recover",
+      "scope": "core",
+      "owner": "Participant / lifecycle worker",
+      "input": "Revoked policy version and queued jobs",
+      "output": "Cancelled attempts and rejected late commits",
+      "guard": "Every write checks current policy/tombstone",
+      "failure": "Quarantine late output for purge, never publish",
+      "measure": "Late output after revocation",
+      "issue": "F13"
+    },
+    {
+      "id": "L03",
+      "label": "Resume or close deliberately",
+      "lane": "09 Stop, erase and recover",
+      "scope": "core",
+      "owner": "Participant / lifecycle worker",
+      "input": "Paused session and current agreement",
+      "output": "New capture lease or closed session",
+      "guard": "Resume is explicit and rechecks full roster",
+      "failure": "Stay paused; manual permitted actions only",
+      "measure": "Accidental resumption",
+      "issue": "F02"
+    },
+    {
+      "id": "L04",
+      "label": "Detect expiry and purge request",
+      "lane": "09 Stop, erase and recover",
+      "scope": "core",
+      "owner": "Participant / lifecycle worker",
+      "input": "Close, lease expiry or deletion request",
+      "output": "Deletion job covering configured stores",
+      "guard": "Content unavailable before asynchronous purge",
+      "failure": "Retry failed store deletion; show pending",
+      "measure": "Expired content still reachable",
+      "issue": "F13"
+    },
+    {
+      "id": "L05",
+      "label": "Erase content and derivatives",
+      "lane": "09 Stop, erase and recover",
+      "scope": "core",
+      "owner": "Participant / lifecycle worker",
+      "input": "Deletion job and dependency inventory",
+      "output": "Per-store deletion evidence",
+      "guard": "Include job payloads, event bodies, indexes, caches and owned exports",
+      "failure": "Escalate unconfirmed store; do not label deleted",
+      "measure": "Verified stores / configured stores",
+      "issue": "F13"
+    },
+    {
+      "id": "L06",
+      "label": "Confirm deletion boundary",
+      "lane": "09 Stop, erase and recover",
+      "scope": "core",
+      "owner": "Participant / lifecycle worker",
+      "input": "Per-store outcomes and external releases",
+      "output": "Content-free receipt or explicit partial state",
+      "guard": "Receipt contains no reconstructable source content",
+      "failure": "Visible failure and bounded retries",
+      "measure": "False deletion confirmations",
+      "issue": "F13"
+    },
+    {
+      "id": "L07",
+      "label": "Recover after crash or restore",
+      "lane": "09 Stop, erase and recover",
+      "scope": "core",
+      "owner": "Participant / lifecycle worker",
+      "input": "Persisted state, leases and tombstones",
+      "output": "Resumed eligible jobs and valid state",
+      "guard": "Apply deletion rules before any restored read",
+      "failure": "Keep unavailable while reconciliation runs",
+      "measure": "Resurrected deleted sources",
+      "issue": "F11"
+    },
+    {
+      "id": "X01",
+      "label": "Observe process cost",
+      "lane": "10 Learn and choose next work",
+      "scope": "core",
+      "owner": "Research / engineering leads",
+      "input": "Job timings, review actions, failures",
+      "output": "Content-minimized operational measures",
+      "guard": "Separate waiting, machine and human time",
+      "failure": "Record unknowns instead of fake zeros",
+      "measure": "End-to-end task effort",
+      "issue": "F10"
+    },
+    {
+      "id": "X02",
+      "label": "Score held-out results",
+      "lane": "10 Learn and choose next work",
+      "scope": "core",
+      "owner": "Research / engineering leads",
+      "input": "Approved outputs and independent labels",
+      "output": "Per-condition errors and baseline comparison",
+      "guard": "No tuning on the held-out wall/session",
+      "failure": "Expand dataset or narrow supported conditions",
+      "measure": "Benefit with fidelity preserved",
+      "issue": "F16"
+    },
+    {
+      "id": "X03",
+      "label": "Compare process variants",
+      "lane": "10 Learn and choose next work",
+      "scope": "core",
+      "owner": "Research / engineering leads",
+      "input": "Fixed cases and A/B/C configurations",
+      "output": "Trade-off evidence and limitations",
+      "guard": "Change one major factor; retain all failed trials",
+      "failure": "Keep simpler variant when inconclusive",
+      "measure": "Task benefit per added complexity",
+      "issue": "F01"
+    },
+    {
+      "id": "X04",
+      "label": "Record next decision",
+      "lane": "10 Learn and choose next work",
+      "scope": "core",
+      "owner": "Research / engineering leads",
+      "input": "Gate results and unresolved failures",
+      "output": "Accepted/rejected scope choice with owner",
+      "guard": "Document negative results and remaining uncertainty",
+      "failure": "Repeat targeted test, not full feature expansion",
+      "measure": "Decisions linked to evidence",
+      "issue": "F16"
+    }
+  ],
+  "edges": [
+    {
+      "source": "S01",
+      "target": "S02",
+      "kind": "flow",
+      "label": "validated output"
+    },
+    {
+      "source": "S02",
+      "target": "S03",
+      "kind": "flow",
+      "label": "validated output"
+    },
+    {
+      "source": "S03",
+      "target": "S04",
+      "kind": "flow",
+      "label": "validated output"
+    },
+    {
+      "source": "S04",
+      "target": "S05",
+      "kind": "flow",
+      "label": "validated output"
+    },
+    {
+      "source": "S05",
+      "target": "S06",
+      "kind": "flow",
+      "label": "validated output"
+    },
+    {
+      "source": "I01",
+      "target": "I02",
+      "kind": "flow",
+      "label": "validated output"
+    },
+    {
+      "source": "I02",
+      "target": "I03",
+      "kind": "flow",
+      "label": "validated output"
+    },
+    {
+      "source": "I03",
+      "target": "I04",
+      "kind": "flow",
+      "label": "validated output"
+    },
+    {
+      "source": "I04",
+      "target": "I05",
+      "kind": "flow",
+      "label": "validated output"
+    },
+    {
+      "source": "I05",
+      "target": "I06",
+      "kind": "flow",
+      "label": "validated output"
+    },
+    {
+      "source": "I06",
+      "target": "I07",
+      "kind": "flow",
+      "label": "validated output"
+    },
+    {
+      "source": "I07",
+      "target": "I08",
+      "kind": "flow",
+      "label": "validated output"
+    },
+    {
+      "source": "I08",
+      "target": "I09",
+      "kind": "flow",
+      "label": "validated output"
+    },
+    {
+      "source": "I09",
+      "target": "I10",
+      "kind": "flow",
+      "label": "validated output"
+    },
+    {
+      "source": "I10",
+      "target": "R01",
+      "kind": "flow",
+      "label": "validated output"
+    },
+    {
+      "source": "R01",
+      "target": "R02",
+      "kind": "flow",
+      "label": "validated output"
+    },
+    {
+      "source": "R02",
+      "target": "R03",
+      "kind": "flow",
+      "label": "validated output"
+    },
+    {
+      "source": "R03",
+      "target": "R04",
+      "kind": "flow",
+      "label": "validated output"
+    },
+    {
+      "source": "R04",
+      "target": "R05",
+      "kind": "flow",
+      "label": "validated output"
+    },
+    {
+      "source": "R05",
+      "target": "R06",
+      "kind": "flow",
+      "label": "validated output"
+    },
+    {
+      "source": "A01",
+      "target": "A02",
+      "kind": "flow",
+      "label": "validated output"
+    },
+    {
+      "source": "A02",
+      "target": "A03",
+      "kind": "flow",
+      "label": "validated output"
+    },
+    {
+      "source": "A03",
+      "target": "A04",
+      "kind": "flow",
+      "label": "validated output"
+    },
+    {
+      "source": "A04",
+      "target": "A05",
+      "kind": "flow",
+      "label": "validated output"
+    },
+    {
+      "source": "A05",
+      "target": "A06",
+      "kind": "flow",
+      "label": "validated output"
+    },
+    {
+      "source": "C01",
+      "target": "C02",
+      "kind": "flow",
+      "label": "validated output"
+    },
+    {
+      "source": "C02",
+      "target": "C03",
+      "kind": "flow",
+      "label": "validated output"
+    },
+    {
+      "source": "C03",
+      "target": "C04",
+      "kind": "flow",
+      "label": "validated output"
+    },
+    {
+      "source": "C04",
+      "target": "C05",
+      "kind": "flow",
+      "label": "validated output"
+    },
+    {
+      "source": "V01",
+      "target": "V02",
+      "kind": "flow",
+      "label": "validated output"
+    },
+    {
+      "source": "V02",
+      "target": "V03",
+      "kind": "flow",
+      "label": "validated output"
+    },
+    {
+      "source": "V03",
+      "target": "V04",
+      "kind": "flow",
+      "label": "validated output"
+    },
+    {
+      "source": "V04",
+      "target": "V05",
+      "kind": "flow",
+      "label": "validated output"
+    },
+    {
+      "source": "V05",
+      "target": "R01",
+      "kind": "flow",
+      "label": "validated output"
+    },
+    {
+      "source": "Q02",
+      "target": "Q03",
+      "kind": "flow",
+      "label": "validated output"
+    },
+    {
+      "source": "Q03",
+      "target": "Q04",
+      "kind": "flow",
+      "label": "validated output"
+    },
+    {
+      "source": "Q04",
+      "target": "Q05",
+      "kind": "flow",
+      "label": "validated output"
+    },
+    {
+      "source": "Q05",
+      "target": "Q06",
+      "kind": "flow",
+      "label": "validated output"
+    },
+    {
+      "source": "M01",
+      "target": "M02",
+      "kind": "flow",
+      "label": "validated output"
+    },
+    {
+      "source": "M02",
+      "target": "M03",
+      "kind": "flow",
+      "label": "validated output"
+    },
+    {
+      "source": "M03",
+      "target": "M04",
+      "kind": "flow",
+      "label": "validated output"
+    },
+    {
+      "source": "M04",
+      "target": "R01",
+      "kind": "flow",
+      "label": "validated output"
+    },
+    {
+      "source": "E01",
+      "target": "E02",
+      "kind": "flow",
+      "label": "validated output"
+    },
+    {
+      "source": "E02",
+      "target": "E03",
+      "kind": "flow",
+      "label": "validated output"
+    },
+    {
+      "source": "E03",
+      "target": "E04",
+      "kind": "flow",
+      "label": "validated output"
+    },
+    {
+      "source": "E04",
+      "target": "E05",
+      "kind": "flow",
+      "label": "validated output"
+    },
+    {
+      "source": "E05",
+      "target": "E08",
+      "kind": "flow",
+      "label": "validated output"
+    },
+    {
+      "source": "E03",
+      "target": "E06",
+      "kind": "flow",
+      "label": "validated output"
+    },
+    {
+      "source": "E06",
+      "target": "E07",
+      "kind": "flow",
+      "label": "validated output"
+    },
+    {
+      "source": "E07",
+      "target": "E08",
+      "kind": "flow",
+      "label": "validated output"
+    },
+    {
+      "source": "L01",
+      "target": "L02",
+      "kind": "flow",
+      "label": "validated output"
+    },
+    {
+      "source": "L02",
+      "target": "L03",
+      "kind": "flow",
+      "label": "validated output"
+    },
+    {
+      "source": "L04",
+      "target": "L05",
+      "kind": "flow",
+      "label": "validated output"
+    },
+    {
+      "source": "L05",
+      "target": "L06",
+      "kind": "flow",
+      "label": "validated output"
+    },
+    {
+      "source": "X01",
+      "target": "X02",
+      "kind": "flow",
+      "label": "validated output"
+    },
+    {
+      "source": "X02",
+      "target": "X03",
+      "kind": "flow",
+      "label": "validated output"
+    },
+    {
+      "source": "X03",
+      "target": "X04",
+      "kind": "flow",
+      "label": "validated output"
+    },
+    {
+      "source": "S06",
+      "target": "I01",
+      "kind": "dependency",
+      "label": "photo/typed intake enabled"
+    },
+    {
+      "source": "S06",
+      "target": "A01",
+      "kind": "dependency",
+      "label": "only if audio extension enabled"
+    },
+    {
+      "source": "S06",
+      "target": "C01",
+      "kind": "dependency",
+      "label": "explicit command path enabled"
+    },
+    {
+      "source": "I01",
+      "target": "I11",
+      "kind": "dependency",
+      "label": "typed route; no OCR"
+    },
+    {
+      "source": "I11",
+      "target": "I04",
+      "kind": "dependency",
+      "label": "manual payload admission"
+    },
+    {
+      "source": "I05",
+      "target": "R01",
+      "kind": "dependency",
+      "label": "typed source bypasses image stages"
+    },
+    {
+      "source": "I08",
+      "target": "I07",
+      "kind": "feedback",
+      "label": "split, merge or add missing region"
+    },
+    {
+      "source": "I06",
+      "target": "I01",
+      "kind": "feedback",
+      "label": "retake requested"
+    },
+    {
+      "source": "I09",
+      "target": "I11",
+      "kind": "dependency",
+      "label": "manual transcription preserving crop reference"
+    },
+    {
+      "source": "R03",
+      "target": "I10",
+      "kind": "dependency",
+      "label": "correct extraction before acceptance"
+    },
+    {
+      "source": "R03",
+      "target": "V03",
+      "kind": "dependency",
+      "label": "revise proposed grouping"
+    },
+    {
+      "source": "R03",
+      "target": "X01",
+      "kind": "dependency",
+      "label": "rejection or unresolved review outcome"
+    },
+    {
+      "source": "R04",
+      "target": "R03",
+      "kind": "feedback",
+      "label": "stale preview requires new review"
+    },
+    {
+      "source": "R06",
+      "target": "R07",
+      "kind": "dependency",
+      "label": "human edits or undo"
+    },
+    {
+      "source": "R07",
+      "target": "R04",
+      "kind": "feedback",
+      "label": "validate compensating change"
+    },
+    {
+      "source": "R07",
+      "target": "R08",
+      "kind": "dependency",
+      "label": "accepted source revision changed"
+    },
+    {
+      "source": "A06",
+      "target": "R08",
+      "kind": "dependency",
+      "label": "corrected transcript source"
+    },
+    {
+      "source": "I10",
+      "target": "R08",
+      "kind": "dependency",
+      "label": "correction to an existing photo source"
+    },
+    {
+      "source": "R08",
+      "target": "R02",
+      "kind": "dependency",
+      "label": "affected proposals need review"
+    },
+    {
+      "source": "R06",
+      "target": "V01",
+      "kind": "dependency",
+      "label": "explicit arrangement request"
+    },
+    {
+      "source": "C05",
+      "target": "V01",
+      "kind": "dependency",
+      "label": "arrange intent"
+    },
+    {
+      "source": "C05",
+      "target": "Q02",
+      "kind": "dependency",
+      "label": "answer intent"
+    },
+    {
+      "source": "C04",
+      "target": "C02",
+      "kind": "feedback",
+      "label": "ask user to select explicit targets"
+    },
+    {
+      "source": "A06",
+      "target": "Q01",
+      "kind": "dependency",
+      "label": "index stable transcript revisions"
+    },
+    {
+      "source": "R05",
+      "target": "Q01",
+      "kind": "dependency",
+      "label": "index approved current note/claim revisions"
+    },
+    {
+      "source": "R08",
+      "target": "Q01",
+      "kind": "dependency",
+      "label": "remove stale or deleted index entries"
+    },
+    {
+      "source": "Q01",
+      "target": "Q03",
+      "kind": "dependency",
+      "label": "source index with coverage watermark"
+    },
+    {
+      "source": "A06",
+      "target": "M01",
+      "kind": "dependency",
+      "label": "new episode evidence"
+    },
+    {
+      "source": "M04",
+      "target": "Q01",
+      "kind": "dependency",
+      "label": "index decision versions"
+    },
+    {
+      "source": "Q05",
+      "target": "Q03",
+      "kind": "feedback",
+      "label": "insufficient support; expand evidence once"
+    },
+    {
+      "source": "Q05",
+      "target": "Q06",
+      "kind": "dependency",
+      "label": "no support: show limited evidence or abstain"
+    },
+    {
+      "source": "Q06",
+      "target": "X01",
+      "kind": "dependency",
+      "label": "answer verified or challenged"
+    },
+    {
+      "source": "M03",
+      "target": "M01",
+      "kind": "feedback",
+      "label": "contested or reopened episode"
+    },
+    {
+      "source": "R06",
+      "target": "E01",
+      "kind": "dependency",
+      "label": "request current work export"
+    },
+    {
+      "source": "R08",
+      "target": "E02",
+      "kind": "dependency",
+      "label": "changed sources require release review"
+    },
+    {
+      "source": "R06",
+      "target": "X01",
+      "kind": "dependency",
+      "label": "review effort and final artifact state"
+    },
+    {
+      "source": "E08",
+      "target": "X01",
+      "kind": "dependency",
+      "label": "delivered outcome and completeness"
+    },
+    {
+      "source": "L06",
+      "target": "X01",
+      "kind": "dependency",
+      "label": "content-free deletion outcome"
+    },
+    {
+      "source": "X04",
+      "target": "S01",
+      "kind": "feedback",
+      "label": "revise next trial or scope"
+    },
+    {
+      "source": "E07",
+      "target": "E07",
+      "kind": "feedback",
+      "label": "bounded reconciliation, not blind create retry"
+    },
+    {
+      "source": "L03",
+      "target": "S03",
+      "kind": "dependency",
+      "label": "resume requires current policy and agreement"
+    },
+    {
+      "source": "L03",
+      "target": "L04",
+      "kind": "dependency",
+      "label": "close starts expiry handling"
+    },
+    {
+      "source": "L07",
+      "target": "L04",
+      "kind": "dependency",
+      "label": "expired/restored data must be purged"
+    },
+    {
+      "source": "L07",
+      "target": "R06",
+      "kind": "dependency",
+      "label": "resynchronize permitted durable state"
+    },
+    {
+      "source": "L02",
+      "target": "L05",
+      "kind": "dependency",
+      "label": "purge cancelled payloads"
+    },
+    {
+      "source": "S04",
+      "target": "L01",
+      "kind": "dependency",
+      "label": "new participant changes agreement"
+    },
+    {
+      "source": "S03",
+      "target": "L04",
+      "kind": "dependency",
+      "label": "retention expiry schedules deletion"
+    },
+    {
+      "source": "S05",
+      "target": "X01",
+      "kind": "dependency",
+      "label": "device and network evidence"
+    },
+    {
+      "source": "I04",
+      "target": "X01",
+      "kind": "dependency",
+      "label": "rejection and queue metrics"
+    },
+    {
+      "source": "R05",
+      "target": "L07",
+      "kind": "dependency",
+      "label": "durable state and request result"
+    },
+    {
+      "source": "E06",
+      "target": "L05",
+      "kind": "dependency",
+      "label": "owned operation payloads are part of purge"
+    },
+    {
+      "source": "E08",
+      "target": "L06",
+      "kind": "dependency",
+      "label": "external copy boundary disclosed"
+    },
+    {
+      "source": "S03",
+      "target": "I04",
+      "kind": "control",
+      "label": "current policy and permissions gate"
+    },
+    {
+      "source": "S03",
+      "target": "A01",
+      "kind": "control",
+      "label": "current policy and permissions gate"
+    },
+    {
+      "source": "S03",
+      "target": "C05",
+      "kind": "control",
+      "label": "current policy and permissions gate"
+    },
+    {
+      "source": "S03",
+      "target": "R04",
+      "kind": "control",
+      "label": "current policy and permissions gate"
+    },
+    {
+      "source": "S03",
+      "target": "E05",
+      "kind": "control",
+      "label": "current policy and permissions gate"
+    },
+    {
+      "source": "S03",
+      "target": "E06",
+      "kind": "control",
+      "label": "current policy and permissions gate"
+    },
+    {
+      "source": "L02",
+      "target": "I04",
+      "kind": "control",
+      "label": "revoked policy blocks late work"
+    },
+    {
+      "source": "L02",
+      "target": "A01",
+      "kind": "control",
+      "label": "revoked policy blocks late work"
+    },
+    {
+      "source": "L02",
+      "target": "C05",
+      "kind": "control",
+      "label": "revoked policy blocks late work"
+    },
+    {
+      "source": "L02",
+      "target": "R04",
+      "kind": "control",
+      "label": "revoked policy blocks late work"
+    },
+    {
+      "source": "L02",
+      "target": "E05",
+      "kind": "control",
+      "label": "revoked policy blocks late work"
+    },
+    {
+      "source": "L02",
+      "target": "E06",
+      "kind": "control",
+      "label": "revoked policy blocks late work"
+    },
+    {
+      "source": "I05",
+      "target": "L05",
+      "kind": "lifecycle",
+      "label": "content and derivatives included in purge inventory"
+    },
+    {
+      "source": "A06",
+      "target": "L05",
+      "kind": "lifecycle",
+      "label": "content and derivatives included in purge inventory"
+    },
+    {
+      "source": "R05",
+      "target": "L05",
+      "kind": "lifecycle",
+      "label": "content and derivatives included in purge inventory"
+    },
+    {
+      "source": "Q01",
+      "target": "L05",
+      "kind": "lifecycle",
+      "label": "content and derivatives included in purge inventory"
+    },
+    {
+      "source": "M04",
+      "target": "L05",
+      "kind": "lifecycle",
+      "label": "content and derivatives included in purge inventory"
+    },
+    {
+      "source": "E04",
+      "target": "L05",
+      "kind": "lifecycle",
+      "label": "content and derivatives included in purge inventory"
+    },
+    {
+      "source": "E07",
+      "target": "L05",
+      "kind": "lifecycle",
+      "label": "content and derivatives included in purge inventory"
+    },
+    {
+      "source": "I06",
+      "target": "X01",
+      "kind": "observation",
+      "label": "latency, failed attempts and outcome metadata"
+    },
+    {
+      "source": "I09",
+      "target": "X01",
+      "kind": "observation",
+      "label": "latency, failed attempts and outcome metadata"
+    },
+    {
+      "source": "A03",
+      "target": "X01",
+      "kind": "observation",
+      "label": "latency, failed attempts and outcome metadata"
+    },
+    {
+      "source": "C03",
+      "target": "X01",
+      "kind": "observation",
+      "label": "latency, failed attempts and outcome metadata"
+    },
+    {
+      "source": "Q04",
+      "target": "X01",
+      "kind": "observation",
+      "label": "latency, failed attempts and outcome metadata"
+    },
+    {
+      "source": "V03",
+      "target": "X01",
+      "kind": "observation",
+      "label": "latency, failed attempts and outcome metadata"
+    }
+  ],
+  "routes": [
+    {
+      "id": "capture",
+      "label": "Photo → checked export",
+      "nodes": [
+        "S01",
+        "S02",
+        "S03",
+        "S04",
+        "S05",
+        "S06",
+        "I01",
+        "I02",
+        "I03",
+        "I04",
+        "I05",
+        "I06",
+        "I07",
+        "I08",
+        "I09",
+        "I10",
+        "R01",
+        "R02",
+        "R03",
+        "R04",
+        "R05",
+        "R06",
+        "E01",
+        "E02",
+        "E03",
+        "E04",
+        "E05",
+        "E08"
+      ]
+    },
+    {
+      "id": "manual",
+      "label": "Model unavailable → manual completion",
+      "nodes": [
+        "S06",
+        "I01",
+        "I11",
+        "I04",
+        "I05",
+        "R01",
+        "R02",
+        "R03",
+        "R04",
+        "R05",
+        "R06",
+        "E01",
+        "E02",
+        "E03",
+        "E04",
+        "E05",
+        "E08"
+      ]
+    },
+    {
+      "id": "recall",
+      "label": "Audio → evidence-checked answer",
+      "nodes": [
+        "S06",
+        "A01",
+        "A02",
+        "A03",
+        "A04",
+        "A05",
+        "A06",
+        "Q01",
+        "Q03",
+        "Q04",
+        "Q05",
+        "Q06"
+      ]
+    },
+    {
+      "id": "arrange",
+      "label": "Explicit request → reviewed arrangement",
+      "nodes": [
+        "S06",
+        "C01",
+        "C02",
+        "C03",
+        "C04",
+        "C05",
+        "V01",
+        "V02",
+        "V03",
+        "V04",
+        "V05",
+        "R01",
+        "R02",
+        "R03",
+        "R04",
+        "R05",
+        "R06"
+      ]
+    },
+    {
+      "id": "correction",
+      "label": "Correction → downstream review",
+      "nodes": [
+        "R06",
+        "R07",
+        "R08",
+        "R02",
+        "R03",
+        "R04",
+        "R05",
+        "R06"
+      ]
+    },
+    {
+      "id": "minutes",
+      "label": "Discussion → decision candidates",
+      "nodes": [
+        "A06",
+        "M01",
+        "M02",
+        "M03",
+        "M04",
+        "R01",
+        "R02",
+        "R03",
+        "R04",
+        "R05"
+      ]
+    },
+    {
+      "id": "stop",
+      "label": "Participant change → stop → deletion",
+      "nodes": [
+        "S04",
+        "L01",
+        "L02",
+        "L03",
+        "L04",
+        "L05",
+        "L06"
+      ]
+    },
+    {
+      "id": "external",
+      "label": "Export → external reconciliation",
+      "nodes": [
+        "E01",
+        "E02",
+        "E03",
+        "E06",
+        "E07",
+        "E08"
+      ]
+    },
+    {
+      "id": "learning",
+      "label": "Observe → compare → choose next scope",
+      "nodes": [
+        "R06",
+        "X01",
+        "X02",
+        "X03",
+        "X04",
+        "S01"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "name": "jarvaids-client",
+  "private": true,
+  "type": "module",
+  "description": "The Jarvaids client. No build step and no runtime dependencies: it loads client.mjs and session-sync.mjs from ../server as plain ES modules. Playwright is here only to drive the journey test in a real browser.",
+  "scripts": {
+    "journey": "node tests/journey.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.49.0"
+  }
+}

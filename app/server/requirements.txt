@@ -1,0 +1,5 @@
+# Tested offline with the installed Pillow 12.0.0 on Python 3.14.
+Pillow>=12.0.0,<13.0.0
+
+# IANA dates resolve offline on Windows too; checked with the installed database.
+tzdata>=2024.1,<2028

@@ -1,0 +1,16 @@
+{
+  "phrase": "Hey Jarvaids",
+  "pronunciation": "Hey Jar-vaydz",
+  "upstream_commit": "c8ef6912c5feccf1037b852d9bc6c7ed644135ba",
+  "target_phrase": [
+    "hey jar vaydz"
+  ],
+  "model_name": "hey_jarvaids",
+  "n_samples": 5000,
+  "n_samples_val": 1000,
+  "steps": 10000,
+  "seed": 20260923,
+  "threshold": 0.5,
+  "status": "not_trained",
+  "pronunciation_reviewed": false
+}

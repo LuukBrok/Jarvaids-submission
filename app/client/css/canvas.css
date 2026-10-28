@@ -1,0 +1,393 @@
+/* ==========================================================================
+   The canvas: the board's ground, everything drawn on it, the empty state,
+   the selection row, the list, the hint and the composer.
+   Owner: the phase 3 canvas agent (DESIGN.md 1.5), with board.mjs,
+   canvas-objects.mjs, tools/draw.mjs, tools/connect.mjs, tools/dock.mjs,
+   css/tools.css and the <!-- region: canvas --> block in index.html (not
+   the strip or parked blocks nested inside it).
+
+   The note's looks come from the .note primitive; this file places notes on
+   the board and sets the three canvas departures from it: 16px padding, the
+   typed-not-reviewed look, and the accents a note's evidence chooses.
+   ========================================================================== */
+
+/* ---- the row above the board: selection and Place new notes ---- */
+.board-tools { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4); margin-bottom: var(--space-3); }
+/* Both its parts are often hidden; an empty row must not push the board down. */
+.board-tools:not(:has(> :not([hidden]))) { display: none; }
+/* On a wide screen the row floats over the board's top left, as the dock
+   floats at its bottom left. In the flow it pushed the whole board down
+   44px every time a note was selected, and on a projector the canvas
+   jumped at every click (phase 5 review). Paper with the menus' hairline,
+   not the shadow, which belongs to the dock, a dragged note and the focused
+   review card. */
+@media (min-width: 1024px) {
+  .ws-main { position: relative; }
+  .board-tools {
+    position: absolute; top: var(--space-3); left: var(--space-3); z-index: var(--z-dock);
+    max-width: calc(100% - var(--parked-w) - 2 * var(--space-3)); margin: 0;
+    padding: var(--space-2) var(--space-3); background: var(--surface);
+    border: var(--line-1) solid var(--edge); border-radius: var(--r-lg);
+  }
+}
+.selection { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
+.group-label {
+  font: inherit; font-size: var(--fs-body); min-height: var(--target); padding-inline: var(--space-2); min-width: 0; width: 16ch;
+  border: var(--line-1) solid var(--edge); border-radius: var(--r-sm); background: var(--surface); color: var(--text);
+}
+.board-hint { margin: var(--space-2) 0 0; color: var(--text-2); }
+.composer { display: flex; align-items: flex-end; gap: var(--space-3); margin-top: var(--space-4); }
+.composer-field { flex: 1; min-width: 0; }
+
+/* ---- the stage and the ground ----
+   The stage is the positioned box the board fills; the empty state, the
+   parked margin and the dock are placed against it. The board has no frame:
+   it is paper with ink-light dots every 24px, which pan and scale with the
+   world (board.mjs sets --grid-size and --grid-x/y). The dots are the one
+   radial-gradient in the client: it draws dots, not a colour ramp, so it
+   keeps the no-gradients rule's reason (no surface is shaded). */
+.board-stage {
+  position: relative;
+  /* One cell holds the board, the empty state and the dock, so the dock and
+     the empty state sit on the board whatever is below it. Under 1024px the
+     parked shelf takes a second row under the board (parked.css); before
+     phase 4 the stage was a plain box, the dock was placed against its
+     bottom, and at 400px it covered the shelf's Unpark buttons. */
+  display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr);
+}
+.board-stage > #board, .board-stage > .board-empty, .board-stage > #dock { grid-area: 1 / 1; }
+/* A note being dragged is drawn over the parked band, so a person sees it
+   arrive there. The world carries the pan transform, so it is one stacking
+   layer: it is lifted whole above the band (--z-sticky) for the drag only,
+   and the board's own ground stays under the band. */
+.board-stage:has(.note.dragging) .world { z-index: calc(var(--z-sticky) + 1); }
+.board {
+  --group-fill: var(--tone-accent-fill);
+  position: relative; overflow: hidden; padding: 0;
+  background-color: var(--surface);
+  background-image: radial-gradient(circle, var(--edge) var(--line-1), transparent var(--line-1));
+  background-size: var(--grid-size, var(--space-5)) var(--grid-size, var(--space-5));
+  background-position: var(--grid-x, 0) var(--grid-y, 0);
+  /* Wide: as tall as the stage, which css/screens.css sizes to what the
+     window leaves; narrow: a fixed share of the screen. */
+  min-height: var(--board-min);
+  touch-action: none; cursor: grab; user-select: none;
+}
+@media (max-width: 1023px) {
+  .board-stage { grid-template-rows: auto; }
+  .board { height: var(--board-narrow-h); min-height: var(--board-min-narrow); }
+}
+.board:active { cursor: grabbing; }
+.world {
+  position: absolute; left: 0; top: 0; width: 0; height: 0; transform-origin: 0 0;
+  /* The canvas's type (tokens.css, --fs-canvas-*): nothing under 15px at
+     100% zoom, and no growth with --scale, because the projector acts
+     through the board's zoom here. Every rule inside the world reads the
+     role sizes, so rebinding them here reaches the note's text, kind line,
+     marker, stamp and buttons, group and connector labels, tags and the
+     canvas objects' words at once. */
+  --fs-display: var(--fs-canvas-display);
+  --fs-title: var(--fs-canvas-title);
+  --fs-note: var(--fs-canvas-note);
+  --fs-body: var(--fs-canvas-body);
+  --fs-small: var(--fs-canvas-small);
+  --fs-mono: var(--fs-canvas-small);
+}
+
+/* ---- the empty state ----
+   Centred on the board: a Display line, one sentence and the two ways to
+   start, on one flat lilac rectangle turned two degrees. Ink throughout,
+   because --ink-2 measures 3.79:1 on lilac. 35 steps of 16px is the brief's
+   560px measure. */
+.board-empty {
+  position: relative; z-index: var(--z-sticky); display: grid; place-items: center;
+  padding: var(--space-4); pointer-events: none;
+}
+.board-empty-card {
+  position: relative; isolation: isolate; max-width: calc(35 * var(--space-4));
+  display: flex; flex-direction: column; gap: var(--space-4);
+  padding: var(--space-7) var(--space-6); color: var(--text); pointer-events: auto;
+}
+.board-empty-card::before {
+  content: ""; position: absolute; inset: 0; z-index: -1;
+  background: var(--lilac); border-radius: var(--r-lg); rotate: -2deg;
+}
+.board-empty-card .t-body { margin: 0; color: var(--text); }
+
+/* ---- notes on the board ---- */
+.world .note { position: absolute; padding: var(--space-4); cursor: grab; touch-action: none; user-select: text; }
+.world .note.dragging { cursor: grabbing; }
+.world .note.readonly { cursor: default; }
+.note .text { white-space: pre-wrap; }
+.note .details textarea { width: 100%; box-sizing: border-box; font: inherit; }
+/* Three width steps, never free sizing. */
+.note.narrow  { width: var(--note-w-narrow); }
+.note.default { width: var(--note-w-default); }
+.note.wide    { width: var(--note-w-wide); }
+.world .note .badge { display: flex; margin-bottom: var(--space-1); }
+.note .note-head { display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-1); }
+/* Typed and not yet reviewed: a person wrote it, so it is not a guess and
+   not askew, but nobody accepted it either: paper, a hairline, and the words
+   "Not yet reviewed". */
+.world .note.item-pending {
+  --note-fill: var(--surface); --note-text-2: var(--text-2);
+  border: var(--line-1) solid var(--edge); rotate: 0deg;
+}
+/* The connector's first end, waiting for the second. */
+.world .note.connect-from, .world .cobj.connect-from { outline: var(--focus-width) dashed var(--selected); outline-offset: var(--focus-offset); }
+/* A rejected note leaving: drawn, never pressed. */
+.world .note.note-ghost { pointer-events: none; }
+
+/* ---- the sticky note as a post-it ----
+   Narrative brief decision 5; decision log, 26 October 2026. Board notes
+   only (.note-sticky, set by board.mjs): polls and command documents are
+   .note too and stay cards. Back to front:
+     1. The note's own fill, --note-fill, painted only under its content
+        (content-box). It stays the note's background, so the accept motion
+        (which animates background-color) and anything that reads the fill
+        see the colour the paper is; a measured paper colour's accent and a
+        quote's speaker colour arrive here as before.
+     2. The paper, ::before, over the padding box: the same fill by
+        inheritance, then three layers: the fold at the bottom right in a
+        paler tint, the fold's shadow on the sheet, and the vertical sweep
+        from the glue strip (the fill a step toward ink) to the foot (the
+        fill toward paper). A 315deg mask cuts the fold's triangle out of
+        the corner, so the wall shows where the corner lifted.
+     3. The badge, the words, dates, buttons and details, as before.
+     4. The chip, .note-chip, last: the kind line, the quote marker and the
+        stamp, printed in mono on the sunken ground at the bottom edge, so
+        the note's words and the machine's label read as two things. It
+        ends where the fold begins, so the fold never covers it.
+   The wall shadow is a drop-shadow filter on the note, not a box-shadow, so
+   it follows the cut corner. It is the recorded exception to the
+   one-shadow rule (decision log); the dragged note's --shadow still adds
+   to it. The proposed note keeps its yellow left edge, its Proposed marker
+   and its angle: the edge is the note's border, outside the paper. */
+.world .note-sticky {
+  --paper-sheen: var(--note-sheen);
+  isolation: isolate;
+  border-radius: var(--r-note);
+  padding-bottom: var(--note-chip-inset);
+  background-clip: content-box;
+  filter: drop-shadow(var(--note-shadow-contact)) drop-shadow(var(--note-shadow-wall));
+}
+.world .note-sticky::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  border-radius: var(--r-note);
+  background-color: inherit;
+  background-image:
+    linear-gradient(to top left, transparent 50%, var(--note-curl-tint) 50%),
+    linear-gradient(to top left, transparent 50%, var(--note-curl-shade) 50%, transparent),
+    linear-gradient(to bottom, var(--note-glue), var(--note-glue) var(--note-strip-h),
+      transparent calc(var(--note-strip-h) + var(--note-strip-blend)), var(--paper-sheen));
+  background-size:
+    var(--note-curl) var(--note-curl),
+    calc(var(--note-curl) + var(--note-curl-shadow)) calc(var(--note-curl) + var(--note-curl-shadow)),
+    100% 100%;
+  background-position: right bottom, right bottom, left top;
+  background-repeat: no-repeat;
+  /* A mask reads alpha only: the opaque colour is never seen. */
+  mask-image: linear-gradient(315deg, transparent var(--note-curl-cut), var(--text) var(--note-curl-cut));
+}
+/* A deep quote note has paper words, which a paled foot would wash out
+   (2.78:1 on mint-deep), so its sheet does not pale; the strip only darkens
+   it, which paper words gain from. */
+.world .note-sticky[data-quote-tone="deep"] { --paper-sheen: transparent; }
+/* The typed note's hairline moves onto the paper, so the mask cuts it with
+   the corner instead of leaving a square outline round the fold. */
+.world .note-sticky.item-pending { border-color: transparent; }
+.world .note-sticky.item-pending::before { inset: calc(-1 * var(--line-1)); border: var(--line-1) solid var(--edge); }
+
+.world .note-sticky .note-chip {
+  display: flex; flex-direction: column; gap: var(--line-2);
+  /* 8px from the left edge (the inset, less the words' 16px); on the right
+     it stops where the fold begins, so the fold never touches it. */
+  margin: var(--space-3) calc(var(--note-curl) - var(--space-4)) 0 calc(var(--note-chip-inset) - var(--space-4));
+  padding: var(--note-chip-pad); border-radius: var(--r-sm);
+  background: var(--note-chip-fill);
+  /* The chip is its own ground: ink and --ink-2 on --paper-2 whatever the
+     note's fill, so a deep quote note's paper words stop at its edge. */
+  color: var(--text); --note-text-2: var(--text-2);
+  font-family: var(--font-mono); font-size: var(--fs-mono); line-height: var(--lh-mono); font-weight: var(--fw-mono);
+  font-variant-numeric: tabular-nums; overflow-wrap: anywhere;
+}
+.world .note-sticky .note-chip .note-head { margin: 0; }
+.world .note-sticky .note-chip .kind { font: inherit; color: var(--text); }
+.world .note-sticky .note-chip .meta { margin: 0; font: inherit; color: var(--note-text-2); }
+
+/* The measured paper colour beside the label, the exact evidence. */
+.swatch { width: var(--glyph); height: var(--glyph); border-radius: var(--r-sm); flex: none; display: inline-block; }
+.note-actions { display: flex; flex-wrap: wrap; gap: var(--line-2); margin-top: var(--space-2); }
+/* A note's buttons show when a hand is on it: hovered, focused, selected or
+   with its details open. On a wall of twenty notes the forty buttons read as
+   a dashboard, not as notes (phase 5 review); the rail carries every
+   review action, so nothing is lost. They keep their place, so nothing moves
+   when they appear, and a touch screen always shows them. */
+@media (hover: hover) and (pointer: fine) {
+  .world .note .note-actions { opacity: 0; }
+  .world .note:is(:hover, :focus-within, .item-selected) .note-actions,
+  .world .note .note-actions:has([aria-expanded="true"]) { opacity: 1; }
+}
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .world .note .note-actions { transition: opacity var(--t-fast) var(--ease-out); }
+}
+.facts { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--line-2) var(--space-2); margin: 0;
+  font-size: var(--fs-small); line-height: var(--lh-small); font-weight: var(--fw-small); }
+.facts dt { color: var(--note-text-2, var(--text-2)); }
+.facts dd { margin: 0; overflow-wrap: anywhere; }
+.swatch-line { display: inline-flex; align-items: center; gap: var(--space-1); font-family: var(--font-mono); font-size: var(--fs-mono); }
+.crop { margin: var(--space-2) 0 0; }
+.crop img { display: block; max-width: 100%; border-radius: var(--r-sm); }
+.crop figcaption { margin-top: var(--space-1); color: var(--note-text-2, var(--text-2)); }
+.lane-label { position: absolute; white-space: nowrap; }
+
+/* ---- dates on notes (chips.mjs) ----
+   A note with a calendar event, and a task row, carry one small chip in the
+   mono meta style. Overdue is the coral role and today the yellow role, each
+   with its word in the chip; a later or finished date has no fill and takes
+   the note's secondary text colour, so it reads as metadata, not a state. */
+.date-chip {
+  display: inline-flex; align-items: center; min-height: var(--h-chip); padding: 0 var(--space-2);
+  border-radius: var(--r-sm); white-space: nowrap; color: var(--note-text-2, var(--text));
+  font-family: var(--font-mono); font-size: var(--fs-mono); line-height: var(--lh-mono); font-weight: var(--fw-mono);
+  font-variant-numeric: tabular-nums;
+}
+.date-chip[data-tone="plain"] { padding-inline: 0; }
+.date-chip[data-tone="overdue"] { background: var(--date-overdue); color: var(--text); }
+.date-chip[data-tone="today"] { background: var(--date-today); color: var(--text); }
+.note .note-dates { display: flex; flex-wrap: wrap; gap: var(--space-1); margin-top: var(--space-2); }
+/* Add to calendar, in a note's details: one date field, an optional time,
+   and the action. Separated from the facts above by space, not a line. */
+.note-calendar { margin-top: var(--space-3); font-size: var(--fs-small); line-height: var(--lh-small); }
+.note-calendar p { margin: 0 0 var(--space-2); display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-1); color: var(--note-text-2, var(--text-2)); }
+.note-calendar-fields { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.note-calendar-field { display: grid; gap: var(--space-1); color: var(--note-text-2, var(--text-2)); }
+.note-calendar-field input {
+  font: inherit; color: var(--text); background: var(--surface); min-height: var(--h-control-sm);
+  border: var(--line-1) solid var(--edge); border-radius: var(--r-sm); padding: 0 var(--space-1);
+}
+
+/* ---- groups ----
+   A soft rectangle behind the members, its label inside the top left so the
+   board's edge never cuts it. Askew by one degree while proposed, straight
+   once accepted: the same language as a note. */
+.hull { position: absolute; box-sizing: border-box; pointer-events: none; border-radius: var(--r-lg); background: var(--group-fill); }
+.hull.hull-provisional { rotate: -1deg; }
+.hull-label {
+  position: absolute; top: var(--space-2); left: var(--space-3); pointer-events: auto;
+  display: inline-flex; align-items: center; gap: var(--space-2); white-space: nowrap;
+  font-size: var(--fs-small); line-height: var(--lh-small); font-weight: var(--fw-small); color: var(--text-2);
+}
+.hull-label .glyph { display: none; }
+@media (prefers-reduced-motion: no-preference) { .hull { transition: rotate var(--t-base) var(--ease-out); } }
+
+/* ---- canvas objects: sections, shapes, text, connectors, pen strokes ----
+   Each tone is a full accent for a shape's field, a deep line for a rule
+   and a coloured mark; ink is the neutral one and its mark is the human
+   mark. A proposal has no fill and the machine mark. None take pointer
+   events, so a press on one pans the board; only their Review button is
+   pressable. */
+.tone-ink        { --tone-full: var(--tone-ink-fill); --tone-line: var(--tone-ink-line);        --tone-mark: var(--mark-human); }
+.tone-accent     { --tone-full: var(--periwinkle);    --tone-line: var(--tone-accent-line);     --tone-mark: var(--tone-accent-line); }
+.tone-category-1 { --tone-full: var(--lilac);         --tone-line: var(--tone-category-1-line); --tone-mark: var(--tone-category-1-line); }
+.tone-category-2 { --tone-full: var(--mint);          --tone-line: var(--tone-category-2-line); --tone-mark: var(--tone-category-2-line); }
+.tone-category-3 { --tone-full: var(--coral);         --tone-line: var(--tone-category-3-line); --tone-mark: var(--tone-category-3-line); }
+
+.cobj { position: absolute; box-sizing: border-box; pointer-events: none; }
+.cobj-tag { position: absolute; bottom: calc(100% + var(--space-1)); left: 0; pointer-events: auto;
+  display: inline-flex; align-items: center; gap: var(--space-2); white-space: nowrap;
+  font-family: var(--font-mono); font-size: var(--fs-mono); line-height: var(--lh-mono); color: var(--text-2); }
+.cobj-tag .glyph { display: none; }
+
+/* A section reads as a group: the soft field, "Section · title" inside. */
+.cobj-section { border-radius: var(--r-lg); background: var(--group-fill); }
+.cobj-section .cobj-title { position: absolute; top: var(--space-2); bottom: auto; left: var(--space-3); white-space: nowrap;
+  font-size: var(--fs-small); line-height: var(--lh-small); font-weight: var(--fw-small); color: var(--text-2); }
+.cobj-section.cobj-proposed { background: none; border: var(--line-1) dashed var(--mark-machine); rotate: -1deg; }
+
+/* Shapes: flat full-strength fields, their words in the Note style. */
+.cobj-outline { position: absolute; inset: 0; overflow: visible; }
+.cobj-outline .body { fill: var(--tone-full); stroke: none; }
+.cobj-outline rect.body { rx: var(--r-lg); }
+.cobj-outline .rule { fill: none; stroke: var(--tone-line); stroke-width: var(--line-2); stroke-linecap: round; }
+.cobj-proposed .cobj-outline .body,
+.cobj-proposed .cobj-outline .rule { fill: none; stroke: var(--mark-machine); stroke-width: var(--line-1); stroke-dasharray: var(--dash-machine); }
+.cobj-label { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; text-align: center;
+  padding: var(--space-3) var(--space-4); overflow-wrap: anywhere; color: var(--text);
+  font-size: var(--fs-note); line-height: var(--lh-note); font-weight: var(--fw-note); }
+.shape-line .cobj-label { inset: calc(100% + var(--space-1)) auto auto 0; padding: 0; white-space: nowrap;
+  font-size: var(--fs-small); line-height: var(--lh-small); font-weight: var(--fw-small); }
+
+/* Text: the type alone, in ink. Heading is Display on the canvas, title is
+   Title, body is Body. */
+.cobj-text { padding: var(--space-1); color: var(--text); overflow-wrap: anywhere; }
+.cobj-text .cobj-words { display: block; margin: 0; }
+.cobj-words.t-heading { font-size: var(--fs-display); line-height: var(--lh-display); font-weight: var(--fw-display); letter-spacing: var(--ls-display); }
+.cobj-text.cobj-proposed { border: var(--line-1) dashed var(--mark-machine); border-radius: var(--r-sm); }
+
+/* Connectors and strokes: one layer under the notes, 1px square with visible
+   overflow (a zero-sized SVG is not drawn). */
+.links { position: absolute; left: 0; top: 0; overflow: visible; max-width: none; pointer-events: none; }
+.links .arrow-line, .links .arrow-head { fill: none; stroke: var(--tone-mark); stroke-width: var(--line-2); stroke-linecap: round; stroke-linejoin: round; }
+.links .pen { fill: none; stroke: var(--tone-mark); stroke-linecap: round; stroke-linejoin: round; }
+/* One weight for the pen; fine and bold are kept for records that ask. */
+.links .pen.weight-fine    { stroke-width: var(--line-1); }
+.links .pen.weight-regular { stroke-width: var(--ink-weight); }
+.links .pen.weight-bold    { stroke-width: calc(2 * var(--line-2)); }
+.links .cobj-proposed .arrow-line,
+.links .pen.cobj-proposed { stroke: var(--mark-machine); stroke-width: var(--line-2); stroke-dasharray: var(--dash-machine); }
+.links .cobj-proposed .arrow-head { stroke: var(--mark-machine); }
+
+.cobj-float { position: absolute; pointer-events: none; white-space: nowrap; }
+.cobj-float .cobj-tag { position: static; }
+.cobj-float-middle { transform: translate(-50%, -50%); }
+.cobj-float-above { transform: translateY(calc(-100% - var(--space-1))); }
+.cobj-float-over { transform: translate(-50%, calc(-100% - var(--space-3))); }
+/* A connector's label: Small, on a paper patch, at the curve's middle. */
+.arrow-label { display: inline-block; padding: 0 var(--space-1); background: var(--surface); border-radius: var(--r-sm);
+  font-size: var(--fs-small); line-height: var(--lh-small); font-weight: var(--fw-small); color: var(--text-2); }
+
+/* ---- the parallel list ---- */
+.list-view { display: flex; flex-direction: column; gap: var(--space-5); }
+.list-view h2 { margin: 0 0 var(--space-2); }
+/* The list reads as the minutes, not as a table: each note's words in the
+   Note style, rows separated by space with no line between them, and the
+   Review button under the words it reviews. With a hairline under every
+   row and Body text it could be dropped into any admin panel, which the
+   originality test refuses (phase 5 review). */
+.list-row { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--line-2) var(--space-3); align-items: baseline;
+  padding-block: var(--space-2); }
+.list-row > .t-body { font-size: var(--fs-note); line-height: var(--lh-note); font-weight: var(--fw-note); }
+.list-row > .btn { justify-self: start; }
+@media (min-width: 1024px) {
+  .list-row { grid-template-columns: var(--list-label-w) minmax(0, 1fr); }
+  .list-row .t-meta, .list-row > .btn { grid-column: 2; }
+}
+
+@media (max-width: 1023px) {
+  .board-hint { display: none; }
+  /* The field takes its own row on a phone; beside two buttons it was a
+     few characters wide at 400px. */
+  .composer { flex-wrap: wrap; }
+  .composer-field { flex-basis: 100%; }
+}
+
+.summary-note-detail { white-space: pre-wrap; overflow-wrap: anywhere; margin-block: var(--space-3); }
+/* A derived topic view. Canonical positions and original paper colours stay
+   in the records and remain available through Free layout and source details. */
+.topic-overview .topic-card { width: 224px; box-sizing: border-box; padding: 12px; cursor: default; }
+.topic-overview .topic-card[data-expanded="true"] { width: 464px; }
+.topic-note-title { display: block; width: 100%; background: none; border: 0; padding: 0; text-align: left; color: inherit; font: inherit; cursor: pointer; }
+.topic-card[data-expanded="false"] .topic-note-title { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.topic-card[data-expanded="false"] .note-chip { margin-top: 10px; }
+.topic-card[data-expanded="false"] .note-chip .meta { display: none; }
+.topic-overview .topic-group { box-sizing: border-box; background: var(--note-accent-soft); border: 0; border-radius: var(--r-lg); }
+.topic-heading { pointer-events: auto; display: block; border: 0; background: none; color: var(--ink); padding: 16px; text-align: left; font: 600 24px/32px Archivo, sans-serif; cursor: pointer; }
+.topic-command { position: absolute; box-sizing: border-box; width: 224px; border-radius: var(--r-sm); background: var(--surface); color: var(--ink); padding: 14px; border-top: 5px solid var(--note-accent); }
+.topic-command[open] { width: 704px; }
+.topic-command > summary { cursor: pointer; }
+.topic-command > summary strong { font-size: 17px; line-height: 24px; }
+.topic-command > summary span { display: block; font-size: 13px; line-height: 20px; margin-top: 8px; }
+.world .topic-command > .note { position: relative; left: auto; top: auto; width: 100%; min-width: 0; box-sizing: border-box; margin-top: 16px; }
+#topic-layout-hint { align-self: center; }
+@media (max-width: 1023px) { #topic-layout-hint { display: none; } }

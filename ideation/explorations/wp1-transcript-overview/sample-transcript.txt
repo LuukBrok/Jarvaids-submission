@@ -1,0 +1,24 @@
+Alice: Okay should we start with the onboarding flow or the dashboard first?
+Bob: Let's do onboarding, it's blocking the others.
+Carla: Agreed, onboarding first.
+Alice: For onboarding, I think we need an email step and then a profile step.
+Bob: Do we need phone verification though?
+Carla: I don't think so, email should be enough for now.
+Alice: Okay, let's go with email plus profile, no phone verification for v1.
+Bob: Cool, that's decided then.
+Carla: Now, what about the dashboard, should it show recent activity or just stats?
+Alice: I'd lean towards stats first, activity feed feels like a v2 thing.
+Bob: I actually think activity matters more for engagement.
+Carla: Let's park that, we don't need to decide now, let's talk about navigation instead.
+Alice: For navigation, sidebar or top bar?
+Bob: Sidebar, it scales better with more sections later.
+Carla: Yeah sidebar makes sense, let's go with that.
+Alice: Great, sidebar it is.
+Bob: Wait, going back to onboarding for a second, actually marketing wants a phone number for SMS reminders.
+Carla: Hmm okay, so maybe we do need phone verification after all, optional though.
+Alice: Right, let's make it optional, not required, so it doesn't block signup.
+Bob: Agreed, optional phone number field added to onboarding.
+Carla: Good, and for the dashboard, any more thoughts on activity vs stats?
+Alice: Actually I changed my mind, let's just do both in two tabs.
+Bob: That works for me.
+Carla: Okay, dashboard shows stats and activity as two tabs, decided.

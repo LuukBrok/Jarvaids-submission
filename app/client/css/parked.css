@@ -1,0 +1,112 @@
+/* ==========================================================================
+   The parked margin: a shelf at the canvas's right edge (DESIGN.md 1.2).
+   Owner: the phase 3 parked margin agent, with tools/parked.mjs and the
+   <!-- region: parked --> block in index.html.
+
+   A band --parked-w wide on the sunken ground with a hairline on its left,
+   titled "Parked" in Small. Parked notes stand on it top to bottom, 12px
+   apart, as compact cards: the note's words in Body on its accent muted to
+   -soft, straight, with a quiet Unpark. The band never scrolls the page: it
+   is as tall as the board and its own list scrolls inside it.
+
+   Placement. #parked is the board's next sibling, not its child, so it is
+   laid over the board's right edge by anchor positioning: #board is named as
+   the anchor here (the one property this file sets on an element it does
+   not own; it changes nothing about how the board looks or behaves), and
+   the band takes the board's top, bottom and right edges, so it follows the
+   board through every layout change without script. Under 1024px, or in a
+   browser without anchor positioning, the band sits under the board as a
+   full-width shelf whose cards run left to right, because 200px is half of
+   a phone's board.
+
+   Marks on the board, set by tools/parked.mjs after every board render:
+   .note.is-parked (a parked note), .is-parked-section (the Parked section
+   record, which the board would draw as a rectangle) and .is-parked-link
+   (an arrow to a parked note, which would point at nothing).
+   ========================================================================== */
+
+#board .note.is-parked,
+#board .is-parked-section,
+#board .is-parked-link { display: none; }
+
+#parked {
+  /* Under the board: the stage's second row (canvas.css). */
+  grid-row: 2; grid-column: 1;
+  display: flex; flex-direction: column; gap: var(--space-3);
+  margin-top: var(--space-3); padding: var(--space-3);
+  background: var(--surface-sunken); color: var(--text);
+  border-radius: var(--r-lg);
+  cursor: default; user-select: none;
+}
+
+.parked-head { display: flex; align-items: baseline; gap: var(--space-2); }
+.parked-title {
+  margin: 0; font-size: var(--fs-small); line-height: var(--lh-small); font-weight: var(--fw-small); color: var(--text);
+}
+.parked-count {
+  font-family: var(--font-mono); font-size: var(--fs-mono); line-height: var(--lh-mono); font-weight: var(--fw-mono);
+  font-variant-numeric: tabular-nums; color: var(--text-2);
+}
+.parked-hint {
+  margin: 0; font-size: var(--fs-small); line-height: var(--lh-small); font-weight: var(--fw-small); color: var(--text-3);
+}
+#parked.is-target .parked-hint { color: var(--text); }
+
+/* The shelf. Its own scroll, so a long shelf never lengthens the page; the
+   inset keeps the focus ring of the first and last card inside it. */
+.parked-list {
+  list-style: none; margin: 0; padding: var(--space-1);
+  display: flex; gap: var(--space-3);
+  overflow-x: auto; overscroll-behavior: contain;
+}
+.parked-list > li { flex: none; width: calc(var(--parked-w) - 2 * var(--space-3)); }
+
+/* A compact note: the accent at -soft, straight, the words in Body. The fill
+   goes through --note-fill, as on the note primitive; .note-{accent} from
+   primitives.css supplies --note-accent-soft. Not a .note, so no query for
+   board notes can mistake a card on the shelf for one on the board. */
+.parked-card {
+  --note-fill: var(--note-accent-soft, var(--yellow-soft));
+  display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-1);
+  padding: var(--space-2) var(--space-3) var(--space-1);
+  border-radius: var(--r-lg); background: var(--note-fill); color: var(--text);
+  cursor: grab; touch-action: none;
+}
+.parked-text {
+  margin: 0; font-size: var(--fs-body); line-height: var(--lh-body); font-weight: var(--fw-body);
+  overflow-wrap: anywhere;
+}
+/* --ink-2 on every -soft accent is above 5.3:1 (DESIGN.md 2.2). */
+.parked-unpark { margin-left: calc(-1 * var(--space-2)); color: var(--text-2); }
+.parked-card.is-lifted { visibility: hidden; }
+/* The card being dragged out: the one shadow, as for a dragged note. */
+.parked-ghost {
+  position: fixed; z-index: var(--z-drag); margin: 0; pointer-events: none;
+  box-shadow: var(--shadow); cursor: grabbing;
+}
+@media (pointer: coarse) { .parked-card { cursor: default; } }
+
+/* Over the board's right edge. */
+@media (min-width: 1024px) {
+  @supports (anchor-name: --jv-board) {
+    #board { anchor-name: --jv-board; }
+    #parked {
+      /* Out of the stage's grid: placed by the anchor, not by a row. */
+      grid-row: auto; grid-column: auto;
+      position: absolute; position-anchor: --jv-board; z-index: var(--z-sticky);
+      top: anchor(top); bottom: anchor(bottom); right: anchor(right);
+      width: var(--parked-w); margin: 0;
+      border-left: var(--line-1) solid var(--edge);
+      border-radius: var(--r-none) var(--r-lg) var(--r-lg) var(--r-none);
+    }
+    /* A note held over the band: the hairline becomes the ink line, the one
+       sign that letting go here parks it. */
+    #parked.is-target { border-left: var(--line-2) solid var(--text); }
+    #parked .parked-list { flex-direction: column; flex: 1; min-height: 0; overflow-x: hidden; overflow-y: auto; }
+    #parked .parked-list > li { width: auto; }
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  #parked { transition: border-color var(--t-fast) var(--ease-out); }
+}

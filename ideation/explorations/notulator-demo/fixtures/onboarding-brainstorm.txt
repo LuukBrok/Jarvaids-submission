@@ -1,0 +1,97 @@
+Okay should we get started. Thanks everyone for jumping on, today we want to talk through onboarding at the company because the exit interviews keep flagging the first month as really rough. Let's just go round and dump ideas, we can organise after.
+
+Sure so the first thing that always comes up is the laptop. New hires start on day one with no laptop half the time because IT only orders it after HR confirms the start date and that confirmation is always late.
+
+Yeah I've heard that too. Can we just have IT order hardware as soon as the offer is signed instead of waiting for the official start date confirmation.
+
+That makes sense to me. We'd be ordering a few laptops that never get used if an offer falls through but that is a much smaller cost than someone sitting with no laptop for three days.
+
+Agreed, let's go with that, order hardware on offer signature, not on start date confirmation. Tom can you own getting that process change through with IT.
+
+Yeah I'll take that, I'll talk to Dana in IT this week.
+
+While we're on paperwork, the contract signing and the tax forms are also a mess. People get like six different emails from six different systems in the first week and nobody reads any of them properly.
+
+What if we just bundled them into one onboarding portal, one login, one checklist.
+
+That is probably the right direction but it is a bigger build, HR system integration, so let's park the full portal idea for now and just note it as something worth exploring later.
+
+Can we talk about the buddy system for a second, that feels like the bigger lever honestly, more than paperwork.
+
+Go for it.
+
+Right now new hires get assigned a buddy but the buddy is basically picked at random from whoever is free that week. Sometimes it is someone on a totally different team who the new hire never actually works with.
+
+We should match buddies by team and ideally by role, so a new designer gets paired with another designer, not with whoever happened to raise their hand.
+
+I like that. Should the buddy be a formal responsibility with actual time blocked for it, or just an informal thing?
+
+I think it needs to be formal otherwise it just does not happen, people get busy and the new hire falls through the cracks. Let's decide, buddy assignments by matching team and role, with one hour a week blocked on the buddy's calendar for the first month.
+
+Agreed. I can own setting up the matching process with the team leads, I already have a decent relationship with most of them. That's Priya by the way.
+
+One thing we have not answered though, who decides what counts as a good match when someone joins a brand new team that does not have anyone senior yet. That one I do not think we have an answer for.
+
+Good question, let's leave that open for now and come back to it.
+
+Can we go back to the laptop and IT thing for a second, I realised there is a second half to that problem. Even once the laptop arrives, accounts and software access take another two or three days because access requests go through a ticket queue that is not prioritised for new hires.
+
+Oh that is a good catch, so even with the earlier ordering fix, access itself is still slow.
+
+Could new hire tickets just get an automatic priority flag in the ticket system?
+
+Possibly, but that depends on what the ticket tool actually supports, I am not sure it has a priority flag we can set automatically based on ticket type.
+
+Let's add that as an action, Jonas can you check with IT whether the ticketing tool supports automatic priority flags for new hire requests.
+
+Yep I will check that and report back.
+
+Okay let's talk about the first week schedule now, that is a different angle on the same problem, structure more than tooling.
+
+Right now the first week is basically unscheduled after the initial HR session. People just sit there not knowing what to do, which is awkward and also just wastes the week.
+
+We should build a proper first week template, day by day, with specific meetings, intros to the team, intros to key stakeholders, and some actual small starter task so they feel like they have done something by Friday.
+
+I like that a lot. Let's decide, every new hire gets a day by day first week template, built per role, with a small starter task included.
+
+Who writes the template per role though, that is a lot of templates if we have as many roles as we do.
+
+Let's start with the three biggest roles, design, engineering, and sales, and expand from there. Priya can you draft the design one since you are already deep in the buddy work anyway.
+
+Sure, I can draft that next week.
+
+What about remote hires though, a lot of this assumes someone is physically in the office on day one and that is not true for everyone anymore.
+
+Good point, remote onboarding is honestly its own problem. The buddy system is harder remotely because you do not just bump into people in the kitchen.
+
+Maybe remote hires get an extra scheduled check-in, like a fifteen minute call with their buddy every single day for the first two weeks instead of relying on people happening to be around.
+
+That seems reasonable. Should that be the same for in office hires or just remote ones?
+
+Let's keep it remote only for now, in office people get the organic version through being physically present, and we can revisit if that is not actually working either.
+
+Okay, last thing from me, how do we even know if any of this is working. Right now nobody measures onboarding at all, we are just going off exit interview complaints months later.
+
+Agreed, we need some kind of feedback loop. What if new hires got a short survey at the end of week one and again at day thirty.
+
+That is reasonable, keep it short though, three or four questions max, otherwise nobody fills it in properly.
+
+We should ask specifically about the things we just changed, laptop readiness, buddy usefulness, and whether the first week template actually helped, so we can tell if these fixes are working rather than just general sentiment.
+
+Let's decide that, two short surveys, end of week one and day thirty, focused on the specific changes we are making, not a generic happiness score.
+
+Who owns building that survey?
+
+I will take that one, I will put something together and share it with HR for review. Maya again by the way.
+
+One open question before we wrap, do we have budget for any of this, the ticket priority flag might be free but a proper onboarding portal and new templates probably is not entirely free in terms of time if nothing else.
+
+Fair, I do not have an answer on budget right now, let's leave that open and raise it with leadership separately.
+
+Should we loop back to the buddy matching thing one more time actually, I realised we did not decide what happens if someone's buddy leaves the company partway through someone else's first month.
+
+Good catch, let's decide, if a buddy leaves, the team lead picks a replacement within two business days, same team and role matching rules apply.
+
+That covers it I think. Should we wrap there?
+
+Yeah let's wrap. Good session everyone, I will send around notes.

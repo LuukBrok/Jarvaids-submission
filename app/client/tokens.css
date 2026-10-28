@@ -1,0 +1,469 @@
+/* ==========================================================================
+   Jarvaids client tokens. The one file where literal values live.
+
+   Every colour, size, radius, shadow and duration the client uses is a custom
+   property here. Component stylesheets (primitives.css and css/*.css) use
+   these names and nothing else, so a value is changed in one place and the
+   design audit can refuse a literal anywhere outside this file.
+
+   Structure, top to bottom:
+     1. Faces (@font-face), vendored in fonts/, never fetched from a network.
+     2. Palette: ground, ink, five accents.
+     3. Derived accents: -soft and -deep for each, bound with color-mix so
+        they move when the accent moves.
+     4. Roles: what components use instead of hue names.
+     5. Type, with --scale.
+     6. Space, shape, depth, lines.
+     7. Motion.
+     8. Layout sizes and layers.
+     9. Switches: projector, coarse pointer, reduced motion.
+
+   Light theme only. A dark theme is a later block that redefines sections 2
+   and 4 under :root[data-theme="dark"]; components read roles, so none of
+   them change. The derived accents follow automatically because -soft is
+   mixed over --paper.
+
+   Contrast of every text-on-colour pair is asserted by
+   tests/contrast-unit.mjs, which parses this file; DESIGN.md section 2 holds
+   the measured numbers.
+   ========================================================================== */
+
+/* ---- 1. faces ------------------------------------------------------------
+   General Sans (ITF Free Font License, self-hosting permitted, licence beside
+   the files) and JetBrains Mono (SIL OFL). swap: text is readable in the
+   fallback while the face loads, which on localhost is a frame. */
+@font-face {
+  font-family: "General Sans";
+  src: url("fonts/GeneralSans-Regular.woff2") format("woff2");
+  font-weight: 400; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: "General Sans";
+  src: url("fonts/GeneralSans-Medium.woff2") format("woff2");
+  font-weight: 500; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: "General Sans";
+  src: url("fonts/GeneralSans-Semibold.woff2") format("woff2");
+  font-weight: 600; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("fonts/JetBrainsMono-Regular.woff2") format("woff2");
+  font-weight: 400; font-style: normal; font-display: swap;
+}
+
+:root {
+  color-scheme: light;
+
+  /* ---- 2. palette ------------------------------------------------------- */
+  /* Ground: warm paper, a sunken step, and the one hairline. */
+  --paper:   #FAF8F3;
+  --paper-2: #F2EFE7;
+  --line:    #E4E0D5;
+
+  /* Ink: one ink at three strengths. --ink-3 is the brief's #8E8A7E moved 25%
+     toward --ink: the brief's value measures 3.25:1 on --paper and 3.00:1 on
+     --paper-2, below AA for Small text, and --ink-3 carries Small text
+     (metadata, the lane label). Moved, it measures 4.89:1 and 4.52:1. */
+  --ink:   #16150F;
+  --ink-2: #5C594F;
+  --ink-3: color-mix(in srgb, #8E8A7E, var(--ink) 25%);
+
+  /* Five accents, light enough that --ink text sits on them. */
+  --yellow:     #FFC83D;
+  --lilac:      #E9A8F2;
+  --mint:       #9FE8CC;
+  --periwinkle: #8FB0FF;
+  --coral:      #FF9C8A;
+
+  /* ---- 3. derived accents ----------------------------------------------
+     -soft: the accent at 32% over --paper; --ink text on it.
+     -deep: the accent mixed 55% toward --ink; --paper text on it.
+     Measured: the lowest is --paper on --mint-deep at 4.88:1. */
+  --yellow-soft:     color-mix(in srgb, var(--yellow) 32%, var(--paper));
+  --lilac-soft:      color-mix(in srgb, var(--lilac) 32%, var(--paper));
+  --mint-soft:       color-mix(in srgb, var(--mint) 32%, var(--paper));
+  --periwinkle-soft: color-mix(in srgb, var(--periwinkle) 32%, var(--paper));
+  --coral-soft:      color-mix(in srgb, var(--coral) 32%, var(--paper));
+
+  --yellow-deep:     color-mix(in srgb, var(--yellow), var(--ink) 55%);
+  --lilac-deep:      color-mix(in srgb, var(--lilac), var(--ink) 55%);
+  --mint-deep:       color-mix(in srgb, var(--mint), var(--ink) 55%);
+  --periwinkle-deep: color-mix(in srgb, var(--periwinkle), var(--ink) 55%);
+  --coral-deep:      color-mix(in srgb, var(--coral), var(--ink) 55%);
+
+  /* ---- 4. roles --------------------------------------------------------
+     Components use these, never a hue name, so a role can move to another
+     hue (or to a dark theme) without a component changing. */
+  --surface:        var(--paper);
+  --surface-sunken: var(--paper-2);
+  --edge:           var(--line);
+  --text:           var(--ink);
+  --text-2:         var(--ink-2);
+  --text-3:         var(--ink-3);
+  --text-on-deep:   var(--paper);
+
+  /* Actions. One primary per view: yellow fill, ink words. The hover step is
+     the yellow 10% toward ink, still well above AA with ink (asserted). */
+  --action-primary:        var(--yellow);
+  --action-primary-hover:  color-mix(in srgb, var(--yellow), var(--ink) 10%);
+  --action-primary-text:   var(--ink);
+  --action-secondary:      var(--paper-2);
+  --action-secondary-hover: var(--line);
+  --action-quiet-hover:    var(--paper-2);
+  --danger:                var(--coral-deep);
+  --danger-soft:           var(--coral-soft);
+  --text-on-danger:        var(--paper);
+
+  /* Session states, as the header chip shows them. The listening chip is
+     ink with mint bars; the open and paused chips are soft fills with ink
+     words, so the state reads from across a room without a full accent
+     competing with the one primary button. --chip-paused is also the
+     keep-alive banner's last minute. --chip-collecting is the header's
+     second chip, shown while a list or the calendar collects or a poll is
+     open: the command colour (--mark-command, periwinkle) at its soft step,
+     so it reads as the voice commands' state and never as the session's. */
+  --state-listening: var(--mint);
+  --state-paused:    var(--yellow);
+  --state-ended:     var(--ink-3);
+  --chip-open:       var(--mint-soft);
+  --chip-paused:     var(--yellow-soft);
+  --chip-collecting: var(--periwinkle-soft);
+
+  /* Dates on notes and task rows (chips.mjs). Overdue is the coral soft
+     field and today the yellow soft field, both with ink words; a later or
+     finished date has no fill. The chip always carries the word ("Overdue",
+     "Today"), so the hue is never the only signal. */
+  --date-overdue: var(--coral-soft);
+  --date-today:   var(--yellow-soft);
+
+  /* A criterion in conflict is flagged in the coral soft field with ink
+     words, the same coral role as an overdue date: something to resolve. */
+  --conflict-fill: var(--coral-soft);
+
+  /* The poll tally (polls.mjs): bars in the accent tone on a paper track.
+     The choice with the most votes, or every choice in a tie, fills with the
+     full accent so it reads from across the room; ink words sit on all
+     three (asserted). */
+  --tally-track: var(--surface);
+  --tally-fill:  var(--tone-accent-fill);
+  --tally-lead:  var(--periwinkle);
+
+  /* Small marks whose words carry the meaning beside them: the attention
+     banner's mark (a problem, a note) and the session strip's command bar.
+     They measure under 3:1 on the ground, which is accepted because the
+     sentence next to each says the same thing (DESIGN.md 4). */
+  --mark-problem: var(--coral);
+  --mark-note:    var(--mint);
+  --mark-command: var(--periwinkle);
+
+  /* Status words in running text. Each is a -deep accent or an ink, so it is
+     legible as Small text on the ground (asserted). */
+  --status-accepted: var(--mint-deep);
+  --status-waiting:  var(--yellow-deep);
+  --status-failed:   var(--danger);
+  --status-proposed: var(--ink-2);
+  --status-off:      var(--ink-3);
+
+  /* Notes. Proposed: the soft yellow with a yellow left edge. Accepted: the
+     category accent at full strength, yellow if it has none. Corrected:
+     accepted plus a small ink mark at the top right. */
+  --note-proposed-fill: var(--yellow-soft);
+  --note-proposed-edge: var(--yellow);
+  --note-accepted-fill: var(--yellow);
+  --note-corrected-mark: var(--ink);
+  --note-max-rotation: 1.5deg;
+
+  /* The sticky note as a post-it (css/canvas.css; narrative brief decision
+     5; decision log, 26 October 2026). The colours are overlays painted
+     over the note's own fill, so one set serves the five accents (and so a
+     measured paper colour's accent), a quote's speaker colour, the proposed
+     soft yellow and the typed note's paper, and follows the accept motion.
+     An overlay of a colour at p% is color-mix toward that colour by p%, so
+     the strip is the fill mixed 8% toward ink and the foot of the sheet the
+     fill mixed 30% toward paper. tests/contrast-unit.mjs composites both
+     over every fill a note can have. */
+  /* 8%: reads as a band from across a room, and the largest step in 2%
+     increments that keeps the Proposed marker (--ink-2) over 4.5:1 on the
+     soft yellow's strip (4.96:1). */
+  --note-glue: color-mix(in srgb, var(--ink) 8%, transparent);
+  /* 30%: the sheet pales toward its foot, as paper lit from above. Ink words
+     only gain contrast on it; a deep quote note (paper words) turns it off,
+     because paper on a paled deep fill falls to 2.78:1. */
+  --note-sheen: color-mix(in srgb, var(--paper) 30%, transparent);
+  /* The glue band: about an eighth of a default note, as on a real pad, on
+     the 8px grid; its lower edge fades over 12px because glue has no ruled
+     edge, and a hard one would read as a border. */
+  --note-strip-h: var(--space-6);
+  --note-strip-blend: var(--space-3);
+  /* The curled corner. 20px legs: at 16px the fold was lost at the board's
+     fitted zoom (looked at in the canvas test's screenshot). It must stay
+     under the note's right and bottom padding added together (16px + 8px),
+     or the note's own fill, painted only under its content, would show
+     through the cut; the chip ends where the fold begins. The cut is drawn
+     by a 315deg mask, whose stops are distances along the diagonal: the leg
+     over root two. */
+  --note-curl: 20px;
+  --note-curl-cut: calc(var(--note-curl) * 0.7071);
+  /* The fold is the back of the sheet: the fill paled more than the foot,
+     so it reads as the same paper turned over in any accent (non-text).
+     Under it, a shadow on the sheet that fades out 4px past its edges. */
+  --note-curl-tint: color-mix(in srgb, var(--paper) 55%, transparent);
+  --note-curl-shade: color-mix(in srgb, var(--ink) 18%, transparent);
+  --note-curl-shadow: var(--space-1);
+  /* Corners: paper is cut square, so 2px, not the 14px of a card. */
+  --r-note: 2px;
+  /* The chip the provenance is printed on: the sunken ground, so its words
+     are the asserted ink and --ink-2 on --paper-2 pairs whatever the fill;
+     4px by 8px round one mono line; 8px from the note's left and bottom
+     edges, closer than the words' 16px, so it reads as printed on the edge
+     of the sheet, not written on it. */
+  --note-chip-fill: var(--surface-sunken);
+  --note-chip-pad: var(--space-1) var(--space-2);
+  --note-chip-inset: var(--space-2);
+  /* The wall shadow, light from the top left: a 1px contact shadow so the
+     sheet sits on the wall, and a soft one offset 2px right and 4px down.
+     Ink at 12% each, chosen by eye on the paper ground at 85% and 100%
+     zoom: at the floating --shadow's 8% a yellow sheet did not lift off the
+     paper. A guess, to be checked on the projector. A drop-shadow filter
+     (css/canvas.css), so it follows the cut corner; this is the recorded
+     exception to the one-shadow rule (decision log). */
+  --note-shadow-contact: 0 var(--line-1) var(--line-1) color-mix(in srgb, var(--ink) 12%, transparent);
+  --note-shadow-wall: var(--line-2) var(--space-1) var(--space-2) color-mix(in srgb, var(--ink) 12%, transparent);
+
+  /* People, in order of joining; -deep after five. */
+  --person-1: var(--lilac);
+  --person-2: var(--mint);
+  --person-3: var(--periwinkle);
+  --person-4: var(--coral);
+  --person-5: var(--yellow);
+  --person-6: var(--lilac-deep);
+  --person-7: var(--mint-deep);
+  --person-8: var(--periwinkle-deep);
+  --person-9: var(--coral-deep);
+  --person-10: var(--yellow-deep);
+
+  /* Marks on the canvas. A person's marks (drawing, connectors) are ink at
+     85%; a machine's proposed marks are --ink-3 and dashed, so the two can
+     never be confused. Threads are the machine-mark colour at 1px. */
+  --mark-human:   color-mix(in srgb, var(--ink) 85%, transparent);
+  --mark-machine: var(--ink-3);
+  --dash-machine: 4 4;
+  --thread:       var(--ink-3);
+
+  /* Canvas object tones (the canvas object model's closed set). Each is a
+     soft field and a deep line from one accent; ink is the neutral one. */
+  --tone-ink-fill:        var(--paper-2);
+  --tone-ink-line:        var(--ink);
+  --tone-accent-fill:     var(--periwinkle-soft);
+  --tone-accent-line:     var(--periwinkle-deep);
+  --tone-category-1-fill: var(--lilac-soft);
+  --tone-category-1-line: var(--lilac-deep);
+  --tone-category-2-fill: var(--mint-soft);
+  --tone-category-2-line: var(--mint-deep);
+  --tone-category-3-fill: var(--coral-soft);
+  --tone-category-3-line: var(--coral-deep);
+
+  /* The Calendar view's pills (calendar-view.mjs): an event and a linked
+     task are told apart by accent, each a soft field with a deep edge on its
+     leading side, so ink words sit on them well above AA (asserted).
+     Periwinkle and lilac, not mint: mint is the highlight and the accepted
+     status, and a task pill must not read as "accepted". */
+  --calendar-event-fill: var(--periwinkle-soft);
+  --calendar-event-edge: var(--periwinkle-deep);
+  --calendar-task-fill:  var(--lilac-soft);
+  --calendar-task-edge:  var(--lilac-deep);
+
+  /* Focus and selection: one ink outline, 2px at 2px offset, everywhere. */
+  --focus-ring:   var(--ink);
+  --selected:     var(--ink);
+  --backdrop:     color-mix(in srgb, var(--ink) 40%, transparent);
+  --highlight:    var(--mint-soft);
+
+  /* ---- 5. type ---------------------------------------------------------
+     One family for UI and content, one mono for timestamps, counts, ids and
+     markers. --scale multiplies every size (1.25 for the projector). */
+  --font-ui:   "General Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+  --scale: 1;
+
+  --fs-display: calc(44px * var(--scale)); --lh-display: 1.05; --fw-display: 500; --ls-display: -0.02em;
+  --fs-title:   calc(22px * var(--scale)); --lh-title:   1.2;  --fw-title:   600;
+  --fs-note:    calc(18px * var(--scale)); --lh-note:    1.3;  --fw-note:    500;
+  --fs-body:    calc(15px * var(--scale)); --lh-body:    1.5;  --fw-body:    400;
+  --fs-small:   calc(13px * var(--scale)); --lh-small:   1.4;  --fw-small:   500;
+  /* Mono was 12px. The phase 5 review measured it as the smallest text in
+     the chrome (times, counts, the zoom level, the strip, initials), and
+     the meeting-mode check refuses anything under 13px there that carries
+     meaning, so mono is the Small size. */
+  --fs-mono:    calc(13px * var(--scale)); --lh-mono:    1.4;  --fw-mono:    400;
+  /* The canvas's type (phase 5 review). Two rules:
+     - The meeting-mode floor there is 15px at 100% zoom, so everything the
+       board draws at Small or Mono (a note's kind line, marker and stamp,
+       its buttons, group labels, connector labels, the lane label, tags)
+       takes --fs-canvas-small instead.
+     - The canvas's type does not follow --scale. Notes stand at fixed
+       places in the world, so type grown by a quarter made every note a
+       quarter taller and ran it into the note below. On the canvas the
+       projector acts through the board's zoom instead (board.mjs), which
+       grows type and places together. Each size is its role's size at
+       scale 1, bound to the role, so they cannot drift apart.
+     css/canvas.css rebinds the role sizes to these inside the world. */
+  --fs-canvas-display: calc(var(--fs-display) / var(--scale));
+  --fs-canvas-title:   calc(var(--fs-title) / var(--scale));
+  --fs-canvas-note:    calc(var(--fs-note) / var(--scale));
+  --fs-canvas-body:    calc(var(--fs-body) / var(--scale));
+  --fs-canvas-small:   calc(var(--fs-body) / var(--scale));
+  --fw-strong: 600;
+  /* Coarse-pointer fields use 16px so iOS does not zoom on focus. */
+  --fs-field-touch: 16px;
+  --reading-max: 68ch;
+
+  /* ---- 6. space, shape, depth, lines ----------------------------------- */
+  --space-1: 4px;  --space-2: 8px;  --space-3: 12px; --space-4: 16px;
+  --space-5: 24px; --space-6: 32px; --space-7: 48px; --space-8: 64px;
+
+  /* Controls, chips and tabs are --r-sm; notes, panels and the toolbar are
+     --r-lg. Toggles are the only pills. */
+  --r-sm: 6px;
+  --r-lg: 14px;
+  --r-pill: 999px;
+  --r-none: 0;
+
+  /* The one shadow: the floating toolbar, a dragged note, the focused review
+     item. Nothing else is raised. The brief's rgba(22, 21, 15, 0.08) is
+     --ink at 8%, so it is bound to --ink rather than repeated. */
+  --shadow: 0 2px 12px color-mix(in srgb, var(--ink) 8%, transparent);
+
+  --line-1: 1px;
+  --line-2: 2px;
+  --focus-width: var(--line-2);
+  --focus-offset: 2px;
+  --ink-weight: 3px;            /* a freehand stroke: one weight, no pressure */
+  --corner-mark: 6px;           /* a corrected note's mark */
+  --glyph: 10px;                /* a status glyph in running text */
+  --bar-w: 4px;                 /* one bar of the listening indicator */
+  --bars-h: 12px;               /* the indicator's full height */
+
+  /* Control heights. A coarse pointer raises all of them to --target. */
+  --target: 32px;
+  --h-control-sm: 28px;
+  --h-control: 36px;
+  --h-control-lg: 44px;
+  --h-chip: 24px;
+  --avatar: var(--h-chip);      /* a person's circle: the chip's height, so it sits in a chip's row */
+  --dock-button: 40px;
+  --check: 20px;
+  --h-field: 40px;
+  --icon: 20px;
+  --press: 0.98;                /* a pressed button gives a little */
+  --disabled-opacity: 0.4;      /* disabled controls, exempt from contrast */
+
+  /* ---- 7. motion -------------------------------------------------------
+     Three durations and two curves. Only the listening bars loop; nothing
+     else animates continuously. */
+  --t-fast: 120ms;
+  --t-base: 200ms;
+  --t-slow: 360ms;
+  --t-bars: 1.6s;
+  --stagger: 40ms;
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.6, 0, 0.3, 1);
+  --land-from: 0.92;            /* a note landing after a photograph */
+  --accept-peak: 1.03;          /* an accepted note swells and settles */
+  --reject-to: 0.96;            /* a rejected note shrinks as it fades */
+
+  /* ---- 8. layout sizes and layers -------------------------------------- */
+  --rail: 360px;
+  --header: 56px;
+  --banner: 40px;
+  --content-max: 1280px;
+  --form-max: 400px;
+  --gate-max: 720px;
+  --menu-min: 200px;
+  --dialog-max: 480px;
+  --page-pad: var(--space-4);
+  --page-pad-wide: var(--space-6);
+
+  --note-w-narrow: 200px;
+  --note-w-default: 260px;
+  --note-w-wide: 320px;
+  --parked-w: 200px;
+  --strip-h: 40px;
+  --strip-h-open: 96px;
+
+  /* On a wide screen the board takes whatever height the workspace leaves
+     (css/screens.css lays the page out as a column one window tall), never
+     less than --board-min; under 1024px it is --board-narrow-h. */
+  --board-min: 420px;
+  --board-min-narrow: 320px;
+  --board-narrow-h: 56vh;
+  --crop-max-h: 200px;
+  --found-thumb: 72px;
+  --stage-tools-min: 260px;
+  --stage-tools-max: 320px;
+  --stage-chrome: 280px;
+  /* The photograph sheet over the canvas, and the reading card in the
+     corner. The sheet is wide enough for a landscape photograph with its
+     tools beside it; --sheet-chrome is the sheet's head, padding and page
+     margin, what the photograph's height must leave free. */
+  --sheet-max: 1120px;
+  --sheet-chrome: 220px;
+  /* A command group's column on the "What you can say" sheet: wide enough
+     for the longest example phrase at Body size on one line, so four groups
+     sit side by side on a 1920px projector and stack on a phone. */
+  --commands-col: 240px;
+  --reading-card-w: 380px;
+  --list-label-w: 9.5rem;
+  /* The Calendar view. A month cell holds its day number and three pills,
+     a week cell a full day of them; both are calc()s of --scale, so on the
+     projector the cells grow with the type in them and pills never spill.
+     The Unscheduled column is 100px narrower than the rail, so the grid
+     keeps most of the width beside it. A year card is wide enough for
+     "September" and its count at either scale. */
+  --cal-cell-month: calc(116px * var(--scale));
+  --cal-cell-week: calc(280px * var(--scale));
+  --cal-side: 260px;
+  --cal-month-card: calc(150px * var(--scale));
+  --cal-time-w: calc(64px * var(--scale));
+
+  --z-sticky: 2;
+  --z-drag: 5;
+  --z-dock: 20;
+  --z-card: 25;
+  --z-header: 30;
+  --z-sheet: 35;
+  --z-menu: 40;
+  --z-threads: 50;
+}
+
+/* ---- 9. switches ----------------------------------------------------------
+   The projector setting: type grows by a quarter, nothing else changes. The
+   sizes above are calc()s of --scale on the same element, so this one line
+   reaches every size. */
+:root[data-projector] { --scale: 1.25; }
+
+/* A finger needs 44px whatever the screen size. */
+@media (pointer: coarse) {
+  :root {
+    --target: 44px;
+    --h-control-sm: 44px;
+    --h-control: 44px;
+    --h-control-lg: 48px;
+    --dock-button: 44px;
+    --h-field: 44px;
+  }
+}
+
+/* Reduced motion: every duration is zero, so anything that waits for an
+   animation or transition to end still gets its end event, at once. The
+   primitives also put their animations behind no-preference. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --t-fast: 0ms;
+    --t-base: 0ms;
+    --t-slow: 0ms;
+    --stagger: 0ms;
+  }
+}

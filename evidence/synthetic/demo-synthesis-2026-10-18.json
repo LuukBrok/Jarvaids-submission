@@ -1,0 +1,1548 @@
+{
+  "schema": "jarvaids.synthesis/1",
+  "provisional": true,
+  "review": "Nothing here is accepted. Every point needs a person to accept, edit or reject it.",
+  "generated_at": "2026-10-18T19:03:58Z",
+  "synthetic": false,
+  "producers": [
+    {
+      "provider": "anthropic",
+      "model": "claude-opus-5-5"
+    }
+  ],
+  "inputs": {
+    "photos": [
+      {
+        "file": "IMG_5816(1).JPEG",
+        "sha256": "ad74c248994e7fa55921c93f1ad45998d7c12dd110b8dd885780c97d284f33c8",
+        "sent_pixels": [
+          1536,
+          2048
+        ],
+        "notes": 1
+      },
+      {
+        "file": "IMG_5817(1).JPEG",
+        "sha256": "12aae81c4e14d7157bfe89d1cf80e5da8c7e160f22020a631b2b7669884969a6",
+        "sent_pixels": [
+          1536,
+          2048
+        ],
+        "notes": 7
+      },
+      {
+        "file": "IMG_5818(1).JPEG",
+        "sha256": "412f843ae523cba2f7c52b09791a52bc711ec1f3641dbf6c57449373ea9a3aea",
+        "sent_pixels": [
+          1536,
+          2048
+        ],
+        "notes": 6
+      }
+    ],
+    "transcript": {
+      "file": "demo-transcript-chemistry-brainstorm.json",
+      "sha256": "ece4ffde732fe6d1952b26ced3d9e764bf9b77ab7306259e56e220b63ebd267c",
+      "segments": 29,
+      "empty_segments_skipped": 0,
+      "duration_s": 193.4
+    }
+  },
+  "photo_notes": [
+    {
+      "text": "The Calendar integration with everything looks like a very plausible future.",
+      "colour": "green",
+      "reading": "readable",
+      "id": "p1.1",
+      "file": "IMG_5816(1).JPEG"
+    },
+    {
+      "text": "World where people dont trust their own choices",
+      "colour": "blue",
+      "reading": "readable",
+      "id": "p2.1",
+      "file": "IMG_5817(1).JPEG"
+    },
+    {
+      "text": "world: people have a schedule based or a app to get a streak alive. schedule of people determined by app",
+      "colour": "blue",
+      "reading": "readable",
+      "id": "p2.2",
+      "file": "IMG_5817(1).JPEG"
+    },
+    {
+      "text": "The world where people don't have any deep relationship",
+      "colour": "blue",
+      "reading": "readable",
+      "id": "p2.3",
+      "file": "IMG_5817(1).JPEG"
+    },
+    {
+      "text": "a world where people don't know what to do or don't have time to plan a date",
+      "colour": "blue",
+      "reading": "readable",
+      "id": "p2.4",
+      "file": "IMG_5817(1).JPEG"
+    },
+    {
+      "text": "A world where everyone updates everything on Calendar, follow the Calendar like a robot.",
+      "colour": "blue",
+      "reading": "readable",
+      "id": "p2.5",
+      "file": "IMG_5817(1).JPEG"
+    },
+    {
+      "text": "you can see how harry becomes a dopamine \"junky\"",
+      "colour": "green",
+      "reading": "readable",
+      "id": "p2.6",
+      "file": "IMG_5817(1).JPEG"
+    },
+    {
+      "text": "+ The calendar and clothing suggestion makes sense and its very possible in the future It connects ... the dating aspect",
+      "colour": "green",
+      "reading": "partial",
+      "id": "p2.7",
+      "file": "IMG_5817(1).JPEG"
+    },
+    {
+      "text": "What happens between steve loving the app to Steve not using it anymore? Why?",
+      "colour": "yellow",
+      "reading": "readable",
+      "id": "p3.1",
+      "file": "IMG_5818(1).JPEG"
+    },
+    {
+      "text": "this should be steve not harry",
+      "colour": "pink",
+      "reading": "readable",
+      "id": "p3.2",
+      "file": "IMG_5818(1).JPEG"
+    },
+    {
+      "text": "World where people dont trust their own choices",
+      "colour": "blue",
+      "reading": "readable",
+      "id": "p3.3",
+      "file": "IMG_5818(1).JPEG"
+    },
+    {
+      "text": "world: people have a schedule based on a app to set a streak alive. schedule of people determined by app",
+      "colour": "blue",
+      "reading": "readable",
+      "id": "p3.4",
+      "file": "IMG_5818(1).JPEG"
+    },
+    {
+      "text": "The world whe people don't hav any deep relationshi",
+      "colour": "blue",
+      "reading": "partial",
+      "id": "p3.5",
+      "file": "IMG_5818(1).JPEG"
+    },
+    {
+      "text": "a world",
+      "colour": "blue",
+      "reading": "partial",
+      "id": "p3.6",
+      "file": "IMG_5818(1).JPEG"
+    }
+  ],
+  "claims": [
+    {
+      "id": "p1.1",
+      "text": "The Calendar integration with everything looks like a very plausible future.",
+      "kind": "point",
+      "sources": [
+        {
+          "kind": "photo",
+          "file": "IMG_5816(1).JPEG",
+          "note": 1,
+          "colour": "green",
+          "reading": "readable"
+        }
+      ]
+    },
+    {
+      "id": "p2.1",
+      "text": "World where people dont trust their own choices",
+      "kind": "point",
+      "sources": [
+        {
+          "kind": "photo",
+          "file": "IMG_5817(1).JPEG",
+          "note": 1,
+          "colour": "blue",
+          "reading": "readable"
+        }
+      ]
+    },
+    {
+      "id": "p2.2",
+      "text": "world: people have a schedule based or a app to get a streak alive. schedule of people determined by app",
+      "kind": "point",
+      "sources": [
+        {
+          "kind": "photo",
+          "file": "IMG_5817(1).JPEG",
+          "note": 2,
+          "colour": "blue",
+          "reading": "readable"
+        }
+      ]
+    },
+    {
+      "id": "p2.3",
+      "text": "The world where people don't have any deep relationship",
+      "kind": "point",
+      "sources": [
+        {
+          "kind": "photo",
+          "file": "IMG_5817(1).JPEG",
+          "note": 3,
+          "colour": "blue",
+          "reading": "readable"
+        }
+      ]
+    },
+    {
+      "id": "p2.4",
+      "text": "a world where people don't know what to do or don't have time to plan a date",
+      "kind": "point",
+      "sources": [
+        {
+          "kind": "photo",
+          "file": "IMG_5817(1).JPEG",
+          "note": 4,
+          "colour": "blue",
+          "reading": "readable"
+        }
+      ]
+    },
+    {
+      "id": "p2.5",
+      "text": "A world where everyone updates everything on Calendar, follow the Calendar like a robot.",
+      "kind": "point",
+      "sources": [
+        {
+          "kind": "photo",
+          "file": "IMG_5817(1).JPEG",
+          "note": 5,
+          "colour": "blue",
+          "reading": "readable"
+        }
+      ]
+    },
+    {
+      "id": "p2.6",
+      "text": "you can see how harry becomes a dopamine \"junky\"",
+      "kind": "point",
+      "sources": [
+        {
+          "kind": "photo",
+          "file": "IMG_5817(1).JPEG",
+          "note": 6,
+          "colour": "green",
+          "reading": "readable"
+        }
+      ]
+    },
+    {
+      "id": "p2.7",
+      "text": "+ The calendar and clothing suggestion makes sense and its very possible in the future It connects ... the dating aspect",
+      "kind": "point",
+      "sources": [
+        {
+          "kind": "photo",
+          "file": "IMG_5817(1).JPEG",
+          "note": 7,
+          "colour": "green",
+          "reading": "partial"
+        }
+      ]
+    },
+    {
+      "id": "p3.1",
+      "text": "What happens between steve loving the app to Steve not using it anymore? Why?",
+      "kind": "point",
+      "sources": [
+        {
+          "kind": "photo",
+          "file": "IMG_5818(1).JPEG",
+          "note": 1,
+          "colour": "yellow",
+          "reading": "readable"
+        }
+      ]
+    },
+    {
+      "id": "p3.2",
+      "text": "this should be steve not harry",
+      "kind": "point",
+      "sources": [
+        {
+          "kind": "photo",
+          "file": "IMG_5818(1).JPEG",
+          "note": 2,
+          "colour": "pink",
+          "reading": "readable"
+        }
+      ]
+    },
+    {
+      "id": "p3.3",
+      "text": "World where people dont trust their own choices",
+      "kind": "point",
+      "sources": [
+        {
+          "kind": "photo",
+          "file": "IMG_5818(1).JPEG",
+          "note": 3,
+          "colour": "blue",
+          "reading": "readable"
+        }
+      ]
+    },
+    {
+      "id": "p3.4",
+      "text": "world: people have a schedule based on a app to set a streak alive. schedule of people determined by app",
+      "kind": "point",
+      "sources": [
+        {
+          "kind": "photo",
+          "file": "IMG_5818(1).JPEG",
+          "note": 4,
+          "colour": "blue",
+          "reading": "readable"
+        }
+      ]
+    },
+    {
+      "id": "p3.5",
+      "text": "The world whe people don't hav any deep relationshi",
+      "kind": "point",
+      "sources": [
+        {
+          "kind": "photo",
+          "file": "IMG_5818(1).JPEG",
+          "note": 5,
+          "colour": "blue",
+          "reading": "partial"
+        }
+      ]
+    },
+    {
+      "id": "p3.6",
+      "text": "a world",
+      "kind": "point",
+      "sources": [
+        {
+          "kind": "photo",
+          "file": "IMG_5818(1).JPEG",
+          "note": 6,
+          "colour": "blue",
+          "reading": "partial"
+        }
+      ]
+    },
+    {
+      "id": "c1",
+      "text": "Strongest future: people no longer trust their own choices; the app decides where you go and who you meet",
+      "kind": "point",
+      "sources": [
+        {
+          "kind": "speech",
+          "segment_ids": [
+            "t4"
+          ],
+          "start": 15.6,
+          "end": 23.8,
+          "speakers": [
+            "SPEAKER_02"
+          ],
+          "quote": "people don't trust their own choices anymore"
+        }
+      ]
+    },
+    {
+      "id": "c2",
+      "text": "Streak idea: people keep a schedule just to keep the streak alive",
+      "kind": "point",
+      "sources": [
+        {
+          "kind": "speech",
+          "segment_ids": [
+            "t5"
+          ],
+          "start": 24.1,
+          "end": 31.0,
+          "speakers": [
+            "SPEAKER_03"
+          ],
+          "quote": "keep a schedule just to keep the streak alive"
+        }
+      ]
+    },
+    {
+      "id": "c3",
+      "text": "Calendar integration with everything is a plausible future",
+      "kind": "point",
+      "sources": [
+        {
+          "kind": "speech",
+          "segment_ids": [
+            "t7"
+          ],
+          "start": 37.9,
+          "end": 46.5,
+          "speakers": [
+            "SPEAKER_02"
+          ],
+          "quote": "calendar integration with everything really looks like a plausible future"
+        }
+      ]
+    },
+    {
+      "id": "c4",
+      "text": "Clothing suggestions on top make sense for the dating side",
+      "kind": "point",
+      "sources": [
+        {
+          "kind": "speech",
+          "segment_ids": [
+            "t8"
+          ],
+          "start": 47.0,
+          "end": 53.3,
+          "speakers": [
+            "SPEAKER_00"
+          ],
+          "quote": "clothing suggestions on top"
+        }
+      ]
+    },
+    {
+      "id": "c5",
+      "text": "Dark side: nobody has deep relationships anymore, you meet many people but never know them",
+      "kind": "point",
+      "sources": [
+        {
+          "kind": "speech",
+          "segment_ids": [
+            "t9"
+          ],
+          "start": 54.0,
+          "end": 61.7,
+          "speakers": [
+            "SPEAKER_03"
+          ],
+          "quote": "nobody has deep relationships anymore"
+        }
+      ]
+    },
+    {
+      "id": "c6",
+      "text": "In the storyboard Harry becomes a dopamine junky going from event to event",
+      "kind": "point",
+      "sources": [
+        {
+          "kind": "speech",
+          "segment_ids": [
+            "t10"
+          ],
+          "start": 62.2,
+          "end": 68.0,
+          "speakers": [
+            "SPEAKER_01"
+          ],
+          "quote": "He becomes a dopamine junky"
+        }
+      ]
+    },
+    {
+      "id": "c7",
+      "text": "Pink note proposes Steve, a long-time Chemistry user, as the one who falls, not Harry",
+      "kind": "point",
+      "sources": [
+        {
+          "kind": "speech",
+          "segment_ids": [
+            "t11"
+          ],
+          "start": 68.6,
+          "end": 76.4,
+          "speakers": [
+            "SPEAKER_02"
+          ],
+          "quote": "this should be Steve, not Harry"
+        }
+      ]
+    },
+    {
+      "id": "c8",
+      "text": "Counterpoint: Harry is new in France with no friends, so his fall is the story; Steve is the contrast",
+      "kind": "point",
+      "sources": [
+        {
+          "kind": "speech",
+          "segment_ids": [
+            "t12"
+          ],
+          "start": 76.9,
+          "end": 84.8,
+          "speakers": [
+            "SPEAKER_01"
+          ],
+          "quote": "Harry is new in France, he is the one with no friends"
+        }
+      ]
+    },
+    {
+      "id": "c9",
+      "text": "Main character left undecided for now",
+      "kind": "decision",
+      "sources": [
+        {
+          "kind": "speech",
+          "segment_ids": [
+            "t13",
+            "t14"
+          ],
+          "start": 85.3,
+          "end": 99.6,
+          "speakers": [
+            "SPEAKER_00",
+            "SPEAKER_02"
+          ],
+          "quote": "let's not decide the main character yet"
+        }
+      ]
+    },
+    {
+      "id": "c10",
+      "text": "Open: what happens between Steve loving the app and Steve stopping using it?",
+      "kind": "question",
+      "sources": [
+        {
+          "kind": "speech",
+          "segment_ids": [
+            "t14",
+            "t16"
+          ],
+          "start": 92.0,
+          "end": 110.4,
+          "speakers": [
+            "SPEAKER_00",
+            "SPEAKER_01"
+          ],
+          "quote": "What happens between Steve loving the app and Steve not using it anymore?"
+        }
+      ]
+    },
+    {
+      "id": "c11",
+      "text": "Idea: Steve realises the streak is the only thing he talks about with people",
+      "kind": "point",
+      "sources": [
+        {
+          "kind": "speech",
+          "segment_ids": [
+            "t15"
+          ],
+          "start": 100.1,
+          "end": 105.9,
+          "speakers": [
+            "SPEAKER_03"
+          ],
+          "quote": "the streak is the only thing he talks about with people"
+        }
+      ]
+    },
+    {
+      "id": "c12",
+      "text": "Format: go with option two, video recorded on a phone, instead of the comic",
+      "kind": "decision",
+      "sources": [
+        {
+          "kind": "speech",
+          "segment_ids": [
+            "t17",
+            "t18",
+            "t19",
+            "t20",
+            "t21"
+          ],
+          "start": 111.0,
+          "end": 137.5,
+          "speakers": [
+            "SPEAKER_00",
+            "SPEAKER_01",
+            "SPEAKER_02",
+            "SPEAKER_03"
+          ],
+          "quote": "so we go with the phone video. That's decided."
+        }
+      ]
+    },
+    {
+      "id": "c13",
+      "text": "Phone video feels more real; the comic is very polished",
+      "kind": "point",
+      "sources": [
+        {
+          "kind": "speech",
+          "segment_ids": [
+            "t18"
+          ],
+          "start": 119.7,
+          "end": 125.0,
+          "speakers": [
+            "SPEAKER_02"
+          ],
+          "quote": "phone video feels more real for this"
+        }
+      ]
+    },
+    {
+      "id": "c14",
+      "text": "Rewrite the storyboard as shots; SPEAKER_03 offers a first shot list from the comic panels",
+      "kind": "action",
+      "sources": [
+        {
+          "kind": "speech",
+          "segment_ids": [
+            "t22"
+          ],
+          "start": 138.2,
+          "end": 146.0,
+          "speakers": [
+            "SPEAKER_03"
+          ],
+          "quote": "I can make a first shot list from the comic panels"
+        }
+      ]
+    },
+    {
+      "id": "c15",
+      "text": "Check the space inventory sheet to see if the park walk scene can be filmed there",
+      "kind": "action",
+      "sources": [
+        {
+          "kind": "speech",
+          "segment_ids": [
+            "t23"
+          ],
+          "start": 146.5,
+          "end": 152.8,
+          "speakers": [
+            "SPEAKER_02"
+          ],
+          "quote": "someone should check the space inventory sheet"
+        }
+      ]
+    },
+    {
+      "id": "c16",
+      "text": "Additional world: people lack time or ideas to plan a date, so the app plans it",
+      "kind": "point",
+      "sources": [
+        {
+          "kind": "speech",
+          "segment_ids": [
+            "t24"
+          ],
+          "start": 153.3,
+          "end": 160.4,
+          "speakers": [
+            "SPEAKER_01"
+          ],
+          "quote": "the app plans it for them"
+        }
+      ]
+    },
+    {
+      "id": "c17",
+      "text": "Distinct from calendar-robot world: one is about lacking time, the other about giving up control",
+      "kind": "point",
+      "sources": [
+        {
+          "kind": "speech",
+          "segment_ids": [
+            "t25",
+            "t26"
+          ],
+          "start": 160.9,
+          "end": 174.1,
+          "speakers": [
+            "SPEAKER_00",
+            "SPEAKER_01"
+          ],
+          "quote": "One is about not having time, the other is about giving up control"
+        }
+      ]
+    },
+    {
+      "id": "c18",
+      "text": "Show the streak count (flame, chemistry streak) in the video; already in third phone screen",
+      "kind": "point",
+      "sources": [
+        {
+          "kind": "speech",
+          "segment_ids": [
+            "t27",
+            "t28"
+          ],
+          "start": 174.8,
+          "end": 186.0,
+          "speakers": [
+            "SPEAKER_02",
+            "SPEAKER_03"
+          ],
+          "quote": "that's in the third phone screen already"
+        }
+      ]
+    },
+    {
+      "id": "c19",
+      "text": "Take a photo of the wall before leaving",
+      "kind": "action",
+      "sources": [
+        {
+          "kind": "speech",
+          "segment_ids": [
+            "t29"
+          ],
+          "start": 186.6,
+          "end": 193.4,
+          "speakers": [
+            "SPEAKER_00"
+          ],
+          "quote": "take a photo of the wall before we leave"
+        }
+      ]
+    }
+  ],
+  "points": [
+    {
+      "id": "n1",
+      "text": "World where people dont trust their own choices",
+      "kind": "point",
+      "support": "photo+speech",
+      "conflict": null,
+      "claim_ids": [
+        "p2.1",
+        "p3.3",
+        "c1"
+      ],
+      "source_texts": [
+        "World where people dont trust their own choices",
+        "World where people dont trust their own choices",
+        "Strongest future: people no longer trust their own choices; the app decides where you go and who you meet"
+      ],
+      "sources": [
+        {
+          "kind": "photo",
+          "file": "IMG_5817(1).JPEG",
+          "note": 1,
+          "colour": "blue",
+          "reading": "readable"
+        },
+        {
+          "kind": "photo",
+          "file": "IMG_5818(1).JPEG",
+          "note": 3,
+          "colour": "blue",
+          "reading": "readable"
+        },
+        {
+          "kind": "speech",
+          "segment_ids": [
+            "t4"
+          ],
+          "start": 15.6,
+          "end": 23.8,
+          "speakers": [
+            "SPEAKER_02"
+          ],
+          "quote": "people don't trust their own choices anymore"
+        }
+      ]
+    },
+    {
+      "id": "n2",
+      "text": "world: people have a schedule based on a app to set a streak alive. schedule of people determined by app",
+      "kind": "point",
+      "support": "photo+speech",
+      "conflict": null,
+      "claim_ids": [
+        "p2.2",
+        "p3.4",
+        "c2"
+      ],
+      "source_texts": [
+        "world: people have a schedule based or a app to get a streak alive. schedule of people determined by app",
+        "world: people have a schedule based on a app to set a streak alive. schedule of people determined by app",
+        "Streak idea: people keep a schedule just to keep the streak alive"
+      ],
+      "sources": [
+        {
+          "kind": "photo",
+          "file": "IMG_5817(1).JPEG",
+          "note": 2,
+          "colour": "blue",
+          "reading": "readable"
+        },
+        {
+          "kind": "photo",
+          "file": "IMG_5818(1).JPEG",
+          "note": 4,
+          "colour": "blue",
+          "reading": "readable"
+        },
+        {
+          "kind": "speech",
+          "segment_ids": [
+            "t5"
+          ],
+          "start": 24.1,
+          "end": 31.0,
+          "speakers": [
+            "SPEAKER_03"
+          ],
+          "quote": "keep a schedule just to keep the streak alive"
+        }
+      ]
+    },
+    {
+      "id": "n3",
+      "text": "The world where people don't have any deep relationship",
+      "kind": "point",
+      "support": "photo+speech",
+      "conflict": null,
+      "claim_ids": [
+        "p2.3",
+        "p3.5",
+        "c5"
+      ],
+      "source_texts": [
+        "The world where people don't have any deep relationship",
+        "The world whe people don't hav any deep relationshi",
+        "Dark side: nobody has deep relationships anymore, you meet many people but never know them"
+      ],
+      "sources": [
+        {
+          "kind": "photo",
+          "file": "IMG_5817(1).JPEG",
+          "note": 3,
+          "colour": "blue",
+          "reading": "readable"
+        },
+        {
+          "kind": "photo",
+          "file": "IMG_5818(1).JPEG",
+          "note": 5,
+          "colour": "blue",
+          "reading": "partial"
+        },
+        {
+          "kind": "speech",
+          "segment_ids": [
+            "t9"
+          ],
+          "start": 54.0,
+          "end": 61.7,
+          "speakers": [
+            "SPEAKER_03"
+          ],
+          "quote": "nobody has deep relationships anymore"
+        }
+      ]
+    },
+    {
+      "id": "n4",
+      "text": "a world where people don't know what to do or don't have time to plan a date",
+      "kind": "point",
+      "support": "photo+speech",
+      "conflict": null,
+      "claim_ids": [
+        "p2.4",
+        "p3.6",
+        "c16"
+      ],
+      "source_texts": [
+        "a world where people don't know what to do or don't have time to plan a date",
+        "a world",
+        "Additional world: people lack time or ideas to plan a date, so the app plans it"
+      ],
+      "sources": [
+        {
+          "kind": "photo",
+          "file": "IMG_5817(1).JPEG",
+          "note": 4,
+          "colour": "blue",
+          "reading": "readable"
+        },
+        {
+          "kind": "photo",
+          "file": "IMG_5818(1).JPEG",
+          "note": 6,
+          "colour": "blue",
+          "reading": "partial"
+        },
+        {
+          "kind": "speech",
+          "segment_ids": [
+            "t24"
+          ],
+          "start": 153.3,
+          "end": 160.4,
+          "speakers": [
+            "SPEAKER_01"
+          ],
+          "quote": "the app plans it for them"
+        }
+      ]
+    },
+    {
+      "id": "n5",
+      "text": "A world where everyone updates everything on Calendar, follow the Calendar like a robot.",
+      "kind": "point",
+      "support": "photo",
+      "conflict": null,
+      "claim_ids": [
+        "p2.5"
+      ],
+      "source_texts": [
+        "A world where everyone updates everything on Calendar, follow the Calendar like a robot."
+      ],
+      "sources": [
+        {
+          "kind": "photo",
+          "file": "IMG_5817(1).JPEG",
+          "note": 5,
+          "colour": "blue",
+          "reading": "readable"
+        }
+      ]
+    },
+    {
+      "id": "n6",
+      "text": "Distinct from calendar-robot world: one is about lacking time, the other about giving up control",
+      "kind": "point",
+      "support": "speech",
+      "conflict": null,
+      "claim_ids": [
+        "c17"
+      ],
+      "source_texts": [
+        "Distinct from calendar-robot world: one is about lacking time, the other about giving up control"
+      ],
+      "sources": [
+        {
+          "kind": "speech",
+          "segment_ids": [
+            "t25",
+            "t26"
+          ],
+          "start": 160.9,
+          "end": 174.1,
+          "speakers": [
+            "SPEAKER_00",
+            "SPEAKER_01"
+          ],
+          "quote": "One is about not having time, the other is about giving up control"
+        }
+      ]
+    },
+    {
+      "id": "n7",
+      "text": "The Calendar integration with everything looks like a very plausible future.",
+      "kind": "point",
+      "support": "photo+speech",
+      "conflict": null,
+      "claim_ids": [
+        "p1.1",
+        "c3"
+      ],
+      "source_texts": [
+        "The Calendar integration with everything looks like a very plausible future.",
+        "Calendar integration with everything is a plausible future"
+      ],
+      "sources": [
+        {
+          "kind": "photo",
+          "file": "IMG_5816(1).JPEG",
+          "note": 1,
+          "colour": "green",
+          "reading": "readable"
+        },
+        {
+          "kind": "speech",
+          "segment_ids": [
+            "t7"
+          ],
+          "start": 37.9,
+          "end": 46.5,
+          "speakers": [
+            "SPEAKER_02"
+          ],
+          "quote": "calendar integration with everything really looks like a plausible future"
+        }
+      ]
+    },
+    {
+      "id": "n8",
+      "text": "+ The calendar and clothing suggestion makes sense and its very possible in the future It connects ... the dating aspect",
+      "kind": "point",
+      "support": "photo+speech",
+      "conflict": null,
+      "claim_ids": [
+        "p2.7",
+        "c4"
+      ],
+      "source_texts": [
+        "+ The calendar and clothing suggestion makes sense and its very possible in the future It connects ... the dating aspect",
+        "Clothing suggestions on top make sense for the dating side"
+      ],
+      "sources": [
+        {
+          "kind": "photo",
+          "file": "IMG_5817(1).JPEG",
+          "note": 7,
+          "colour": "green",
+          "reading": "partial"
+        },
+        {
+          "kind": "speech",
+          "segment_ids": [
+            "t8"
+          ],
+          "start": 47.0,
+          "end": 53.3,
+          "speakers": [
+            "SPEAKER_00"
+          ],
+          "quote": "clothing suggestions on top"
+        }
+      ]
+    },
+    {
+      "id": "n9",
+      "text": "you can see how harry becomes a dopamine \"junky\"",
+      "kind": "point",
+      "support": "photo+speech",
+      "conflict": null,
+      "claim_ids": [
+        "p2.6",
+        "c6"
+      ],
+      "source_texts": [
+        "you can see how harry becomes a dopamine \"junky\"",
+        "In the storyboard Harry becomes a dopamine junky going from event to event"
+      ],
+      "sources": [
+        {
+          "kind": "photo",
+          "file": "IMG_5817(1).JPEG",
+          "note": 6,
+          "colour": "green",
+          "reading": "readable"
+        },
+        {
+          "kind": "speech",
+          "segment_ids": [
+            "t10"
+          ],
+          "start": 62.2,
+          "end": 68.0,
+          "speakers": [
+            "SPEAKER_01"
+          ],
+          "quote": "He becomes a dopamine junky"
+        }
+      ]
+    },
+    {
+      "id": "n10",
+      "text": "this should be steve not harry",
+      "kind": "point",
+      "support": "photo+speech",
+      "conflict": null,
+      "claim_ids": [
+        "p3.2",
+        "c7"
+      ],
+      "source_texts": [
+        "this should be steve not harry",
+        "Pink note proposes Steve, a long-time Chemistry user, as the one who falls, not Harry"
+      ],
+      "sources": [
+        {
+          "kind": "photo",
+          "file": "IMG_5818(1).JPEG",
+          "note": 2,
+          "colour": "pink",
+          "reading": "readable"
+        },
+        {
+          "kind": "speech",
+          "segment_ids": [
+            "t11"
+          ],
+          "start": 68.6,
+          "end": 76.4,
+          "speakers": [
+            "SPEAKER_02"
+          ],
+          "quote": "this should be Steve, not Harry"
+        }
+      ]
+    },
+    {
+      "id": "n11",
+      "text": "Counterpoint: Harry is new in France with no friends, so his fall is the story; Steve is the contrast",
+      "kind": "point",
+      "support": "speech",
+      "conflict": null,
+      "claim_ids": [
+        "c8"
+      ],
+      "source_texts": [
+        "Counterpoint: Harry is new in France with no friends, so his fall is the story; Steve is the contrast"
+      ],
+      "sources": [
+        {
+          "kind": "speech",
+          "segment_ids": [
+            "t12"
+          ],
+          "start": 76.9,
+          "end": 84.8,
+          "speakers": [
+            "SPEAKER_01"
+          ],
+          "quote": "Harry is new in France, he is the one with no friends"
+        }
+      ]
+    },
+    {
+      "id": "n12",
+      "text": "Main character left undecided for now",
+      "kind": "decision",
+      "support": "speech",
+      "conflict": null,
+      "claim_ids": [
+        "c9"
+      ],
+      "source_texts": [
+        "Main character left undecided for now"
+      ],
+      "sources": [
+        {
+          "kind": "speech",
+          "segment_ids": [
+            "t13",
+            "t14"
+          ],
+          "start": 85.3,
+          "end": 99.6,
+          "speakers": [
+            "SPEAKER_00",
+            "SPEAKER_02"
+          ],
+          "quote": "let's not decide the main character yet"
+        }
+      ]
+    },
+    {
+      "id": "n13",
+      "text": "What happens between steve loving the app to Steve not using it anymore? Why?",
+      "kind": "point",
+      "support": "photo+speech",
+      "conflict": null,
+      "claim_ids": [
+        "p3.1",
+        "c10"
+      ],
+      "source_texts": [
+        "What happens between steve loving the app to Steve not using it anymore? Why?",
+        "Open: what happens between Steve loving the app and Steve stopping using it?"
+      ],
+      "sources": [
+        {
+          "kind": "photo",
+          "file": "IMG_5818(1).JPEG",
+          "note": 1,
+          "colour": "yellow",
+          "reading": "readable"
+        },
+        {
+          "kind": "speech",
+          "segment_ids": [
+            "t14",
+            "t16"
+          ],
+          "start": 92.0,
+          "end": 110.4,
+          "speakers": [
+            "SPEAKER_00",
+            "SPEAKER_01"
+          ],
+          "quote": "What happens between Steve loving the app and Steve not using it anymore?"
+        }
+      ]
+    },
+    {
+      "id": "n14",
+      "text": "Idea: Steve realises the streak is the only thing he talks about with people",
+      "kind": "point",
+      "support": "speech",
+      "conflict": null,
+      "claim_ids": [
+        "c11"
+      ],
+      "source_texts": [
+        "Idea: Steve realises the streak is the only thing he talks about with people"
+      ],
+      "sources": [
+        {
+          "kind": "speech",
+          "segment_ids": [
+            "t15"
+          ],
+          "start": 100.1,
+          "end": 105.9,
+          "speakers": [
+            "SPEAKER_03"
+          ],
+          "quote": "the streak is the only thing he talks about with people"
+        }
+      ]
+    },
+    {
+      "id": "n15",
+      "text": "Format: go with option two, video recorded on a phone, instead of the comic",
+      "kind": "decision",
+      "support": "speech",
+      "conflict": null,
+      "claim_ids": [
+        "c12"
+      ],
+      "source_texts": [
+        "Format: go with option two, video recorded on a phone, instead of the comic"
+      ],
+      "sources": [
+        {
+          "kind": "speech",
+          "segment_ids": [
+            "t17",
+            "t18",
+            "t19",
+            "t20",
+            "t21"
+          ],
+          "start": 111.0,
+          "end": 137.5,
+          "speakers": [
+            "SPEAKER_00",
+            "SPEAKER_01",
+            "SPEAKER_02",
+            "SPEAKER_03"
+          ],
+          "quote": "so we go with the phone video. That's decided."
+        }
+      ]
+    },
+    {
+      "id": "n16",
+      "text": "Phone video feels more real; the comic is very polished",
+      "kind": "point",
+      "support": "speech",
+      "conflict": null,
+      "claim_ids": [
+        "c13"
+      ],
+      "source_texts": [
+        "Phone video feels more real; the comic is very polished"
+      ],
+      "sources": [
+        {
+          "kind": "speech",
+          "segment_ids": [
+            "t18"
+          ],
+          "start": 119.7,
+          "end": 125.0,
+          "speakers": [
+            "SPEAKER_02"
+          ],
+          "quote": "phone video feels more real for this"
+        }
+      ]
+    },
+    {
+      "id": "n17",
+      "text": "Rewrite the storyboard as shots; SPEAKER_03 offers a first shot list from the comic panels",
+      "kind": "action",
+      "support": "speech",
+      "conflict": null,
+      "claim_ids": [
+        "c14"
+      ],
+      "source_texts": [
+        "Rewrite the storyboard as shots; SPEAKER_03 offers a first shot list from the comic panels"
+      ],
+      "sources": [
+        {
+          "kind": "speech",
+          "segment_ids": [
+            "t22"
+          ],
+          "start": 138.2,
+          "end": 146.0,
+          "speakers": [
+            "SPEAKER_03"
+          ],
+          "quote": "I can make a first shot list from the comic panels"
+        }
+      ]
+    },
+    {
+      "id": "n18",
+      "text": "Check the space inventory sheet to see if the park walk scene can be filmed there",
+      "kind": "action",
+      "support": "speech",
+      "conflict": null,
+      "claim_ids": [
+        "c15"
+      ],
+      "source_texts": [
+        "Check the space inventory sheet to see if the park walk scene can be filmed there"
+      ],
+      "sources": [
+        {
+          "kind": "speech",
+          "segment_ids": [
+            "t23"
+          ],
+          "start": 146.5,
+          "end": 152.8,
+          "speakers": [
+            "SPEAKER_02"
+          ],
+          "quote": "someone should check the space inventory sheet"
+        }
+      ]
+    },
+    {
+      "id": "n19",
+      "text": "Show the streak count (flame, chemistry streak) in the video; already in third phone screen",
+      "kind": "point",
+      "support": "speech",
+      "conflict": null,
+      "claim_ids": [
+        "c18"
+      ],
+      "source_texts": [
+        "Show the streak count (flame, chemistry streak) in the video; already in third phone screen"
+      ],
+      "sources": [
+        {
+          "kind": "speech",
+          "segment_ids": [
+            "t27",
+            "t28"
+          ],
+          "start": 174.8,
+          "end": 186.0,
+          "speakers": [
+            "SPEAKER_02",
+            "SPEAKER_03"
+          ],
+          "quote": "that's in the third phone screen already"
+        }
+      ]
+    },
+    {
+      "id": "n20",
+      "text": "Take a photo of the wall before leaving",
+      "kind": "action",
+      "support": "speech",
+      "conflict": null,
+      "claim_ids": [
+        "c19"
+      ],
+      "source_texts": [
+        "Take a photo of the wall before leaving"
+      ],
+      "sources": [
+        {
+          "kind": "speech",
+          "segment_ids": [
+            "t29"
+          ],
+          "start": 186.6,
+          "end": 193.4,
+          "speakers": [
+            "SPEAKER_00"
+          ],
+          "quote": "take a photo of the wall before we leave"
+        }
+      ]
+    }
+  ],
+  "structure": {
+    "form": "cluster",
+    "reason": "These are mixed design-fiction discussion threads (world concepts, character, plot, format, logistics) rather than a sequence or hierarchy, so grouping by topic fits best.",
+    "fallback": false,
+    "groups": [
+      {
+        "label": "Future world concepts",
+        "point_ids": [
+          "n1",
+          "n2",
+          "n3",
+          "n4",
+          "n5",
+          "n6"
+        ]
+      },
+      {
+        "label": "Plausibility of calendar tech",
+        "point_ids": [
+          "n7",
+          "n8"
+        ]
+      },
+      {
+        "label": "Main character: Harry vs Steve",
+        "point_ids": [
+          "n9",
+          "n10",
+          "n11",
+          "n12"
+        ]
+      },
+      {
+        "label": "Story arc: why Steve quits",
+        "point_ids": [
+          "n13",
+          "n14"
+        ]
+      },
+      {
+        "label": "Format: phone video",
+        "point_ids": [
+          "n15",
+          "n16",
+          "n19"
+        ]
+      },
+      {
+        "label": "Next actions",
+        "point_ids": [
+          "n17",
+          "n18",
+          "n20"
+        ]
+      }
+    ],
+    "relations": []
+  },
+  "gates": [
+    {
+      "step": "photo:IMG_5816(1).JPEG",
+      "attempts": 1,
+      "errors": [],
+      "fallback": false
+    },
+    {
+      "step": "photo:IMG_5817(1).JPEG",
+      "attempts": 1,
+      "errors": [],
+      "fallback": false
+    },
+    {
+      "step": "photo:IMG_5818(1).JPEG",
+      "attempts": 1,
+      "errors": [],
+      "fallback": false
+    },
+    {
+      "step": "transcript",
+      "attempts": 1,
+      "errors": [],
+      "fallback": false
+    },
+    {
+      "step": "reconcile",
+      "attempts": 1,
+      "errors": [],
+      "fallback": false
+    },
+    {
+      "step": "structure",
+      "attempts": 1,
+      "errors": [],
+      "fallback": false
+    }
+  ],
+  "rejected": [],
+  "warnings": [],
+  "usage": {
+    "calls": 6,
+    "budget_tokens": 300000,
+    "input_tokens": 20706,
+    "output_tokens": 4528,
+    "by_call": [
+      {
+        "step": "photo:IMG_5816(1).JPEG",
+        "provider": "anthropic",
+        "model": "claude-opus-5-5",
+        "synthetic": false,
+        "input_tokens": 4663,
+        "output_tokens": 50
+      },
+      {
+        "step": "photo:IMG_5817(1).JPEG",
+        "provider": "anthropic",
+        "model": "claude-opus-5-5",
+        "synthetic": false,
+        "input_tokens": 4663,
+        "output_tokens": 754
+      },
+      {
+        "step": "photo:IMG_5818(1).JPEG",
+        "provider": "anthropic",
+        "model": "claude-opus-5-5",
+        "synthetic": false,
+        "input_tokens": 4663,
+        "output_tokens": 632
+      },
+      {
+        "step": "transcript",
+        "provider": "anthropic",
+        "model": "claude-opus-5-5",
+        "synthetic": false,
+        "input_tokens": 2573,
+        "output_tokens": 1300
+      },
+      {
+        "step": "reconcile",
+        "provider": "anthropic",
+        "model": "claude-opus-5-5",
+        "synthetic": false,
+        "input_tokens": 2269,
+        "output_tokens": 1513
+      },
+      {
+        "step": "structure",
+        "provider": "anthropic",
+        "model": "claude-opus-5-5",
+        "synthetic": false,
+        "input_tokens": 1875,
+        "output_tokens": 279
+      }
+    ]
+  }
+}

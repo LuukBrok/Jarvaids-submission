@@ -1,0 +1,5 @@
+# Optional: only needed for --provider claude. --provider fixture and
+# --provider ollama run with the standard library alone (ollama itself is a
+# separate local install, not a Python package: see README.md).
+# Pinned to match app/server/requirements-claude.txt.
+anthropic>=1.13.0,<2.0.0

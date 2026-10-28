@@ -1,0 +1,11 @@
+# Optional. Only needed for --transcriber local-whisper (real ASR).
+# The default --transcriber fixture needs none of this: requirements.txt alone is enough.
+#
+# faster-whisper downloads model weights from Hugging Face on first use (a few
+# hundred MB for "tiny", over a gigabyte for "medium"). That download needs
+# internet once; transcription itself runs entirely on this machine afterwards,
+# per the audio-never-leaves-the-server guardrail in AGENTS.md.
+faster-whisper==1.2.1
+# PyAV 19 removed the metadata_errors argument used by faster-whisper 1.2.1.
+# 16.1.0 was exercised with actual local audio on Windows.
+av==16.1.0

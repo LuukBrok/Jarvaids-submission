@@ -1,0 +1,6 @@
+# The full Windows runtime is installed by tools/local_test.py setup.
+# CPU PyTorch is installed from its official CPU index. webrtcvad-wheels
+# provides the webrtcvad module without a Windows C++ build; Resemblyzer
+# is installed with --no-deps after its dependencies are supplied explicitly.
+# The encoder weights are bundled with the Resemblyzer wheel.
+resemblyzer==0.1.4

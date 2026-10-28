@@ -1,0 +1,227 @@
+/* ==========================================================================
+   The rail: Review, Transcript and People.
+   Owner: the phase 3 review rail agent (DESIGN.md 1.5), with review.mjs,
+   transcript.mjs, people.mjs, speakers.mjs and the <!-- region: rail -->
+   block in index.html. People rows are also drawn on the agreement gate
+   (#consent-rows), so the .person rules hold on --paper as well.
+
+   The rail is a sunken panel (--paper-2) beside the canvas. On it, review
+   cards are --paper, separated by space; the focused card carries the one
+   shadow. Transcript rows are separated by space; the current line and a
+   recognised command are the only filled rows. Tokens only.
+   ========================================================================== */
+
+/* Local roles, bound to tokens: the fills the transcript uses, so a row's
+   meaning is named once here and the hue stays in tokens.css. */
+.ws-rail {
+  --rail-ground: var(--surface-sunken);
+  --rail-card: var(--surface);
+  --current-fill: var(--highlight);
+  --command-fill: var(--periwinkle-soft);
+}
+
+/* ---- the rail ------------------------------------------------------------- */
+.ws-rail {
+  background: var(--rail-ground);
+  border-radius: var(--r-lg);
+  padding: 0 var(--space-4) var(--space-5);
+  min-width: 0;
+}
+/* On a wide screen the rail scrolls on its own, so the canvas stays put. Its
+   sticky top is --header-stack (header.css), which grows by the capture
+   banner while one shows, so the banner never covers the rail's tabs. */
+@media (min-width: 1024px) {
+  .ws-rail {
+    max-height: calc(100vh - var(--header-stack) - var(--space-6)); overflow-y: auto; overscroll-behavior: contain;
+    position: sticky; top: calc(var(--header-stack) + var(--space-4));
+  }
+}
+@media (max-width: 1023px) { .ws-rail { order: -1; } }
+
+.rail-tabs {
+  position: sticky; top: 0; z-index: var(--z-sticky);
+  background: var(--rail-ground);
+  margin: 0 calc(-1 * var(--space-4)) var(--space-4);
+  padding: var(--space-2) var(--space-4) 0;
+}
+/* The count sits on --paper: the primitive's sunken chip would vanish on the
+   sunken rail. */
+.rail-tabs .count { background: var(--rail-card); }
+
+.rail-panel { min-width: 0; display: flex; flex-direction: column; gap: var(--space-3); }
+.rail-panel p { margin: 0; }
+/* A status line with nothing to say takes no space. */
+.rail-panel p:empty, .rail-section p:empty { display: none; }
+.rail-section { display: flex; flex-direction: column; gap: var(--space-3); padding-top: var(--space-6); align-items: flex-start; }
+.rail-section .field { align-self: stretch; }
+.rail-hint { color: var(--text-2); }
+/* A secondary button's sunken fill is the rail's own ground, so on the rail
+   (not on a card) it takes the card's tone to stay a visible button. */
+.rail-section .btn-secondary { background: var(--rail-card); }
+.rail-section .btn-secondary:hover:not([disabled]) { background: var(--action-secondary-hover); }
+
+/* ---- review: jobs, the undo line, the queue -------------------------------- */
+.jobs, .queue { display: flex; flex-direction: column; gap: var(--space-3); }
+.jobs:empty, .queue:empty { display: none; }
+.job {
+  display: flex; align-items: baseline; flex-wrap: wrap; gap: var(--space-1) var(--space-2);
+  background: var(--rail-card); border-radius: var(--r-sm); padding: var(--space-2) var(--space-3);
+}
+.job-time { margin-left: auto; color: var(--text-3); }
+.job-reason { flex-basis: 100%; color: var(--text-2); }
+.job-actions { display: flex; flex-wrap: wrap; gap: var(--space-1); margin-left: calc(-1 * var(--space-2)); }
+.undo-line {
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--space-2);
+  background: var(--rail-card); border-radius: var(--r-sm); padding: var(--space-1) var(--space-1) var(--space-1) var(--space-3);
+}
+.queue-empty { color: var(--text-2); }
+
+/* A card: evidence, then the text, then the actions. */
+.proposal {
+  display: flex; flex-direction: column; gap: var(--space-3); min-width: 0;
+  background: var(--rail-card); border-radius: var(--r-lg); padding: var(--space-4);
+}
+.proposal.focused { box-shadow: var(--shadow); outline: 0; }
+@media (prefers-reduced-motion: no-preference) {
+  .proposal { transition: box-shadow var(--t-base) var(--ease-out); }
+}
+
+/* 1. Evidence. The crop is full width and never cropped again: contain, so
+   the whole note the text was read from is visible. */
+.evidence { margin: 0; min-width: 0; }
+.evidence-crop { display: flex; flex-direction: column; gap: var(--space-1); }
+.crop-img {
+  display: block; width: 100%; height: auto; max-height: var(--crop-max-h);
+  object-fit: contain; border-radius: var(--r-sm); background: var(--rail-ground);
+}
+.crop-placeholder { border-radius: var(--r-sm); background: var(--rail-ground); color: var(--text-2); padding: var(--space-5) var(--space-4); }
+.crop-caption { color: var(--text-2); }
+.evidence-typed { display: flex; align-items: center; gap: var(--space-2); color: var(--text-2); }
+.evidence-typed time { margin-left: auto; color: var(--text-3); }
+.evidence-members { padding-left: var(--space-4); color: var(--text-2); display: flex; flex-direction: column; gap: var(--space-1); }
+.evidence-line { color: var(--text); }
+
+/* 2. The text, in the Note style. A corrected text keeps the corner mark,
+   the same 6px ink square a corrected note has on the canvas. */
+.proposal-text { margin: 0; overflow-wrap: anywhere; position: relative; padding-right: var(--space-4); }
+.proposal-text.corrected::after, .proposal-correct:has(.corrected)::after {
+  content: ""; position: absolute; top: var(--space-1); right: 0;
+  width: var(--corner-mark); height: var(--corner-mark); background: var(--note-corrected-mark);
+}
+.proposal-correct { position: relative; display: flex; flex-direction: column; gap: var(--space-2); }
+.proposal-correct:has(.corrected)::after { top: var(--space-2); right: var(--space-2); }
+.proposal-field {
+  width: 100%; min-height: calc(2 * var(--h-field)); resize: vertical;
+  padding: var(--space-2) var(--space-5) var(--space-2) var(--space-3);
+  border: var(--line-1) solid var(--edge); border-radius: var(--r-sm);
+  background: var(--surface); color: var(--text);
+}
+.proposal-field:hover { border-color: var(--text-3); }
+@media (pointer: coarse) { .proposal-field { font-size: var(--fs-field-touch); } }
+
+.proposal-meta { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-1) var(--space-2); }
+.proposal .origin { color: var(--text-2); }
+
+/* 3. The actions. Accept is the one primary in the card. */
+.proposal-actions { gap: var(--space-2); }
+.proposal-actions:empty { display: none; }
+.proposal .why { color: var(--text-2); }
+
+/* The person's circle is the .person-dot primitive (primitives.css): an
+   avatar in People, a status-glyph size (.person-dot-sm) in running text. */
+
+/* ---- transcript ------------------------------------------------------------ */
+.transcript-note { color: var(--text-2); }
+.transcript-note.transcript-failed { color: var(--status-failed); }
+.command-status { display: flex; align-items: baseline; gap: var(--space-2); color: var(--text-2); }
+.command-status::before {
+  content: ""; flex: none; width: var(--glyph); height: var(--glyph);
+  border-radius: var(--r-sm); background: var(--command-fill); align-self: center;
+}
+.transcript { display: flex; flex-direction: column; gap: var(--space-1); min-width: 0; }
+
+/* A row: the head line (time, speaker, badge, Quote), then the words. Rows
+   are separated by space; only the current line and a recognised command
+   are filled, and a filled row has no line. */
+.transcript .transcript-row {
+  display: flex; flex-direction: column; align-items: stretch; gap: var(--space-1);
+  padding: var(--space-2) var(--space-3); border-radius: var(--r-sm); margin-inline: calc(-1 * var(--space-3));
+  scroll-margin-block: var(--space-7);
+}
+/* One line, never wrapped: a wrapping head put the hidden Quote button on a
+   line of its own, which showed as an empty band inside every command row
+   (phase 5 review). The badge gives way and wraps inside itself instead. */
+.transcript-head { display: flex; align-items: center; flex-wrap: nowrap; gap: var(--space-1) var(--space-2); min-width: 0; }
+.transcript-head .transcript-badge { min-width: 0; }
+.transcript-head :is(.transcript-time, .transcript-speaker) { flex: none; }
+.transcript-head .transcript-speaker { max-width: 50%; }
+.transcript-time { color: var(--text-3); }
+.transcript-speaker {
+  display: inline-flex; align-items: center; gap: var(--space-1); min-width: 0; overflow-wrap: anywhere;
+  font-size: var(--fs-body); line-height: var(--lh-body); font-weight: var(--fw-strong);
+  color: var(--speaker-ink, var(--text));
+}
+.transcript-speaker.speaker-known::before {
+  content: ""; flex: none; width: var(--glyph); height: var(--glyph);
+  border-radius: var(--r-pill); background: var(--person);
+}
+.transcript-speaker.speaker-unknown { color: var(--text-3); font-weight: var(--fw-small); }
+.transcript-badge { color: var(--text-2); }
+.command-provisional { color: var(--text-2); }
+.transcript-words { margin: 0; overflow-wrap: anywhere; }
+.transcript .command-feedback { color: var(--text-2); overflow-wrap: anywhere; }
+.activation-correction { color: var(--text-2); overflow-wrap: anywhere; }
+.activation-correction summary, .test-tools summary { cursor: pointer; }
+.activation-correction span { display: block; padding-top: var(--space-1); }
+
+/* The current line and a quoted line on the highlight tone; a recognised
+   command on its own tone, which wins over "current". */
+.transcript .transcript-current, .transcript .quoted-highlight { background: var(--current-fill); }
+.transcript .transcript-command { background: var(--command-fill); }
+/* On a filled row, -deep names and --ink-3 meta drop under 4.5:1 for some
+   people (mint-deep is 4.45 on the highlight, 3.95 on the command tone), so
+   the name steps to ink and the circle carries the colour. */
+.transcript-current .speaker-known, .quoted-highlight .speaker-known, .transcript-command .speaker-known { color: var(--text); }
+.transcript-current .transcript-time, .quoted-highlight .transcript-time, .transcript-command .transcript-time,
+.transcript-current .speaker-unknown, .quoted-highlight .speaker-unknown, .transcript-command .speaker-unknown { color: var(--text-2); }
+
+/* Quote: quiet, at the end of the head line. Shown on hover and on focus;
+   always on a touch screen, which has no hover. */
+.quote-line { margin-left: auto; opacity: 0; }
+.transcript-row:hover .quote-line, .transcript-row:focus-within .quote-line, .quote-line:focus-visible { opacity: 1; }
+@media (hover: none), (pointer: coarse) { .quote-line { opacity: 1; } }
+@media (prefers-reduced-motion: no-preference) {
+  .quote-line { transition: opacity var(--t-fast) var(--ease-out); }
+  .transcript .transcript-row { transition: background-color var(--t-base) var(--ease-out); }
+}
+
+.test-tools { margin-top: var(--space-5); color: var(--text-2); }
+.test-tools .checkline { margin-block: var(--space-2); }
+
+/* ---- people (also the agreement gate's rows) -------------------------------- */
+.people-rows { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-1); }
+.person {
+  display: grid; grid-template-columns: var(--avatar) minmax(0, 1fr) auto; align-items: center;
+  column-gap: var(--space-3); row-gap: var(--space-1); padding-block: var(--space-2);
+}
+.person-who { display: flex; flex-direction: column; min-width: 0; }
+.person-name { font-weight: var(--fw-small); overflow-wrap: anywhere; }
+.person-facts { display: flex; align-items: baseline; flex-wrap: wrap; gap: var(--space-2); }
+.person .role { color: var(--text-2); }
+.person-time { color: var(--text-3); }
+.person .agreement { justify-self: end; }
+.person .person-actions {
+  grid-column: 2 / -1; display: flex; flex-wrap: wrap; gap: var(--space-1);
+  margin-left: calc(-1 * var(--space-2));
+}
+
+/* ---- invitation and voices --------------------------------------------------- */
+.invite { display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; align-self: stretch; }
+.invite-code {
+  flex: 1 1 100%; min-width: 0; overflow-wrap: anywhere; padding: var(--space-2) var(--space-3);
+  border-radius: var(--r-sm); background: var(--rail-card); color: var(--text);
+  font-family: var(--font-mono); font-size: var(--fs-mono); line-height: var(--lh-mono);
+}
+.speaker-list { display: flex; flex-direction: column; gap: var(--space-1); }
+.speaker-row { margin: 0; overflow-wrap: anywhere; }
+.speaker-kind, .speaker-empty { color: var(--text-2); }

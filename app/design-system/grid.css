@@ -1,0 +1,347 @@
+/* ==========================================================================
+   Jarvaids design system: layout primitives
+   Requires tokens.css.
+
+   These classes are the layout contract. A screen composes them; it does not
+   add its own horizontal padding, its own max-width wrapper, or its own
+   breakpoints. If a screen needs a shape that is not here, that is a spec
+   change, not a local override.
+
+   ONE breakpoint: 1024px. There is no sm/md/xl tier. Above 1024 is the room
+   screen and the facilitator's laptop; below 1024 is a phone, which in this
+   product is a camera and a text box, not a second desktop (F1.4, F1.7).
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Reset, kept to the minimum that makes the system behave.
+   -------------------------------------------------------------------------- */
+
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: var(--font-reading);
+  font-size: var(--text-body);
+  line-height: var(--text-body--line-height);
+  -webkit-font-smoothing: antialiased;
+}
+
+img, svg, video { max-width: 100%; }
+
+/* --------------------------------------------------------------------------
+   jv-page: the page frame.
+   Side padding lives here and nowhere else.
+   -------------------------------------------------------------------------- */
+
+.jv-page {
+  padding-inline: var(--layout-pad-narrow);
+}
+
+/* This frame declared `container-type: inline-size` and `container-name: page`
+   for a while with not one `@container` rule anywhere to consume them. A
+   query container with no query is not harmless: `container-type: inline-size`
+   establishes containment, which changes how percentage heights and some
+   intrinsic sizing resolve inside it, so it was doing something and the
+   something was not asked for. Put it back the day a rule actually queries it,
+   and put the rule in the same commit. */
+
+@media (min-width: 1024px) {
+  .jv-page { padding-inline: var(--layout-pad); }
+}
+
+/* jv-prose: anything that is read rather than scanned. Never runs wider. */
+.jv-prose { max-width: var(--layout-reading-max); }
+
+/* --------------------------------------------------------------------------
+   jv-stack / jv-row: the two rhythm helpers.
+   Vertical rhythm is 8px, stepped by the --spacing tokens.
+   -------------------------------------------------------------------------- */
+
+.jv-stack { display: flex; flex-direction: column; gap: var(--spacing-4); }
+.jv-stack-tight { display: flex; flex-direction: column; gap: var(--spacing-2); }
+.jv-stack-loose { display: flex; flex-direction: column; gap: var(--spacing-6); }
+
+/* A horizontal cluster. Baseline, not centre: when the signal face and the
+   reading face meet on one line they share a baseline (spec/typography.md). */
+.jv-row {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-2);
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+/* The exception: a cluster whose members are boxes (buttons, dots, avatars)
+   rather than text lines. */
+.jv-row-centre {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+.jv-spacer { margin-left: auto; }
+
+/* --------------------------------------------------------------------------
+   Separation: space first, then a tonal fill, then a line.
+   Never a fill and a line on the same element: both together say the same
+   thing twice and read as a box. Nothing in the page has a shadow; shadows
+   (--elevation-*) belong only to surfaces that float above it.
+   -------------------------------------------------------------------------- */
+
+/* jv-panel: a group, told apart by tone. The sunken surface, no border, the
+   note radius. A cluster on the canvas, a group of controls in a side panel. */
+.jv-panel {
+  background: var(--color-surface-sunken);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-3);
+  min-width: 0;
+}
+
+.jv-hairline-top    { border-top:    var(--line-hairline) solid var(--color-hairline); }
+.jv-hairline-bottom { border-bottom: var(--line-hairline) solid var(--color-hairline); }
+.jv-hairline-left   { border-left:   var(--line-hairline) solid var(--color-hairline); }
+.jv-hairline-right  { border-right:  var(--line-hairline) solid var(--color-hairline); }
+.jv-hairline-all    { border:        var(--line-hairline) solid var(--color-hairline); }
+
+/* jv-rows: a hairline row list. The default way to show a list of anything:
+   transcript lines, review items, export targets, consent signatures.
+   The last row carries no line, so the list ends without a stray edge. */
+.jv-rows > * {
+  border-bottom: var(--line-hairline) solid var(--color-hairline);
+  padding-block: var(--spacing-3);
+  min-width: 0;
+}
+.jv-rows > *:last-child { border-bottom: 0; }
+
+/* jv-mesh: a compartment grid drawn entirely in hairlines: the 1px gap on a
+   hairline-coloured background IS the mesh. Used for the session header
+   figures and the export options. Cells must set their own background. */
+.jv-mesh {
+  display: grid;
+  gap: var(--line-hairline);
+  background: var(--color-hairline);
+  border: var(--line-hairline) solid var(--color-hairline);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.jv-mesh > * {
+  background: var(--color-canvas);
+  padding: var(--spacing-4);
+  min-width: 0;
+}
+@media (min-width: 1024px) {
+  .jv-mesh { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+/* --------------------------------------------------------------------------
+   Page shapes. Four, matching Jarvaids's five screens (setup and export share
+   the split shape). See spec/patterns.md.
+   -------------------------------------------------------------------------- */
+
+/* 1. jv-workspace: the live canvas plus its rail.
+      The canvas is the product; the rail is the transcript, or the review
+      queue, or nothing. Below 1024 the rail stacks under the canvas, because
+      a phone in this product is a camera (F1.4), not a second workspace. */
+.jv-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--spacing-4);
+  min-height: 0;
+}
+@media (min-width: 1024px) {
+  .jv-workspace {
+    grid-template-columns: minmax(0, 1fr) var(--layout-rail);
+    gap: 0;
+  }
+  .jv-workspace > :last-child {
+    border-left: var(--line-hairline) solid var(--color-hairline);
+    padding-left: var(--spacing-5);
+    margin-left: var(--spacing-5);
+  }
+}
+
+/* 2. jv-split: the act on the left, the record on the right.
+      Session setup, export. */
+.jv-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--spacing-6);
+}
+@media (min-width: 1024px) {
+  .jv-split {
+    grid-template-columns: minmax(0, var(--layout-form)) minmax(0, 1fr);
+    gap: var(--spacing-7);
+  }
+}
+
+/* 3. jv-queue: the review queue: one column of decisions, capped so the
+      accept/reject pair never drifts to the far edge of a wide screen. */
+.jv-queue { max-width: 760px; }
+
+/* 4. jv-board: the canvas surface itself. Free positioning lives in the
+      application's own layout engine (F3.3); this only establishes the
+      surface. It has no frame: the board is the page's own ground, so it
+      reads as the place the work is and not as a box inside a page. */
+.jv-board {
+  position: relative;
+  background: var(--color-canvas);
+  border-radius: var(--radius-md);
+  min-height: 320px;
+  overflow: hidden;
+}
+
+/* --------------------------------------------------------------------------
+   jv-scroll: the only element on a screen that scrolls independently.
+   Used for the transcript. Everything else scrolls with the page.
+   -------------------------------------------------------------------------- */
+
+.jv-scroll {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  min-height: 0;
+}
+
+/* jv-overflow-x: tables and wide diagrams get their own horizontal scroller
+   so the page body never scrolls sideways. */
+.jv-overflow-x { overflow-x: auto; }
+
+/* --------------------------------------------------------------------------
+   Truncation. Every flexible text cell needs both, or a long word breaks the
+   grid. This is the single most common layout bug in this system.
+   -------------------------------------------------------------------------- */
+
+.jv-truncate {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* --------------------------------------------------------------------------
+   Focus. Never removed, never replaced with a colour change.
+   -------------------------------------------------------------------------- */
+
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: var(--line-focus) solid var(--color-accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-xs);
+}
+
+/* --------------------------------------------------------------------------
+   Motion. Nothing in the system loops, so reduced motion only has transitions
+   to collapse: every one becomes an instant change to the same end state.
+   -------------------------------------------------------------------------- */
+
+/* --------------------------------------------------------------------------
+   Visually hidden.
+   Present to assistive technology, absent to the eye. Every live region in
+   spec/announcements.md depends on this, as does the skip link below and the
+   real <label> on a table's selection checkbox. It was specified in three
+   places before it existed in any.
+
+   Not `display: none` and not `visibility: hidden`: both remove the element
+   from the accessibility tree, which is the opposite of the job.
+   -------------------------------------------------------------------------- */
+
+.jv-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Skip link.
+   WCAG SC 2.4.1 Bypass Blocks, Level A. Every screen in this product carries a
+   sticky session bar and a rail before its main content, so a keyboard user
+   tabs through the same furniture on every screen without one.
+
+   Hidden until focused, then it lands in the top left over the session bar.
+   The accent on canvas pair is already in the contrast table, so this adds
+   nothing for contrast-check.py to measure.
+   -------------------------------------------------------------------------- */
+
+.jv-skip {
+  position: absolute;
+  left: var(--spacing-3);
+  top: calc(-1 * var(--spacing-8));
+  z-index: 60;
+  padding: var(--spacing-2) var(--spacing-4);
+  background: var(--color-canvas);
+  color: var(--color-accent);
+  border: var(--line-focus) solid var(--color-accent);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-reading);
+  font-size: var(--text-body);
+  font-weight: 600;
+  text-decoration: none;
+  transition: top var(--motion-fast) var(--motion-ease);
+}
+
+.jv-skip:focus {
+  top: var(--spacing-3);
+}
+
+/* --------------------------------------------------------------------------
+   No capture pulse.
+   The capturing indicator used to pulse. Nothing in the system loops any more,
+   because a looping mark on the room screen pulls every eye in the room to it
+   every cycle. The indicator is a still filled disc, the word "Recording" and
+   a running timer (spec/components.md section 2); the glyph classes live in
+   spec/exemplars/_base.css.
+   -------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Touch. Below 1024 every target is at least 44px, without redrawing the
+   control: the pseudo-element grows the hit area, not the button.
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 1023px) {
+  .jv-hit::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: max(100%, 44px);
+    height: max(100%, 44px);
+    transform: translate(-50%, -50%);
+  }
+  .jv-hit:where(:not(.jv-absolute)) { position: relative; }
+}
+
+/* --------------------------------------------------------------------------
+   Print. The export view (F5.1) is printed as often as it is exported, so the
+   system has a print contract rather than leaving it to the browser.
+   -------------------------------------------------------------------------- */
+
+@media print {
+  body { background: #ffffff; }
+  .jv-no-print { display: none !important; }
+  .jv-workspace { display: block; }
+  .jv-board { break-inside: avoid; }
+}

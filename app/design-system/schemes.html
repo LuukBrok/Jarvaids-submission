@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Jarvaids design system, colour scheme</title>
+<style>
+/* ==========================================================================
+   The colour scheme. Self-contained. No network requests.
+   Font from ./fonts/. Token values copied from ./tokens.css, exactly as
+   specimen.html copies them. If the two disagree, tokens.css is right and
+   this file is stale.
+
+   The system has one scheme, delft. This page used to put several schemes
+   side by side; it now shows the one there is, at the sizes it is drawn, so
+   the glyphs and the three provenance states can be judged by eye. The
+   [data-scheme] mechanism still exists in tokens.css; a future scheme would
+   get its own column here.
+   ========================================================================== */
+
+@font-face {
+  font-family: "Archivo";
+  src: url("fonts/archivo-variable-latin.woff2") format("woff2");
+  font-weight: 400 700; font-stretch: 100%; font-style: normal; font-display: swap;
+}
+
+:root {
+  --font: "Archivo", "Helvetica Neue", Helvetica, Arial, system-ui, sans-serif;
+
+  /* neutrals: no scheme moves these */
+  --color-canvas: #f8f9fc;
+  --color-surface-float: #ffffff;
+  --color-surface-sunken: #ebeef2;
+  --color-ink: #17181b;
+  --color-ink-secondary: #4d4e51;
+  --color-ink-muted: #5f6063;
+  --color-ink-wash: #eaebee;
+  --color-ink-inverse: #ffffff;
+  --color-hairline: #e1e5eb;
+  --color-hairline-strong: #85878c;
+
+  /* primitives: delft, one blue in tonal steps */
+  --palette-delft-tint: #e3eefe;
+  --palette-delft-light: #9bc3ff;
+  --palette-delft-mid: #4685e2;
+  --palette-delft-accent: #114fa2;
+  --palette-delft-accent-pressed: #063d85;
+  --palette-delft-deep: #01204e;
+  --palette-delft-accent-wash: #e3eefe;
+  --palette-delft-provisional: #114fa2;
+  --palette-delft-accepted: #1d7344;
+  --palette-delft-waiting: #8a5300;
+  --palette-delft-failed: #a81f1a;
+  --palette-delft-off: #595959;
+  --palette-delft-provisional-wash: #e3eefe;
+  --palette-delft-accepted-wash: #e8f1ec;
+  --palette-delft-waiting-wash: #f3eee6;
+  --palette-delft-failed-wash: #f6e9e8;
+  --palette-delft-off-wash: #eeeeee;
+
+  /* semantics: what everything below binds */
+  --color-accent: var(--palette-delft-accent);
+  --color-accent-pressed: var(--palette-delft-accent-pressed);
+  --color-accent-wash: var(--palette-delft-accent-wash);
+  --color-status-capturing: var(--color-ink);
+  --color-status-provisional: var(--palette-delft-provisional);
+  --color-status-accepted: var(--palette-delft-accepted);
+  --color-status-waiting: var(--palette-delft-waiting);
+  --color-status-failed: var(--palette-delft-failed);
+  --color-status-off: var(--palette-delft-off);
+  --color-status-provisional-wash: var(--palette-delft-provisional-wash);
+  --color-status-accepted-wash: var(--palette-delft-accepted-wash);
+  --color-status-waiting-wash: var(--palette-delft-waiting-wash);
+  --color-status-failed-wash: var(--palette-delft-failed-wash);
+  --color-status-off-wash: var(--palette-delft-off-wash);
+
+  --radius-xs: 2px; --radius-sm: 4px; --radius-md: 8px; --radius-full: 999px;
+  --line-hairline: 1px; --line-boundary: 1px; --line-provisional: 1px; --line-focal: 2px; --line-focus: 2px;
+  --motion-fast: 150ms;
+  --motion-ease: cubic-bezier(0.23, 1, 0.32, 1);
+
+  color-scheme: light;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: var(--font);
+  font-size: 14px;
+  line-height: 20px;
+  -webkit-font-smoothing: antialiased;
+  padding-inline: 16px;
+}
+@media (min-width: 1024px) { body { padding-inline: 32px; } }
+
+img, svg { max-width: 100%; }
+.wrap { max-width: 1120px; margin: 0 auto; padding-block: 48px 96px; }
+
+/* type roles */
+.t-display { font-size: 44px; line-height: 48px; letter-spacing: -0.01em; font-weight: 400; margin: 0; }
+.t-heading { font-size: 28px; line-height: 32px; font-weight: 500; margin: 0; }
+.t-heading .second, .t-display .second { display: block; color: var(--color-ink-muted); font-weight: 400; }
+.t-title   { font-size: 18px; line-height: 24px; font-weight: 500; margin: 0; }
+.t-figure  { font-weight: 500; font-variant-numeric: tabular-nums; }
+.t-label   { font-size: 12px; line-height: 16px; font-weight: 500; color: var(--color-ink-muted); }
+.t-meta    { font-size: 12px; line-height: 16px; color: var(--color-ink-secondary); }
+.muted     { color: var(--color-ink-muted); }
+.strong    { font-weight: 500; }
+
+header.top { padding-bottom: 32px; }
+header.top p { max-width: 68ch; margin: 16px 0 0; color: var(--color-ink-secondary); }
+
+section { padding-block: 48px; border-top: var(--line-hairline) solid var(--color-hairline); }
+section > h2 { margin: 0 0 8px; }
+section > .lede { max-width: 68ch; margin: 0 0 32px; color: var(--color-ink-secondary); }
+
+.cols { display: grid; grid-template-columns: minmax(0, 1fr); gap: 48px; }
+@media (min-width: 1024px) { .cols { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px; } }
+.col { min-width: 0; display: flex; flex-direction: column; gap: 16px; }
+
+.rows > * { border-bottom: var(--line-hairline) solid var(--color-hairline); padding-block: 12px; min-width: 0; }
+.rows > *:last-child { border-bottom: 0; }
+.rows > .status { display: flex; }
+.row-c { display: flex; align-items: center; gap: 8px; min-width: 0; flex-wrap: wrap; }
+
+/* status: a shaped 16px glyph, always with a word */
+.glyph { position: relative; display: inline-block; flex: none; width: 16px; height: 16px;
+  border-radius: var(--radius-full); color: inherit; }
+.glyph-capturing   { background: currentColor; transform: scale(0.625); }
+.glyph-provisional { border: 1.5px dashed currentColor; }
+.glyph-accepted, .glyph-waiting, .glyph-failed { border: 1.5px solid currentColor; }
+.glyph-accepted::after { content: ""; position: absolute; left: 4.5px; top: 2px; width: 4px; height: 7px;
+  border: solid currentColor; border-width: 0 1.5px 1.5px 0; transform: rotate(45deg); }
+.glyph-waiting::after { content: ""; position: absolute; left: 2px; top: 2px; bottom: 2px; width: 4.5px;
+  background: currentColor; border-radius: 4.5px 0 0 4.5px; }
+.glyph-failed::after { content: ""; position: absolute; left: 3px; right: 3px; top: 6.25px; height: 1.5px; background: currentColor; }
+.glyph-off { border-radius: 0; }
+.glyph-off::before, .glyph-off::after { content: ""; position: absolute; top: 3px; bottom: 3px; width: 2px; background: currentColor; }
+.glyph-off::before { left: 4.5px; } .glyph-off::after { right: 4.5px; }
+.status { display: inline-flex; align-items: center; gap: 6px; }
+.status .word { font-size: 12px; line-height: 16px; font-weight: 500; }
+.st-capturing   { color: var(--color-status-capturing); }
+.st-provisional { color: var(--color-status-provisional); }
+.st-accepted    { color: var(--color-status-accepted); }
+.st-waiting     { color: var(--color-status-waiting); }
+.st-failed      { color: var(--color-status-failed); }
+.st-off         { color: var(--color-status-off); }
+.strip { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.greyscale { filter: grayscale(1); }
+
+.btn { font-family: var(--font); font-size: 14px; font-weight: 500; line-height: 1;
+  min-height: 32px; padding-inline: 12px; border-radius: var(--radius-sm); border: 0;
+  display: inline-flex; align-items: center; gap: 6px; cursor: pointer; background: transparent; color: var(--color-ink);
+  transition: background-color var(--motion-fast) var(--motion-ease); }
+.btn-primary { background: var(--color-accent); color: var(--color-ink-inverse); }
+.btn-quiet { color: var(--color-ink-secondary); }
+@media (hover: hover) {
+  .btn-primary:hover { background: var(--color-accent-pressed); }
+  .btn-quiet:hover { background: var(--color-ink-wash); color: var(--color-ink); }
+}
+a.link { color: var(--color-accent); font-weight: 500; }
+
+:where(a, button):focus-visible {
+  outline: var(--line-focus) solid var(--color-accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-xs);
+}
+
+.selected { background: var(--color-accent-wash); padding: 8px 12px; border-radius: var(--radius-sm); }
+
+/* the three provenance states: one instrument each */
+.item { position: relative; min-width: 0; padding: 12px; border-radius: var(--radius-md); }
+.item .kind { display: block; font-size: 12px; line-height: 16px; font-weight: 500; color: var(--color-ink-muted); margin-bottom: 4px; }
+.item .text { display: block; color: var(--color-ink); }
+.item .meta { display: block; font-size: 12px; line-height: 16px; color: var(--color-ink-muted); margin-top: 8px; }
+.item .badge { display: inline-flex; align-items: center; gap: 6px; margin-bottom: 6px; font-size: 12px; line-height: 16px; font-weight: 500; }
+.item-accepted    { background: var(--color-surface-sunken); }
+.item-provisional { border: var(--line-provisional) dashed var(--color-status-provisional); }
+.item-pending     { border: var(--line-boundary) solid var(--color-hairline-strong); }
+.item-selected    { outline: var(--line-focal) solid var(--color-accent); outline-offset: 2px; }
+.group { background: var(--color-surface-sunken); border-radius: var(--radius-md); padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+
+.steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+@media (min-width: 720px) { .steps { grid-template-columns: repeat(6, minmax(0, 1fr)); } }
+.step { min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.step i { display: block; height: 48px; border-radius: var(--radius-sm); }
+
+table.cmp { width: 100%; border-collapse: collapse; }
+table.cmp th { text-align: left; padding: 8px 12px 8px 0; border-bottom: var(--line-hairline) solid var(--color-hairline);
+  font-size: 12px; line-height: 16px; font-weight: 500; color: var(--color-ink-muted); white-space: nowrap; }
+table.cmp td { padding: 10px 12px 10px 0; border-bottom: var(--line-hairline) solid var(--color-hairline); vertical-align: middle; }
+table.cmp tr:last-child td { border-bottom: 0; }
+table.cmp td.num { font-weight: 500; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.swatch { width: 20px; height: 20px; border-radius: var(--radius-xs); flex: none; display: inline-block; vertical-align: -5px; }
+.scroll-x { overflow-x: auto; }
+
+.note { max-width: 68ch; color: var(--color-ink-secondary); background: var(--color-surface-sunken);
+  border-radius: var(--radius-md); padding: 12px 16px; margin: 24px 0 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <p class="t-label" style="margin:0 0 8px">Jarvaids design system, colour scheme</p>
+  <h1 class="t-display">One hue, in tonal steps<span class="second">Delft, the one scheme</span></h1>
+  <p>A single blue accent over a slightly cool ground, with six status meanings
+  beside it. The provisional mark is the accent itself, so the distinction
+  between what the model proposed and what the team agreed is carried by form
+  and by words, never by hue. This page is for looking rather than reading: the
+  glyph strips are at the size they are drawn, and once in greyscale, because a
+  number cannot tell you whether two 16px shapes are the same shape. Nothing
+  here animates; nothing in the system does. The reasoning is in
+  spec/colour-schemes.md and every ratio is in spec/accessibility.md. Opens
+  offline.</p>
+</header>
+
+<!-- ───────────────────────────────────────── the glyph test ───── -->
+<section>
+  <h2 class="t-heading">The glyph test<span class="second">Six shapes at 16px</span></h2>
+  <p class="lede">First in colour with their words, which is how they always
+  ship. Then without words, which is not a shipping state and is only here so
+  the shapes can be judged with nothing helping them. Then in greyscale. If two
+  marks in a strip look like the same mark, the set is wrong, whatever the
+  measurement said.</p>
+
+  <div class="cols">
+    <div class="col">
+      <h3 class="t-title">With words</h3>
+      <div class="rows">
+        <div class="status st-capturing"><span class="glyph glyph-capturing"></span><span class="word">Recording</span><span class="t-figure" style="margin-left:8px">00:47:31</span></div>
+        <div class="status st-provisional"><span class="glyph glyph-provisional"></span><span class="word">Proposed</span></div>
+        <div class="status st-accepted"><span class="glyph glyph-accepted"></span><span class="word">Accepted</span></div>
+        <div class="status st-waiting"><span class="glyph glyph-waiting"></span><span class="word">Queued</span></div>
+        <div class="status st-failed"><span class="glyph glyph-failed"></span><span class="word">Unreadable</span></div>
+        <div class="status st-off"><span class="glyph glyph-off"></span><span class="word">Paused</span></div>
+      </div>
+    </div>
+    <div class="col">
+      <h3 class="t-title">Without words</h3>
+      <div class="strip" aria-hidden="true">
+        <span class="st-capturing"><span class="glyph glyph-capturing"></span></span>
+        <span class="st-provisional"><span class="glyph glyph-provisional"></span></span>
+        <span class="st-accepted"><span class="glyph glyph-accepted"></span></span>
+        <span class="st-waiting"><span class="glyph glyph-waiting"></span></span>
+        <span class="st-failed"><span class="glyph glyph-failed"></span></span>
+        <span class="st-off"><span class="glyph glyph-off"></span></span>
+      </div>
+      <p class="t-meta muted" style="margin:0">Capturing, proposed, accepted, waiting, failed, off.</p>
+    </div>
+    <div class="col">
+      <h3 class="t-title">In greyscale</h3>
+      <div class="strip greyscale" aria-hidden="true">
+        <span class="st-capturing"><span class="glyph glyph-capturing"></span></span>
+        <span class="st-provisional"><span class="glyph glyph-provisional"></span></span>
+        <span class="st-accepted"><span class="glyph glyph-accepted"></span></span>
+        <span class="st-waiting"><span class="glyph glyph-waiting"></span></span>
+        <span class="st-failed"><span class="glyph glyph-failed"></span></span>
+        <span class="st-off"><span class="glyph glyph-off"></span></span>
+      </div>
+      <p class="t-meta muted" style="margin:0">The test a projector and a colour-blind reviewer set. Every shape must still be nameable.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────── in context ───── -->
+<section>
+  <h2 class="t-heading">In context<span class="second">The accent and the provisional mark are one hue</span></h2>
+  <p class="lede">The three provenance states, each with exactly one instrument:
+  a tonal fill, a dashed line, a solid line. Then the accent doing its other
+  jobs beside them, so you can check that a proposal is never mistaken for a
+  button or a link, even though they share a colour.</p>
+
+  <div class="cols">
+    <div class="col">
+      <div class="item item-accepted">
+        <span class="kind">Decision, accepted</span>
+        <span class="text">Drop the paywall from the pilot</span>
+        <span class="meta">A tonal fill, no line</span>
+      </div>
+      <div class="item item-provisional">
+        <span class="badge st-provisional"><span class="glyph glyph-provisional" aria-hidden="true"></span>Proposed</span>
+        <span class="kind">Note from a photograph</span>
+        <span class="text">Onboarding is the real bottleneck</span>
+        <span class="meta">No fill, a 1px dashed accent line</span>
+      </div>
+      <div class="item item-pending">
+        <span class="kind">Note, typed</span>
+        <span class="text">Ask the pilot schools about login</span>
+        <span class="meta">No fill, a solid line &middot; Not yet reviewed</span>
+      </div>
+    </div>
+    <div class="col">
+      <div class="group">
+        <span class="t-label" style="color:var(--color-ink-secondary)">Group: onboarding</span>
+        <div class="item item-provisional">
+          <span class="badge st-provisional"><span class="glyph glyph-provisional" aria-hidden="true"></span>Proposed</span>
+          <span class="text">Teachers set up accounts, not pupils</span>
+        </div>
+        <div class="item item-provisional item-selected">
+          <span class="badge st-provisional"><span class="glyph glyph-provisional" aria-hidden="true"></span>Proposed</span>
+          <span class="text">Pilot ships without payments</span>
+          <span class="meta">Selected: a 2px ring outside the dash</span>
+        </div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="row-c">
+        <button class="btn btn-primary" type="button">Accept</button>
+        <button class="btn btn-quiet" type="button">Edit</button>
+        <button class="btn btn-quiet" type="button">Reject</button>
+      </div>
+      <p style="margin:0">Jump to <a class="link" href="#">14:22:06</a> to hear it.</p>
+      <div class="selected">A selected row on the accent wash</div>
+      <p class="t-meta muted" style="margin:0">The accent fills what can be acted on or is in focus. It never outlines a container; the one line it draws is the provisional dash.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────── the values ───── -->
+<section>
+  <h2 class="t-heading">The values</h2>
+  <p class="lede">The accent's tonal family first, then the semantic tokens a
+  component binds, with their measured contrast on the ground. Components bind
+  the semantics only, never the primitives.</p>
+
+  <div class="steps">
+    <div class="step"><i style="background:#e3eefe"></i><span class="t-label">100 tint</span><span class="t-meta t-figure">#e3eefe</span></div>
+    <div class="step"><i style="background:#9bc3ff"></i><span class="t-label">300</span><span class="t-meta t-figure">#9bc3ff</span></div>
+    <div class="step"><i style="background:#4685e2"></i><span class="t-label">500</span><span class="t-meta t-figure">#4685e2</span></div>
+    <div class="step"><i style="background:#114fa2"></i><span class="t-label">700 the accent</span><span class="t-meta t-figure">#114fa2</span></div>
+    <div class="step"><i style="background:#063d85"></i><span class="t-label">800 pressed</span><span class="t-meta t-figure">#063d85</span></div>
+    <div class="step"><i style="background:#01204e"></i><span class="t-label">950 deep</span><span class="t-meta t-figure">#01204e</span></div>
+  </div>
+
+  <div class="scroll-x" style="margin-top:32px">
+  <table class="cmp">
+    <thead><tr><th>Token</th><th>Value</th><th>Ratio on the ground</th><th>Its wash</th><th>Ratio on its wash</th></tr></thead>
+    <tbody>
+      <tr><td>accent</td><td><span class="swatch" style="background:#114fa2"></span> <span class="t-figure">#114fa2</span></td><td class="num">7.49:1</td><td><span class="swatch" style="background:#e3eefe"></span> <span class="t-figure">#e3eefe</span></td><td class="num">6.73:1</td></tr>
+      <tr><td>status-provisional</td><td><span class="swatch" style="background:#114fa2"></span> <span class="t-figure">#114fa2</span></td><td class="num">7.49:1</td><td><span class="swatch" style="background:#e3eefe"></span> <span class="t-figure">#e3eefe</span></td><td class="num">6.73:1</td></tr>
+      <tr><td>status-accepted</td><td><span class="swatch" style="background:#1d7344"></span> <span class="t-figure">#1d7344</span></td><td class="num">5.56:1</td><td><span class="swatch" style="background:#e8f1ec"></span> <span class="t-figure">#e8f1ec</span></td><td class="num">5.08:1</td></tr>
+      <tr><td>status-waiting</td><td><span class="swatch" style="background:#8a5300"></span> <span class="t-figure">#8a5300</span></td><td class="num">6.01:1</td><td><span class="swatch" style="background:#f3eee6"></span> <span class="t-figure">#f3eee6</span></td><td class="num">5.48:1</td></tr>
+      <tr><td>status-failed</td><td><span class="swatch" style="background:#a81f1a"></span> <span class="t-figure">#a81f1a</span></td><td class="num">6.94:1</td><td><span class="swatch" style="background:#f6e9e8"></span> <span class="t-figure">#f6e9e8</span></td><td class="num">6.17:1</td></tr>
+      <tr><td>status-off</td><td><span class="swatch" style="background:#595959"></span> <span class="t-figure">#595959</span></td><td class="num">6.65:1</td><td><span class="swatch" style="background:#eeeeee"></span> <span class="t-figure">#eeeeee</span></td><td class="num">6.04:1</td></tr>
+      <tr><td>status-capturing</td><td><span class="swatch" style="background:#17181b"></span> <span class="t-figure">#17181b</span></td><td class="num">16.86:1</td><td class="muted">none: it is ink</td><td class="muted">n/a</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p class="note">Separation, CIEDE2000, generated: the closest two status marks
+  are capturing and off at 21.2; the closest mark to the accent is provisional
+  at 0.0, which is the decision, not a defect, because provisional is the
+  accent.</p>
+</section>
+
+<!-- ─────────────────────────────────── what it costs ───── -->
+<section>
+  <h2 class="t-heading">What it costs</h2>
+  <p class="lede">A scheme that cannot state its costs is not worth shipping.</p>
+  <div class="rows" style="max-width:720px">
+    <p style="margin:0"><span class="strong">Colour no longer separates a proposal from an action.</span> The dash, the glyph and the word do all the work. They were always meant to be the primary signals; now they are the only ones.</p>
+    <p style="margin:0"><span class="strong">Waiting is an ochre close in hue to the failure red.</span> It measures clear of it, and leans on the half-filled ring and the word.</p>
+    <p style="margin:0"><span class="strong">Blue desaturates on a cool projector.</span> Untested in a real room, like every other contrast claim in this repository.</p>
+    <p style="margin:0"><span class="strong">Adding a second scheme is a design decision, not a preference.</span> The mechanism is still in tokens.css; spec/colour-schemes.md has the six steps and the argument a second hue would have to win.</p>
+  </div>
+</section>
+
+<footer style="border-top:var(--line-hairline) solid var(--color-hairline);padding-top:16px">
+  <p class="t-meta muted" style="margin:0">Jarvaids design system &middot; tokens.css is the source of truth &middot; opens offline, no network requests</p>
+</footer>
+
+</div>
+</body>
+</html>

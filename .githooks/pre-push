@@ -1,0 +1,43 @@
+#!/bin/sh
+# The fast checks, before the push rather than after.
+#
+# Opt in per clone:
+#
+#     git config core.hooksPath .githooks
+#
+# Deliberately not the mutation harnesses: they take about two minutes, and a
+# hook slow enough to be worth skipping teaches people to pass --no-verify,
+# which costs more than it saves. CI runs those.
+#
+# Skip a run with: git push --no-verify
+set -e
+
+root="$(git rev-parse --show-toplevel)"
+cd "$root"
+
+echo "pre-push: design system audit"
+./app/design-system/spec/audit.sh >/dev/null
+
+echo "pre-push: contrast"
+# The client's token file and its own contrast test; the Python tool reads
+# the previous token file, which the UI overhaul deleted.
+node --test app/client/tests/contrast-unit.mjs >/dev/null
+
+echo "pre-push: schema versions"
+python3 .github/scripts/check_schema_versions.py >/dev/null
+
+echo "pre-push: backend suite"
+(cd app/server && python3 -m unittest discover -s tests 2>&1 | tail -3)
+
+echo "pre-push: no em dash in what changed"
+base="$(git rev-parse --abbrev-ref --symbolic-full-name '@{upstream}' 2>/dev/null || echo origin/main)"
+files="$(git diff --name-only --diff-filter=d "$base"...HEAD -- '*.md' '*.py' '*.css' '*.mjs' 2>/dev/null | grep -v node_modules || true)"
+if [ -n "$files" ]; then
+  # shellcheck disable=SC2086
+  if grep -n -- '—' $files; then
+    echo "pre-push: em dash found. Use a comma, a colon, or the word 'and'."
+    exit 1
+  fi
+fi
+
+echo "pre-push: ok"

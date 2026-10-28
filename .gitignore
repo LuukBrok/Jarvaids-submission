@@ -1,0 +1,48 @@
+# secrets
+.env
+.env.local
+*.key
+
+# raw research material: never in a public repo
+evidence/raw/*
+!evidence/raw/.gitkeep
+
+# heavy media exports
+deliverables/showcase/*.mp4
+deliverables/showcase/*.mov
+
+# deps and build output
+node_modules/
+node_modules
+dist/
+build/
+__pycache__/
+.venv/
+.local/
+venv/
+
+# os / editor
+.DS_Store
+.idea/
+.vscode/
+
+# agent worktrees and local tool state, never repository content
+.claude/
+
+# CI runs `npm install` in app/client for Playwright; the lock file it
+# writes is not part of the repository: package.json's range is the record.
+app/client/package-lock.json
+
+# Local secret variants remain private; only the empty example is shared.
+.env.*
+!.env.example
+*.pem
+
+# Excluded research must not re-enter the submission snapshot.
+/week 3 materials/
+
+# Ad-hoc meeting stores and session credentials remain machine-local.
+*.sqlite
+*.sqlite3
+*.db
+private-session*.json

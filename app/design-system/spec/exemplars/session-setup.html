@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Jarvaids exemplar, session setup and consent</title>
+<link rel="stylesheet" href="_base.css">
+<style>
+  .shape { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 8px; }
+  .shape button { font-family: var(--font-reading); font-size: 15px; text-align: left;
+    padding: 12px; background: transparent; border: var(--line-boundary) solid var(--color-hairline-strong);
+    border-radius: var(--radius-sm); cursor: pointer; color: var(--color-ink); }
+  .shape button[aria-pressed="true"] { border-color: var(--color-ink); border-width: 2px; padding: 11px; }
+  .shape button span { display: block; font-size: 12px; line-height: 16px; color: var(--color-ink-muted); margin-top: 2px; }
+</style>
+</head>
+<body>
+<div class="jv-page">
+<div class="wrap">
+
+<!-- Before consent there is no session bar, because nothing is being captured. -->
+<nav class="tabs" aria-label="Screens" style="margin-top:24px">
+  <a href="session-setup.html" aria-current="page">Set up</a>
+  <a href="live-canvas.html">Canvas</a>
+  <a href="session-transcript.html">Session</a>
+  <a href="export-view.html">Export</a>
+</nav>
+
+<div class="page-head">
+  <h1 class="t-display">New session</h1>
+  <p class="t-meta jv-prose" style="margin:8px 0 0">Nothing is captured until
+  everyone in the room has agreed, out loud, on the record.</p>
+</div>
+
+<div class="jv-split">
+
+  <!-- left: the act -->
+  <form class="jv-stack" onsubmit="return false">
+    <label class="field">
+      <span class="t-structure">Session name</span>
+      <input type="text" value="Concept critique, week 3">
+    </label>
+
+    <div class="field">
+      <span class="t-structure">Starting shape of the canvas</span>
+      <div class="shape" style="margin-top:2px">
+        <button type="button" aria-pressed="true">Blank<span>Start empty</span></button>
+        <button type="button" aria-pressed="false">Cluster<span>Grouped by theme</span></button>
+        <button type="button" aria-pressed="false">Timeline<span>Ordered in time</span></button>
+        <button type="button" aria-pressed="false">Matrix<span>Two axes</span></button>
+      </div>
+    </div>
+
+    <label class="field">
+      <span class="t-structure">Agenda</span>
+      <textarea rows="4">Onboarding drop-off
+Paywall, decide or park
+Pilot scope</textarea>
+      <span class="t-caption">F4.5: Jarvaids links what is said to the agenda item
+      it belongs to. It will not force a fit; drift is left as drift.</span>
+    </label>
+
+    <!-- F6.2, F6.6: retention is a sentence with a consequence, not a dropdown -->
+    <div class="field">
+      <span class="t-structure">Audio and retention</span>
+      <div class="jv-rows jv-hairline-all" style="border-radius:var(--radius-sm);padding-inline:12px">
+        <div class="jv-row">
+          <span class="status st-accepted"><i class="glyph glyph-accepted" aria-hidden="true"></i><span class="word">On</span></span>
+          <span class="t-body">Transcription runs on our own server. Audio is not sent to a third party.</span>
+        </div>
+        <div class="jv-row">
+          <span class="status st-accepted"><i class="glyph glyph-accepted" aria-hidden="true"></i><span class="word">On</span></span>
+          <span class="t-body">Audio is deleted when the session ends.</span>
+        </div>
+        <div class="jv-row">
+          <span class="status st-accepted"><i class="glyph glyph-accepted" aria-hidden="true"></i><span class="word">On</span></span>
+          <span class="t-body">The transcript is anonymised before it leaves this session.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- disabled, with the reason stated. Never hidden. -->
+    <div>
+      <button class="btn btn-primary btn-lg" type="submit" disabled style="width:100%;justify-content:center">Start capture</button>
+      <p class="t-caption" style="margin:8px 0 0">Two people have not agreed yet.</p>
+    </div>
+  </form>
+
+  <!-- right: the gate -->
+  <section>
+    <div class="jv-row-centre jv-hairline-bottom" style="padding-bottom:12px">
+      <h2 class="t-signal-lg">Consent</h2>
+      <span class="jv-spacer t-meta">4 of 6 agreed</span>
+    </div>
+
+    <p class="t-body jv-prose" style="margin:16px 0">Read this out, then tick each
+    person as they agree. Anyone can withdraw at any point in the session, and
+    capture stops immediately when they do.</p>
+
+    <blockquote class="t-body jv-prose" style="margin:0 0 20px;padding:12px;background:var(--color-surface-sunken);border-radius:var(--radius-sm)">
+      This session will be recorded and transcribed. The audio stays on our own
+      server and is deleted when we finish. The transcript is anonymised before
+      it goes anywhere. You can stop this at any point.
+    </blockquote>
+
+    <div class="jv-rows">
+      <div class="jv-row-centre">
+        <span class="t-body strong">Sanne</span>
+        <span class="jv-spacer"></span>
+        <span class="status st-accepted"><i class="glyph glyph-accepted" aria-hidden="true"></i><span class="word">Agreed</span></span>
+        <span class="t-signal muted">13:38</span>
+      </div>
+      <div class="jv-row-centre">
+        <span class="t-body strong">Bram</span>
+        <span class="jv-spacer"></span>
+        <span class="status st-accepted"><i class="glyph glyph-accepted" aria-hidden="true"></i><span class="word">Agreed</span></span>
+        <span class="t-signal muted">13:38</span>
+      </div>
+      <div class="jv-row-centre">
+        <span class="t-body strong">Iris</span>
+        <span class="jv-spacer"></span>
+        <span class="status st-accepted"><i class="glyph glyph-accepted" aria-hidden="true"></i><span class="word">Agreed</span></span>
+        <span class="t-signal muted">13:39</span>
+      </div>
+      <div class="jv-row-centre">
+        <span class="t-body strong">Joost</span>
+        <span class="jv-spacer"></span>
+        <span class="status st-accepted"><i class="glyph glyph-accepted" aria-hidden="true"></i><span class="word">Agreed</span></span>
+        <span class="t-signal muted">13:39</span>
+      </div>
+      <div class="jv-row-centre">
+        <span class="t-body strong">Nadia</span>
+        <span class="jv-spacer"></span>
+        <span class="status st-off"><i class="glyph glyph-off" aria-hidden="true"></i><span class="word">Not yet</span></span>
+        <button class="btn btn-secondary btn-sm" type="button">Mark agreed</button>
+      </div>
+      <div class="jv-row-centre">
+        <span class="t-body strong">Guest &middot; joined by link</span>
+        <span class="jv-spacer"></span>
+        <span class="status st-off"><i class="glyph glyph-off" aria-hidden="true"></i><span class="word">Not yet</span></span>
+        <button class="btn btn-secondary btn-sm" type="button">Mark agreed</button>
+      </div>
+    </div>
+
+    <div class="jv-hairline-top" style="margin-top:20px;padding-top:16px">
+      <div class="jv-row-centre">
+        <span class="t-structure">Join link</span>
+        <span class="t-signal">jarvaids.local/s/K4M2QX</span>
+        <button class="btn btn-quiet btn-sm" type="button">Copy</button>
+      </div>
+      <p class="t-caption" style="margin:8px 0 0">Guests need no account. The link
+      is how phones get in to take photographs.</p>
+    </div>
+  </section>
+
+</div>
+</div>
+</div>
+</body>
+</html>

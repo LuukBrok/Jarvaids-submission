@@ -1,0 +1,207 @@
+/* ==========================================================================
+   Header and banners.
+   Owner: the phase 3 header and banner agent (DESIGN.md 1.5), with
+   header.mjs and the two <!-- region: header --> blocks in index.html.
+
+   The header is one 56px row that never scrolls away, and the capture
+   banner sits inside its bottom edge, so the two read as one unit and the
+   header's hairline closes both. It has to read from two metres on a
+   projector: the title is the Title role, the chip carries Body-size words
+   at the strong weight, and nothing here moves except the listening bars
+   (the primitive's one loop).
+
+   Tokens only. The chip and banner fills and the attention marks are the
+   roles --chip-open, --chip-paused, --mark-problem and --mark-note in
+   tokens.css (phase 4 moved them there from local bindings here).
+   ========================================================================== */
+
+.session-bar {
+  position: sticky; top: 0; z-index: var(--z-header);
+  /* Full bleed over the page's side padding, so the hairline and the
+     banner's tone run edge to edge. */
+  margin-inline: calc(-1 * var(--page-pad));
+  background: var(--surface); border-bottom: var(--line-1) solid var(--edge);
+}
+.bar-row {
+  display: flex; align-items: center; gap: var(--space-4); flex-wrap: wrap;
+  min-height: var(--header); padding: var(--space-2) var(--page-pad);
+}
+@media (min-width: 1024px) {
+  .session-bar { margin-inline: calc(-1 * var(--page-pad-wide)); }
+  .bar-row { flex-wrap: nowrap; padding-block: 0; padding-inline: var(--page-pad-wide); }
+}
+
+/* Title and chip: the two things the room reads first. */
+.bar-id { display: flex; align-items: center; gap: var(--space-3); min-width: 0; flex: 0 1 auto; }
+.bar-title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ---- the state chip --------------------------------------------------------
+   One element: the session's state, or Listening with the bars and the timer.
+   Larger than the chip primitive (Body size, strong, the small control
+   height), because it is the header's one signal. Words carry the state; the
+   chip has no glyph (phase 4 removed the legacy one and app.mjs's write to
+   it). */
+.state-chip {
+  flex: none; gap: var(--space-2);
+  min-height: var(--h-control-sm); padding-inline: var(--space-3);
+  font-size: var(--fs-body); line-height: var(--lh-small); font-weight: var(--fw-strong);
+}
+.state-chip .word { font: inherit; }
+.state-chip .state-timer .t-signal { font-size: var(--fs-body); }
+.state-chip.chip-listening { background: var(--text); color: var(--surface); }
+.state-chip.chip-open { background: var(--chip-open); color: var(--text); }
+.state-chip.chip-paused { background: var(--chip-paused); color: var(--text); }
+.state-chip.chip-ended { background: var(--surface-sunken); color: var(--text-2); }
+.state-chip.chip-ended::before { content: none; }
+/* Before capture and when unknown: a line, no fill. */
+.state-chip.chip-idle { background: transparent; color: var(--text-2); border: var(--line-1) solid var(--text-3); }
+
+/* ---- the participant line ------------------------------------------------
+   A button (it opens People): the people as circles in join order, then who
+   capture waits for, Small in the second ink. */
+.bar-members {
+  flex: 0 1 auto; min-width: 0; min-height: var(--target); padding-inline: var(--space-1);
+  gap: var(--space-2); font-size: var(--fs-small); line-height: var(--lh-small); font-weight: var(--fw-small);
+}
+.people-dots { display: inline-flex; gap: var(--space-1); flex: none; }
+/* Each circle is the .person-dot primitive with the person's initial;
+   header.mjs sets --person and --person-text on it. */
+.people-words { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ---- the actions -----------------------------------------------------------
+   Photograph the wall is the only filled primary; Listen is the secondary
+   toggle; Undo, Pause and Session are quiet words. */
+.bar-actions { display: flex; align-items: center; gap: var(--space-2); flex: none; }
+.menu-wrap { position: relative; }
+.menu {
+  position: absolute; right: 0; top: calc(100% + var(--space-1)); z-index: var(--z-menu);
+  display: flex; flex-direction: column; min-width: var(--menu-min); padding: var(--space-1);
+  background: var(--surface); border: var(--line-1) solid var(--edge); border-radius: var(--r-lg);
+}
+.menu .btn { justify-content: flex-start; width: 100%; }
+
+/* ---- the capture banner ----------------------------------------------------
+   40px, the sunken tone, inside the header's bottom edge. One state shows at
+   a time: paused (the reason and Resume capture), ended, or the keep-alive
+   countdown, which turns yellow-soft in its last minute. Its buttons sit on
+   paper, because a sunken button on a sunken banner has no edge at all. */
+.capture-banner {
+  min-height: var(--banner); padding: var(--space-1) var(--page-pad);
+  display: flex; align-items: center;
+  background: var(--surface-sunken); color: var(--text);
+}
+@media (min-width: 1024px) { .capture-banner { padding-inline: var(--page-pad-wide); } }
+.capture-banner.is-urgent { background: var(--chip-paused); }
+.capture-part { display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; width: 100%; min-width: 0; }
+.capture-text { min-width: 0; flex: 1 1 auto; }
+.capture-countdown { font-size: var(--fs-body); font-weight: var(--fw-mono); }
+.capture-action { flex: none; background: var(--surface); color: var(--text); }
+.capture-action:hover:not([disabled]) { background: var(--action-secondary-hover); }
+
+/* The header is taller while the banner shows. Sticky parts below it (the
+   rail) can offset by this instead of --header; phase 4 decides. */
+:root { --header-stack: var(--header); }
+:root:has(.capture-banner:not([hidden])) { --header-stack: calc(var(--header) + var(--banner)); }
+
+/* ---- the attention banner --------------------------------------------------
+   Quiet: one line of Body text on the ground, a small mark (coral for a
+   problem, mint for a note) and Dismiss on the right. It stays until it is
+   dismissed or replaced, never on a timer. app.mjs still writes the legacy
+   glyph classes on the mark; they are overridden here to one round mark. */
+.attention {
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-3);
+  min-height: var(--banner); padding-block: var(--space-1); margin-bottom: var(--space-3);
+  border-bottom: var(--line-1) solid var(--edge);
+}
+.attention #attention-glyph {
+  flex: none; width: var(--space-3); height: var(--space-3);
+  border: 0; border-radius: var(--r-pill); rotate: none; scale: none;
+  background: var(--mark-problem);
+}
+.attention[data-kind="note"] #attention-glyph { background: var(--mark-note); }
+.attention #attention-text { flex: 1 1 auto; min-width: 0; }
+.attention #attention-dismiss { flex: none; margin-left: auto; }
+/* Try again and Discard, after a control command whose outcome is unknown. */
+.attention-actions { display: flex; flex: none; flex-wrap: wrap; gap: var(--space-2); margin-left: auto; }
+
+/* ---- below the breakpoint ------------------------------------------------
+   Title and chip on one row, the people on the next, the actions on a third
+   with the photograph button taking the spare width. */
+@media (max-width: 1023px) {
+  .bar-id { flex-basis: 100%; }
+  .bar-members { flex-basis: auto; }
+  .bar-row .jv-spacer { display: none; }
+  .bar-actions { flex-basis: 100%; flex-wrap: wrap; }
+  .bar-actions #open-photo { flex: 1; }
+}
+
+/* ---- one filled primary per screen ----
+   On the photograph and export pages the step's own action is the primary
+   ("Read 3 notes", "Create export"). The header's "Photograph the wall" is
+   then either the page already open or a way away from the step, so it
+   takes the secondary look there; the class stays, because the header test
+   and the keyboard order rely on it (phase 5 review). The same while the
+   reading card shows, whose "Review them" is the next step (DESIGN.md 7.2). */
+.jv-page:has(> :is(#screen-photo, #screen-export, #photo-reading):not([hidden])) .bar-actions #open-photo {
+  background: var(--action-secondary); color: var(--text);
+}
+.jv-page:has(> :is(#screen-photo, #screen-export, #photo-reading):not([hidden])) .bar-actions #open-photo:hover:not([disabled]) {
+  background: var(--action-secondary-hover);
+}
+
+/* ---- the collecting chip ---------------------------------------------------
+   Beside the state chip while a list or the calendar collects or a poll is
+   open: the chip's shape and height, Body words at the body weight (quieter
+   than the state chip, which is strong), on the command colour's soft step.
+   It is a button (it shows the card), so it takes the pointer and the focus
+   ring; long words end in an ellipsis rather than push the actions off the
+   row, and the full words stay in its name and title. */
+.collecting-pill {
+  flex: 0 1 auto; min-width: 0; min-height: var(--h-control-sm); padding-inline: var(--space-3);
+  border: 0; cursor: pointer;
+  background: var(--chip-collecting); color: var(--text);
+  font: inherit; font-size: var(--fs-body); line-height: var(--lh-small); font-weight: var(--fw-body);
+}
+.collecting-words { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ---- the Jarvaids menu -----------------------------------------------------
+   The Session menu's look. A hairline separates the four commands that are
+   carried out from the four that are only recognised; those carry one line
+   saying so, in the second ink, and are unavailable. An unavailable item
+   keeps aria-disabled rather than disabled, so the arrow keys still reach
+   it and its reason is read; it takes the disabled look. */
+.command-menu { min-width: var(--menu-min); }
+.menu-rule { height: var(--line-1); margin-block: var(--space-1); background: var(--edge); }
+.menu-group { display: flex; flex-direction: column; }
+.menu-note {
+  padding: var(--space-1) var(--space-3);
+  color: var(--text-2); font-size: var(--fs-small); line-height: var(--lh-small); font-weight: var(--fw-small);
+}
+.menu .btn[aria-disabled="true"] { opacity: var(--disabled-opacity); cursor: not-allowed; }
+.menu .btn[aria-disabled="true"]:hover { background: transparent; }
+
+/* ---- the "What you can say" sheet -----------------------------------------
+   The photograph sheet's layer and panel (css/screens.css). Read from the
+   back of a room, so nothing on it is smaller than the header's Body size:
+   group names strong, phrases in the body weight, the section titles in the
+   second ink. Groups sit in columns of --commands-col. */
+.commands-body { display: flex; flex-direction: column; gap: var(--space-5); }
+.commands-section { display: flex; flex-direction: column; gap: var(--space-3); }
+.commands-section-title { margin: 0; color: var(--text-2); font-weight: var(--fw-strong); }
+.commands-note { margin: 0; max-width: var(--reading-max); }
+.commands-grid {
+  display: grid; gap: var(--space-4) var(--space-5);
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--commands-col)), 1fr));
+}
+.commands-group-title { margin: 0 0 var(--space-1); font-weight: var(--fw-strong); }
+.commands-phrases { margin: 0; padding: 0; list-style: none; }
+.commands-lifecycle { margin: 0; max-width: var(--reading-max); padding-top: var(--space-4); border-top: var(--line-1) solid var(--edge); }
+
+/* Below the breakpoint the actions wrap and the Jarvaids button can sit at
+   the row's left edge, where a right-aligned menu would open off the
+   screen; it opens rightwards instead. The collecting chip takes its own
+   line under the title rather than squeezing the title to an ellipsis. */
+@media (max-width: 1023px) {
+  #command-menu-wrap .menu { right: auto; left: 0; }
+  .bar-id { flex-wrap: wrap; row-gap: var(--space-1); }
+}

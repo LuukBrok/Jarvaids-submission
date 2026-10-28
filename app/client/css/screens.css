@@ -1,0 +1,215 @@
+/* ==========================================================================
+   Screens: the entry and agreement screen, the workspace grid, the
+   photograph sheet and its reading card, the export page and the
+   confirmation.
+   Owner: phase 4 (integration). No phase 3 agent owned these.
+
+   The same language as the session view (DESIGN.md 1): a Display heading
+   says where a person is, Title headings name the parts, the one yellow
+   primary is the next step, and parts are separated by space and by the
+   sunken tone (--surface-sunken on --surface), each a --r-lg panel. No
+   panel has a line round it: a line is for something a person can press
+   or type into (a field), never for a box that only groups.
+
+   Every id and every word the journey and the browser tests use is kept
+   (DESIGN.md 0.2 and 0.6); only the looks changed.
+   ========================================================================== */
+
+/* ---- the screens' own headings ---------------------------------------------
+   The entry, the gate, the photograph flow and the export page each open on
+   a Display line with one plain sentence under it. */
+.screen-title { font-size: var(--fs-display); line-height: var(--lh-display); font-weight: var(--fw-display); letter-spacing: var(--ls-display); margin: 0; }
+.screen-title .second, .page-head .t-display .second {
+  display: block; margin-top: var(--space-3); color: var(--text-2);
+  font-size: var(--fs-title); line-height: var(--lh-title); font-weight: var(--fw-body); letter-spacing: 0;
+}
+
+/* A panel: the sunken tone, the large radius, room inside. The one way the
+   screens group things. */
+.panel, .entry-panel, .stage-tools, #photo-choose, .gate-agree {
+  background: var(--surface-sunken); border-radius: var(--r-lg); padding: var(--space-5);
+}
+/* On a sunken panel a field sits on paper and a secondary button takes the
+   paper too, or it would have no edge against the panel at all. */
+:is(.panel, .entry-panel, .stage-tools, #photo-choose, .gate-agree) .field :is(input, select, textarea) { background: var(--surface); }
+:is(.panel, .entry-panel, .stage-tools, #photo-choose, .gate-agree) .btn-secondary { background: var(--surface); }
+:is(.panel, .entry-panel, .stage-tools, #photo-choose, .gate-agree) .btn-secondary:hover:not([disabled]) { background: var(--action-secondary-hover); }
+
+/* ---- entry ------------------------------------------------------------------
+   The product's name in Display, what it does in one paragraph, then the two
+   ways in side by side: join (the yellow primary, because most people in a
+   room join) and start. */
+.page-head { padding-block: var(--space-8) var(--space-6); max-width: var(--reading-max); }
+.intro { margin-top: var(--space-4); color: var(--text-2); }
+.entry { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-5); align-items: start; }
+@media (min-width: 1024px) { .entry { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.entry-panel { display: flex; flex-direction: column; gap: var(--space-4); align-items: flex-start; padding: var(--space-6); }
+@media (max-width: 1023px) { .entry-panel { padding: var(--space-5); } }
+.entry-panel .field { align-self: stretch; }
+.entry-panel .btn-lg { margin-top: var(--space-2); }
+/* The join panel is the soft yellow of a note waiting to be read: the
+   first thing on the screen to reach for. Ink and ink-2 both pass on it. */
+.entry-panel:first-child { background: var(--note-proposed-fill); }
+.advanced { grid-column: 1 / -1; }
+.advanced summary { cursor: pointer; padding-block: var(--space-2); color: var(--text-2); }
+.advanced .field { max-width: var(--form-max); margin-top: var(--space-2); }
+
+/* ---- the agreement gate -------------------------------------------------------
+   The session's name and what agreeing means, then the one choice in a
+   sunken panel, then who has agreed as the People rows (rail.css draws
+   .person on paper as well), then Start capture. */
+.gate { max-width: var(--gate-max); display: flex; flex-direction: column; gap: var(--space-4); padding-block: var(--space-7) var(--space-8); }
+.gate #consent-text { color: var(--text-2); }
+.gate-agree { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-3); }
+.gate-agree .checkline { margin: 0; }
+.gate-people-title { margin-top: var(--space-5); }
+.gate #consent-rows { padding: var(--space-2) 0; }
+.gate-start { margin-top: var(--space-3); }
+
+/* ---- the workspace grid: the canvas, and the rail beside it ----------------
+   On a wide screen the page is one window tall while the workspace shows:
+   the header, the attention line, the board's tools, the board, the strip
+   and the composer stack in a column and the board takes what is left. A
+   fixed allowance for the chrome (the previous --board-chrome, 260px) did
+   not count the session strip, so the page scrolled at 1920 by 1080; the
+   column counts whatever is showing, including the capture banner and an
+   open selection row. Below --board-min the page scrolls, as it must. */
+.ws { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-5); padding-top: var(--space-4); }
+@media (min-width: 1024px) { .ws { grid-template-columns: minmax(0, 1fr) var(--rail); } }
+.ws-main, .ws-rail { min-width: 0; }
+@media (min-width: 1024px) {
+  .jv-page:has(> #screen-workspace:not([hidden])) { display: flex; flex-direction: column; height: 100vh; }
+  .jv-page:has(> #screen-workspace:not([hidden])) > :is(.session-bar, .attention) { flex: none; }
+  #screen-workspace { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
+  #screen-workspace > .ws { flex: 1 1 auto; min-height: 0; grid-template-rows: minmax(0, 1fr); padding-bottom: var(--space-4); }
+  .ws-main { display: flex; flex-direction: column; min-height: 0; }
+  .ws-main > .board-stage { flex: 1 1 0; min-height: var(--board-min); }
+  .ws-main > .board-stage:has(> #board[hidden]) { flex: none; min-height: 0; }
+  .ws-main > .list-view { flex: 1 1 0; min-height: 0; overflow-y: auto; }
+  .ws-main > :is(.board-tools, .board-hint, .strip, .composer) { flex: none; }
+}
+
+/* ---- the export page, and the photograph sheet ------------------------------------ */
+.flow { padding-top: var(--space-7); padding-bottom: var(--space-8); }
+.flow-head { display: flex; align-items: flex-start; gap: var(--space-4); flex-wrap: wrap; margin-bottom: var(--space-6); }
+.flow-head .btn { margin-left: auto; }
+.flow-step { display: flex; flex-direction: column; gap: var(--space-4); align-items: flex-start; }
+#photo-choose { align-self: stretch; max-width: var(--gate-max); padding: var(--space-6); }
+#photo-choose .t-meta { max-width: var(--reading-max); margin: 0; }
+.file-button { cursor: pointer; }
+
+/* The sheet: paper on the backdrop over the whole page, the large radius,
+   no line and no shadow, as the confirmation (the backdrop already
+   separates it). It is a sheet and not a page so the wall stays in view
+   behind it, and not a drawer because marking needs the width of a
+   landscape photograph. It scrolls inside itself when a photograph is
+   taller than the window leaves. */
+.sheet-layer {
+  position: fixed; inset: 0; z-index: var(--z-sheet);
+  display: flex; align-items: center; justify-content: center;
+  padding: var(--space-5); background: var(--backdrop);
+}
+.sheet {
+  display: flex; flex-direction: column; gap: var(--space-5);
+  width: 100%; max-width: var(--sheet-max); max-height: 100%; overflow: auto;
+  background: var(--surface); color: var(--text); border-radius: var(--r-lg); padding: var(--space-6);
+}
+.sheet-head { display: flex; align-items: flex-start; gap: var(--space-4); }
+.sheet-head .btn { margin-left: auto; flex: none; }
+.sheet-title { margin: 0; }
+.sheet-title .second { display: block; margin-top: var(--space-1); color: var(--text-2); font-size: var(--fs-body); line-height: var(--lh-body); font-weight: var(--fw-body); }
+@media (prefers-reduced-motion: no-preference) {
+  .sheet { animation: jv-sheet-in var(--t-base) var(--ease-out); }
+  @keyframes jv-sheet-in { from { opacity: 0; translate: 0 var(--space-3); } }
+}
+@media (max-width: 1023px) {
+  .sheet-layer { padding: var(--space-3); align-items: flex-end; }
+  .sheet { padding: var(--space-5); }
+}
+/* The stage hugs the photograph exactly: marks are measured against it and
+   normalised, so a stage wider than the image would send the wrong areas. */
+/* The image carries the rounded corners, not the stage: a stage clipped to a
+   radius lets a press in a corner fall through to the page, where it starts
+   a text selection instead of a mark (phase 4 found this with a small
+   photograph). Nothing on the stage selects, for the same reason. */
+.stage { position: relative; display: block; width: fit-content; max-width: 100%; touch-action: none; user-select: none; }
+.stage img { display: block; max-width: 100%; max-height: calc(100vh - var(--sheet-chrome)); width: auto; height: auto; border-radius: var(--r-lg); }
+.stage-tools { display: flex; flex-direction: column; gap: var(--space-3); }
+.stage-tools .t-body { margin: 0; }
+@media (min-width: 1024px) {
+  /* The tools stand beside the photograph, not at the window's far edge:
+     with a 1fr column a portrait photograph left 900px of empty paper
+     between the two at 1920 (phase 5 review). */
+  .photo-stage { display: grid; grid-template-columns: minmax(0, max-content) minmax(var(--stage-tools-min), var(--stage-tools-max)); justify-content: start; gap: var(--space-6); align-items: start; }
+  .stage-tools { position: sticky; top: 0; }
+}
+/* A mark a person drew round a note: the human mark, solid (dashed is the
+   machine's), with its number on the primary yellow. */
+#regions { position: absolute; inset: 0; }
+.region { position: absolute; border: var(--line-2) solid var(--mark-human); border-radius: var(--r-sm); }
+.region span {
+  position: absolute; top: var(--space-1); left: var(--space-1); min-width: var(--space-5); padding: 0 var(--space-1);
+  text-align: center; border-radius: var(--r-sm); background: var(--action-primary); color: var(--action-primary-text);
+  font-family: var(--font-mono); font-size: var(--fs-mono); line-height: var(--lh-mono);
+}
+
+/* The reading card: fixed at the bottom right, over the composer's corner,
+   on paper with the one shadow (it floats, as the dock does). It follows
+   the job so the person who sent the photograph is never left waiting on a
+   page; the canvas and the rail stay in use. Its list scrolls inside the
+   card past a few notes. */
+.reading-card {
+  position: fixed; right: var(--space-5); bottom: var(--space-5); z-index: var(--z-card);
+  width: var(--reading-card-w); max-width: calc(100vw - 2 * var(--space-4)); max-height: calc(100vh - var(--header) - 2 * var(--space-5));
+  display: flex; flex-direction: column; gap: var(--space-3); overflow: hidden;
+  background: var(--surface); color: var(--text); border-radius: var(--r-lg); padding: var(--space-5); box-shadow: var(--shadow);
+}
+.reading-card-actions { flex: none; }
+@media (prefers-reduced-motion: no-preference) {
+  .reading-card { animation: jv-card-in var(--t-base) var(--ease-out); }
+  @keyframes jv-card-in { from { opacity: 0; translate: 0 var(--space-3); } }
+}
+@media (max-width: 1023px) { .reading-card { right: var(--space-3); bottom: var(--space-3); left: var(--space-3); width: auto; } }
+
+/* What was found: one card per note, in the colour the note takes on the
+   canvas (photo.mjs adds .note-{accent}, nearest the measured paper), muted
+   to -soft with the full accent as its edge, because each is still a
+   proposal: the same soft-fill-and-edge language as a proposed note. */
+#reading-status { margin: 0; display: flex; align-items: center; gap: var(--space-2); }
+#reading-status .word { font-size: var(--fs-title); line-height: var(--lh-title); font-weight: var(--fw-title); }
+#reading-text { margin: 0; color: var(--text-2); max-width: var(--reading-max); }
+.found { list-style: none; margin: 0; padding: 0; width: 100%; min-height: 0; overflow-y: auto;
+  display: flex; flex-direction: column; gap: var(--space-2); }
+.found:empty { display: none; }
+.found li {
+  display: grid; grid-template-columns: var(--found-thumb) minmax(0, 1fr); gap: var(--space-3); align-items: start;
+  padding: var(--space-3); border-radius: var(--r-lg);
+  background: var(--note-accent-soft, var(--note-proposed-fill)); border-left: var(--line-2) solid var(--note-accent, var(--note-proposed-edge));
+}
+.found li p { margin: 0; }
+.found li .t-body { font-size: var(--fs-note); line-height: var(--lh-note); font-weight: var(--fw-note); overflow-wrap: anywhere; }
+.found img { width: var(--found-thumb); max-height: var(--found-thumb); object-fit: contain; border-radius: var(--r-sm); background: var(--surface-sunken); }
+
+/* The export page: what will be in the file, the one choice, the action,
+   then the downloads, each a secondary button. */
+#screen-export #export-summary { margin: 0; color: var(--text); }
+#screen-export .checkline { margin: 0; }
+.export-choice { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-4); max-width: var(--gate-max); margin-top: var(--space-5); }
+.export-out { margin-block: var(--space-4); }
+.export-out:empty { display: none; }
+#export-retention { margin-top: var(--space-4); }
+
+/* ---- the confirmation: the only modal --------------------------------------------
+   Paper on the backdrop, the large radius, no line: the backdrop already
+   separates it from everything else. Cancel is on the left and focused;
+   the action is on the right, filled coral-deep only here. */
+dialog {
+  background: var(--surface); color: var(--text); border: 0; border-radius: var(--r-lg);
+  padding: var(--space-6); max-width: min(var(--dialog-max), calc(100vw - 2 * var(--space-4)));
+}
+dialog::backdrop { background: var(--backdrop); }
+dialog h2 { margin-bottom: var(--space-3); }
+dialog .t-body { margin: 0; }
+dialog .t-meta { margin: var(--space-2) 0 0; }
+dialog .t-meta:empty { display: none; }
+.dialog-actions { justify-content: flex-end; margin-top: var(--space-5); }

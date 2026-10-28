@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jarvaids components</title>
+<!--
+  A development page: every primitive in every state, on the real tokens and
+  the real stylesheet, so a change to either is seen here before it is seen
+  in the product. Served like the rest of the client at
+  /client/dev/components.html. The values beside each colour are read from
+  the page at run time, not written here, so they cannot go stale.
+-->
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../client.css">
+<link rel="icon" href="data:,">
+<style>
+  /* Layout of this page only. Tokens only, like everything else. */
+  .sc { max-width: var(--content-max); margin: 0 auto; padding: var(--space-6) var(--page-pad) var(--space-8); }
+  .sc > header { padding-bottom: var(--space-5); border-bottom: var(--line-1) solid var(--edge); margin-bottom: var(--space-6); }
+  .sc section { margin-bottom: var(--space-7); }
+  .sc h2 { margin-bottom: var(--space-4); }
+  .sc h3 { font-size: var(--fs-small); line-height: var(--lh-small); font-weight: var(--fw-small); color: var(--text-2); margin: var(--space-5) 0 var(--space-3); }
+  .grid { display: grid; gap: var(--space-4); grid-template-columns: repeat(auto-fill, minmax(var(--note-w-narrow), 1fr)); }
+  .line { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
+  .swatch-card { display: flex; flex-direction: column; gap: var(--space-2); }
+  .swatch-card .chipline { min-height: var(--h-field); border-radius: var(--r-sm); display: flex; align-items: center; padding-inline: var(--space-3); }
+  .swatch-card code, .sc code { font-family: var(--font-mono); font-size: var(--fs-mono); color: var(--text-2); }
+  .scale-row { display: grid; grid-template-columns: var(--list-label-w) minmax(0, 1fr); gap: var(--space-4); align-items: baseline; padding-block: var(--space-3); border-bottom: var(--line-1) solid var(--edge); }
+  .space-bar { height: var(--space-3); background: var(--text); }
+  .canvas-sample { background: var(--surface-sunken); border-radius: var(--r-lg); padding: var(--space-5); }
+  .notes { display: grid; gap: var(--space-6) var(--space-5); grid-template-columns: repeat(auto-fill, minmax(var(--note-w-default), 1fr)); align-items: start; }
+  .notes figure { margin: 0; display: flex; flex-direction: column; gap: var(--space-2); }
+  .notes figcaption { font-family: var(--font-mono); font-size: var(--fs-mono); color: var(--text-2); }
+  .marks svg { width: 100%; height: auto; display: block; }
+  .marks .connector-label { position: absolute; }
+  .marks { position: relative; }
+  .ring-demo { outline: var(--focus-width) solid var(--focus-ring); outline-offset: var(--focus-offset); }
+  .field-demo { max-width: var(--form-max); }
+</style>
+</head>
+<body>
+<main class="sc">
+  <header>
+    <h1 class="t-display">Components<span class="second">Every primitive in every state, drawn from tokens.css and client.css. A development page; the product does not link it.</span></h1>
+  </header>
+
+  <!-- ---------------------------------------------------------------- colour -->
+  <section aria-labelledby="h-colour">
+    <h2 class="t-title" id="h-colour">Colour</h2>
+    <h3>Ground and ink</h3>
+    <div class="grid" data-swatches="--paper --paper-2 --line --ink --ink-2 --ink-3"></div>
+    <h3>Accents: full, soft (32% over paper), deep (55% toward ink)</h3>
+    <div class="grid" data-swatches="--yellow --yellow-soft --yellow-deep --lilac --lilac-soft --lilac-deep --mint --mint-soft --mint-deep --periwinkle --periwinkle-soft --periwinkle-deep --coral --coral-soft --coral-deep"></div>
+    <h3>Roles</h3>
+    <div class="grid" data-swatches="--action-primary --action-primary-hover --danger --state-listening --state-paused --state-ended --note-proposed-fill --note-accepted-fill --mark-machine --highlight"></div>
+    <h3>People, in order of joining</h3>
+    <div class="grid" data-swatches="--person-1 --person-2 --person-3 --person-4 --person-5 --person-6 --person-7 --person-8 --person-9 --person-10"></div>
+  </section>
+
+  <!-- ------------------------------------------------------------------ type -->
+  <section aria-labelledby="h-type">
+    <h2 class="t-title" id="h-type">Type</h2>
+    <div class="scale-row"><code>Display 44/1.05 500</code><span class="t-display">The wall, as a record</span></div>
+    <div class="scale-row"><code>Title 22/1.2 600</code><span class="t-title">Review the photograph</span></div>
+    <div class="scale-row"><code>Note 18/1.3 500</code><span class="t-note">Onboarding loses people at step two</span></div>
+    <div class="scale-row"><code>Body 15/1.5 400</code><span class="t-body">Everything the assistant makes is proposed until a person accepts it.</span></div>
+    <div class="scale-row"><code>Small 13/1.4 500</code><span class="t-small">Typed by Jo, not yet accepted</span></div>
+    <div class="scale-row"><code>Mono 12/1.4 400</code><span class="t-mono">14:02 · accepted by Sam · 3 notes · item_01HZX</span></div>
+    <p class="t-small muted">The projector setting (<code>data-projector</code> on the root) multiplies every size by 1.25 through <code>--scale</code>.</p>
+    <button class="btn btn-secondary btn-sm" type="button" id="toggle-projector" aria-pressed="false">Projector: off</button>
+  </section>
+
+  <!-- ------------------------------------------------- space, shape, depth -->
+  <section aria-labelledby="h-space">
+    <h2 class="t-title" id="h-space">Space, shape, depth</h2>
+    <div data-spaces="--space-1 --space-2 --space-3 --space-4 --space-5 --space-6 --space-7 --space-8"></div>
+    <h3>Radii and the one shadow</h3>
+    <div class="line">
+      <span class="chip">--r-sm on a chip</span>
+      <span class="note" style="width: var(--note-w-narrow)"><span class="text">--r-lg on a note</span></span>
+      <span class="segmented"><button type="button" aria-pressed="true">A toggle</button><button type="button" aria-pressed="false">is a pill</button></span>
+      <span class="dock"><span class="dock-readout">--shadow</span></span>
+    </div>
+  </section>
+
+  <!-- -------------------------------------------------------------- buttons -->
+  <section aria-labelledby="h-buttons">
+    <h2 class="t-title" id="h-buttons">Buttons</h2>
+    <h3>Default size</h3>
+    <div class="line">
+      <button class="btn btn-primary" type="button">Photograph the wall</button>
+      <button class="btn btn-secondary" type="button">Listen</button>
+      <button class="btn btn-quiet" type="button">Pause</button>
+      <button class="btn btn-danger" type="button">Delete session</button>
+      <button class="btn btn-danger-fill" type="button">Delete session</button>
+    </div>
+    <h3>Small and large</h3>
+    <div class="line">
+      <button class="btn btn-primary btn-sm" type="button">Accept</button>
+      <button class="btn btn-secondary btn-sm" type="button">Correct</button>
+      <button class="btn btn-quiet btn-sm" type="button">Reject</button>
+      <button class="btn btn-primary btn-lg" type="button">Start capture</button>
+      <button class="btn btn-secondary btn-lg" type="button">Start session</button>
+    </div>
+    <h3>Disabled, and the focus ring (2px ink at 2px)</h3>
+    <div class="line">
+      <button class="btn btn-primary" type="button" disabled>Agree</button>
+      <button class="btn btn-secondary" type="button" disabled>Record a sample</button>
+      <button class="btn btn-secondary ring-demo" type="button">Focused</button>
+    </div>
+  </section>
+
+  <!-- ---------------------------------------------------------------- chips -->
+  <section aria-labelledby="h-chips">
+    <h2 class="t-title" id="h-chips">Chips</h2>
+    <div class="line">
+      <span class="chip chip-listening"><span class="bars" aria-hidden="true"><i></i><i></i><i></i></span>listening <span class="t-mono">12:04</span></span>
+      <span class="chip chip-paused">paused</span>
+      <span class="chip chip-ended">ended</span>
+      <span class="chip chip-count">3</span>
+      <span class="chip">everyone agreed</span>
+    </div>
+    <p class="t-small muted">The three bars are the only thing that moves on its own, and only without reduced motion.</p>
+    <h3>Legacy status marks, kept for the scripts until phase 3</h3>
+    <div class="line">
+      <span class="status st-capturing"><i class="glyph glyph-capturing" aria-hidden="true"></i><span class="word">Recording</span></span>
+      <span class="status st-provisional"><i class="glyph glyph-provisional" aria-hidden="true"></i><span class="word">Proposed</span></span>
+      <span class="status st-accepted"><i class="glyph glyph-accepted" aria-hidden="true"></i><span class="word">Accepted</span></span>
+      <span class="status st-waiting"><i class="glyph glyph-waiting" aria-hidden="true"></i><span class="word">Waiting</span></span>
+      <span class="status st-failed"><i class="glyph glyph-failed" aria-hidden="true"></i><span class="word">Failed</span></span>
+      <span class="status st-off"><i class="glyph glyph-off" aria-hidden="true"></i><span class="word">Off</span></span>
+    </div>
+  </section>
+
+  <!-- ------------------------------------------------------- tabs, toggle -->
+  <section aria-labelledby="h-tabs">
+    <h2 class="t-title" id="h-tabs">Tabs and the view toggle</h2>
+    <nav class="tabs" role="tablist" aria-label="Example">
+      <button type="button" role="tab" aria-selected="true">Review <span class="count">4</span></button>
+      <button type="button" role="tab" aria-selected="false">Transcript</button>
+      <button type="button" role="tab" aria-selected="false">People</button>
+    </nav>
+    <h3>View toggle</h3>
+    <div class="segmented" role="group" aria-label="View">
+      <button type="button" aria-pressed="true">Canvas</button>
+      <button type="button" aria-pressed="false">List</button>
+    </div>
+  </section>
+
+  <!-- --------------------------------------------------------------- fields -->
+  <section aria-labelledby="h-fields">
+    <h2 class="t-title" id="h-fields">Fields</h2>
+    <div class="field-demo" style="display: flex; flex-direction: column; gap: var(--space-4)">
+      <label class="field"><span>Your name</span><input value="Jo"></label>
+      <label class="field"><span>Invitation</span><input placeholder="Paste the code"><span class="hint">The code the facilitator gives you, for one person, once.</span></label>
+      <label class="field"><span>Correction</span><textarea>Nobody reads the tooltip</textarea></label>
+      <label class="field"><span>Keep everything for</span><select><option>1 hour</option><option selected>24 hours</option></select></label>
+      <label class="field"><span>Disabled</span><input value="Notes can be added while capture runs" disabled></label>
+      <label class="field"><span>Focused</span><input class="ring-demo" value="The ring sits outside the edge"></label>
+      <label class="checkline"><input type="checkbox" checked><span class="t-body">I agree to this session being recorded</span></label>
+      <label class="checkline"><input type="checkbox"><span class="t-body">Include what was never reviewed</span></label>
+    </div>
+  </section>
+
+  <!-- ----------------------------------------------------------------- notes -->
+  <section aria-labelledby="h-notes">
+    <h2 class="t-title" id="h-notes">The note</h2>
+    <div class="canvas-sample">
+      <div class="notes">
+        <figure>
+          <article class="note note-proposed" style="--rot: -1.2deg"><span class="note-marker">proposed · read by fixture</span><span class="text">Too many fields before value</span><span class="meta">needs review</span></article>
+          <figcaption>proposed, --rot -1.2deg</figcaption>
+        </figure>
+        <figure>
+          <article class="note item item-pending" style="--rot: 0.8deg"><span class="badge st-off">Not yet reviewed</span><span class="kind">Note · typed</span><span class="text">Nobody reads the tooltip</span><span class="meta">Typed by Jo, not yet reviewed</span></article>
+          <figcaption>proposed (legacy item-pending)</figcaption>
+        </figure>
+        <figure>
+          <article class="note note-proposed" style="--rot: 9deg"><span class="note-marker">proposed</span><span class="text">Asked for 9 degrees, clamped to 1.5</span></article>
+          <figcaption>rotation clamped to 1.5deg</figcaption>
+        </figure>
+        <figure>
+          <article class="note note-accepted note-yellow"><span class="kind">Note · typed</span><span class="text">Onboarding loses people at step two</span><span class="note-stamp">accepted by Sam 14:02</span></article>
+          <figcaption>accepted, yellow (no category)</figcaption>
+        </figure>
+        <figure>
+          <article class="note note-accepted note-lilac"><span class="kind">Note · from photograph</span><span class="text">Ask the support team</span><span class="note-stamp">accepted by Sam 14:03</span></article>
+          <figcaption>accepted, lilac</figcaption>
+        </figure>
+        <figure>
+          <article class="note note-accepted note-mint"><span class="kind">Note · from photograph</span><span class="text">Test with five people</span><span class="note-stamp">accepted by Sam 14:03</span></article>
+          <figcaption>accepted, mint</figcaption>
+        </figure>
+        <figure>
+          <article class="note note-accepted note-periwinkle"><span class="kind">Note · from photograph</span><span class="text">Fewer steps</span><span class="note-stamp">accepted by Sam 14:04</span></article>
+          <figcaption>accepted, periwinkle</figcaption>
+        </figure>
+        <figure>
+          <article class="note note-accepted note-coral"><span class="kind">Note · quote</span><span class="text">“I gave up at the address form”</span><span class="note-stamp">accepted by Sam 14:05</span></article>
+          <figcaption>accepted, coral</figcaption>
+        </figure>
+        <figure>
+          <article class="note note-accepted note-corrected note-mint"><span class="kind">Note · retyped from photograph</span><span class="text">Test with five users</span><span class="note-stamp">corrected, accepted by Sam 14:06</span></article>
+          <figcaption>corrected: the corner mark</figcaption>
+        </figure>
+        <figure>
+          <article class="note note-accepted note-selected note-periwinkle"><span class="text">Selected</span><span class="note-stamp">accepted by Sam</span></article>
+          <figcaption>selected</figcaption>
+        </figure>
+        <figure>
+          <article class="note note-accepted note-dragging note-lilac"><span class="text">Being dragged</span><span class="note-stamp">accepted by Sam</span></article>
+          <figcaption>dragging: the one shadow</figcaption>
+        </figure>
+        <figure>
+          <article class="note note-accepted note-yellow"><span class="text">Details open</span><span class="note-stamp">accepted by Sam</span>
+            <div class="note-actions"><button class="btn btn-quiet btn-sm" type="button" aria-expanded="true">Hide details</button></div>
+            <div class="details"><dl class="facts"><dt>Written by</dt><dd>Jo</dd><dt>Accepted by</dt><dd>Sam</dd><dt>Position</dt><dd>Placed by a person</dd></dl></div>
+          </article>
+          <figcaption>details open</figcaption>
+        </figure>
+        <figure>
+          <article class="note note-parked note-coral"><span class="text">Parked for later</span><span class="note-stamp">accepted by Sam</span></article>
+          <figcaption>parked: soft, straight</figcaption>
+        </figure>
+      </div>
+    </div>
+    <h3>Motion: landing, accepting, rejecting (instant with reduced motion)</h3>
+    <div class="line">
+      <button class="btn btn-secondary btn-sm" type="button" data-play="note-landing">Land</button>
+      <button class="btn btn-secondary btn-sm" type="button" data-play="note-accepting">Accept</button>
+      <button class="btn btn-secondary btn-sm" type="button" data-play="note-rejecting">Reject</button>
+    </div>
+    <div class="canvas-sample" style="margin-top: var(--space-3)">
+      <article class="note note-proposed note-mint" id="motion-note" style="--rot: 1.2deg; width: var(--note-w-default)"><span class="note-marker">proposed</span><span class="text">Watch me</span></article>
+    </div>
+  </section>
+
+  <!-- ----------------------------------------------------------- canvas marks -->
+  <section aria-labelledby="h-marks">
+    <h2 class="t-title" id="h-marks">Canvas marks</h2>
+    <div class="canvas-sample marks">
+      <svg viewBox="0 0 960 220" role="img" aria-label="Connectors and strokes: a person's in ink, a machine's proposed ones dashed">
+        <path class="connector" d="M 40 60 C 160 60, 160 160, 280 160"/>
+        <g class="connector-directed">
+          <path class="connector" d="M 340 60 C 460 60, 460 160, 580 160"/>
+          <path class="connector-head" d="M 570 152 L 580 160 L 570 168"/>
+        </g>
+        <path class="ink-stroke" d="M 640 150 Q 660 60, 700 110 T 760 90 T 820 140"/>
+        <path class="connector machine-mark" d="M 40 200 C 160 200, 200 190, 280 190"/>
+        <path class="ink-stroke machine-mark" d="M 640 200 Q 680 170, 720 195 T 820 185"/>
+      </svg>
+      <span class="connector-label" style="left: 15%; top: 42%">leads to</span>
+    </div>
+    <p class="t-small muted">Top row: a person's connector, a directed connector with its open chevron, a freehand stroke, all ink at 85%. Bottom row: the machine mark, ink-3 and dashed.</p>
+  </section>
+
+  <!-- ------------------------------------------------------------------ dock -->
+  <section aria-labelledby="h-dock">
+    <h2 class="t-title" id="h-dock">The dock</h2>
+    <div class="dock" role="toolbar" aria-label="Canvas tools (example)">
+      <button class="dock-button" type="button" aria-pressed="true" aria-label="Select"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 3 L5 16 L9 12 L12 17 L14 16 L11 11 L16 11 Z"/></svg></button>
+      <button class="dock-button" type="button" aria-pressed="false" aria-label="Draw"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 15 Q 7 5, 10 10 T 17 6"/></svg></button>
+      <button class="dock-button" type="button" aria-pressed="false" aria-label="Erase"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 13 L10 7 L15 12 L11 16 L6 16 Z M8 16 L17 16"/></svg></button>
+      <button class="dock-button" type="button" aria-pressed="false" aria-label="Connect"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="5" cy="5" r="2"/><circle cx="15" cy="15" r="2"/><path d="M7 5 C 12 5, 8 15, 13 15"/></svg></button>
+      <span class="dock-sep" aria-hidden="true"></span>
+      <button class="dock-button" type="button" aria-label="Zoom out"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 10 L15 10"/></svg></button>
+      <span class="dock-readout">100%</span>
+      <button class="dock-button" type="button" aria-label="Zoom in"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 10 L15 10 M10 5 L10 15"/></svg></button>
+      <button class="dock-button" type="button">Fit</button>
+      <span class="dock-sep" aria-hidden="true"></span>
+      <span class="segmented"><button type="button" aria-pressed="true">Canvas</button><button type="button" aria-pressed="false">List</button></span>
+    </div>
+  </section>
+</main>
+
+<script type="module">
+// Read each token's value from the page, so the numbers shown are the ones
+// the browser computed from tokens.css.
+const probe = value => {
+  const el = document.createElement("i");
+  el.style.color = value;
+  document.body.append(el);
+  const out = getComputedStyle(el).color;
+  el.remove();
+  return out;
+};
+const channels = css => {
+  const srgb = css.match(/color\(srgb ([\d.]+) ([\d.]+) ([\d.]+)(?: \/ ([\d.]+))?\)/);
+  if (srgb) return [srgb[1], srgb[2], srgb[3]].map(v => Number(v) * 255).concat(Number(srgb[4] ?? 1));
+  const rgb = css.match(/rgba?\(([\d.]+), ([\d.]+), ([\d.]+)(?:, ([\d.]+))?\)/);
+  return [rgb[1], rgb[2], rgb[3]].map(Number).concat(Number(rgb[4] ?? 1));
+};
+const hex = c => "#" + c.slice(0, 3).map(v => Math.round(v).toString(16).padStart(2, "0")).join("");
+const lin = v => { v /= 255; return v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; };
+const lum = c => 0.2126 * lin(c[0]) + 0.7152 * lin(c[1]) + 0.0722 * lin(c[2]);
+const ratio = (a, b) => { const [x, y] = [lum(a), lum(b)]; return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); };
+const ink = channels(probe("var(--ink)")), paper = channels(probe("var(--paper)"));
+
+for (const box of document.querySelectorAll("[data-swatches]")) {
+  for (const name of box.dataset.swatches.split(" ")) {
+    const c = channels(probe(`var(${name})`));
+    const onInk = ratio(ink, c), onPaper = ratio(paper, c);
+    const text = onInk >= onPaper ? "var(--ink)" : "var(--paper)";
+    const card = document.createElement("div");
+    card.className = "swatch-card";
+    card.innerHTML = `<div class="chipline t-small" style="background: var(${name}); color: ${text}">${name}</div>
+      <code>${hex(c)}${c[3] < 1 ? ` at ${Math.round(c[3] * 100)}%` : ""} · ${text === "var(--ink)" ? "ink" : "paper"} on it ${Math.max(onInk, onPaper).toFixed(2)}:1</code>`;
+    box.append(card);
+  }
+}
+for (const box of document.querySelectorAll("[data-spaces]")) {
+  for (const name of box.dataset.spaces.split(" ")) {
+    const row = document.createElement("div");
+    row.className = "scale-row";
+    row.innerHTML = `<code>${name}</code><div class="space-bar" style="width: var(${name})"></div>`;
+    box.append(row);
+  }
+}
+for (const b of document.querySelectorAll("[data-play]")) {
+  b.addEventListener("click", () => {
+    const note = document.getElementById("motion-note");
+    note.classList.remove("note-landing", "note-accepting", "note-rejecting", "note-proposed", "note-accepted");
+    void note.offsetWidth;
+    if (b.dataset.play === "note-accepting") note.classList.add("note-accepted");
+    else note.classList.add("note-proposed");
+    note.classList.add(b.dataset.play);
+  });
+}
+const projector = document.getElementById("toggle-projector");
+projector.addEventListener("click", () => {
+  const on = !("projector" in document.documentElement.dataset);
+  if (on) document.documentElement.dataset.projector = ""; else delete document.documentElement.dataset.projector;
+  projector.setAttribute("aria-pressed", String(on));
+  projector.textContent = on ? "Projector: on" : "Projector: off";
+});
+</script>
+</body>
+</html>
