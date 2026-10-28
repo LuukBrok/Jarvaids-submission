@@ -52,15 +52,21 @@ See [SOURCE-PROVENANCE.md](SOURCE-PROVENANCE.md) for this snapshot's own checks.
 
 ## GitHub handoff
 
-The public source submission is
+The source submission is the **private** repository
 [LuukBrok/Jarvaids-submission](https://github.com/LuukBrok/Jarvaids-submission).
-Share this URL with the course team. Its code can be viewed and downloaded
-without a GitHub invitation. The original development repository remains private;
-its earlier research history is excluded from this submission.
+Share this URL in Brightspace after inviting the assessors. They must sign in
+with the GitHub account that accepted the invitation. Repository access is not
+granted merely by possessing the URL. The original development repository also
+remains private; its earlier research history is excluded from this submission.
 
-- Public submission: verify the final link opens while signed out.
-- Private submission: the owner must grant course-team access and have them
-  verify the link from their own account.
+- Invite each assessor using their GitHub username or GitHub-linked email,
+  via Settings > Collaborators > Add people.
+- Ask the invited assessor to accept and verify access from their own account.
+  There is no general anyone-with-the-link invitation for this private repository.
+- A personal-repository collaborator has write as well as read access; GitHub
+  does not offer a separate read-only collaborator role for personal repositories.
+- If recipient accounts are unavailable, submit the source ZIP through Brightspace
+  as the course's alternative source-code route.
 - Record the published commit in the Brightspace source-link entry so the
   assessed version is unambiguous.
 - Do not upload `.env`, `.local`, raw evidence or installed model/runtime files.
