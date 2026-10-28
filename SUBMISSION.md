@@ -52,9 +52,11 @@ See [SOURCE-PROVENANCE.md](SOURCE-PROVENANCE.md) for this snapshot's own checks.
 
 ## GitHub handoff
 
-Publish this fresh-history snapshot to a dedicated submission repository. Making
-the original development repository public would expose the earlier research
-history excluded here.
+The public source submission is
+[LuukBrok/Jarvaids-submission](https://github.com/LuukBrok/Jarvaids-submission).
+Share this URL with the course team. Its code can be viewed and downloaded
+without a GitHub invitation. The original development repository remains private;
+its earlier research history is excluded from this submission.
 
 - Public submission: verify the final link opens while signed out.
 - Private submission: the owner must grant course-team access and have them
@@ -63,5 +65,6 @@ history excluded here.
   assessed version is unambiguous.
 - Do not upload `.env`, `.local`, raw evidence or installed model/runtime files.
 
-Publication and access verification remain pending. No final submission URL is
-claimed until both steps are complete.
+The repository URL is the source-code hand-in link. It is not a hosted instance
+of the running tool; setup and the separate saved demonstration remain as
+described above.

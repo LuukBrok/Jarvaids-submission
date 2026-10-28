@@ -23,8 +23,16 @@ and provenance guides, ignore patterns and this work package's log entries.
 Runtime source is unchanged from the integrated commit. Older guides remain
 dated development records; setup starts at README.md.
 
-Publication and access verification remain pending. This local preparation has
-no configured remote and is not yet a link the course team can open.
+## Published repository
+
+The source submission is published at
+[LuukBrok/Jarvaids-submission](https://github.com/LuukBrok/Jarvaids-submission).
+Luuk explicitly authorised public publication on 28 October 2026. The repository
+was created as public, with fresh submission history and no development-history
+objects. The original private development repository remains unchanged.
+
+Use the repository URL for the Brightspace source-link entry. GitHub's commit
+history identifies the exact submitted source revision.
 
 ## Submission checks
 
