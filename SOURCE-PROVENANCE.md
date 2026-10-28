@@ -27,11 +27,10 @@ dated development records; setup starts at README.md.
 
 The source submission is published at
 [LuukBrok/Jarvaids-submission](https://github.com/LuukBrok/Jarvaids-submission).
-The repository is **private**, as requested by Luuk on 28 October 2026. It was
-briefly public during initial publication before that correction. It has fresh
-submission history and no development-history objects. The original private
-development repository remains unchanged. Assessors require individual GitHub
-invitations before they can open the submission repository.
+The repository is **public**, explicitly authorised by Luuk on 28 October 2026.
+Unauthenticated access was verified. The source can be viewed and downloaded
+without an invitation. It has fresh submission history and no development-history
+objects. The original private development repository remains unchanged.
 
 Use the repository URL for the Brightspace source-link entry. GitHub's commit
 history identifies the exact submitted source revision.
